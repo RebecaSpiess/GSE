@@ -19,7 +19,7 @@
 <body class="bg-dark">
   <div class="container">
     <div class="card card-login mx-auto mt-5">
-      <div class="card-header">Login</div>
+      <div class="card-header">GSE - Login</div>
       <div class="card-body">
         <form>
           <div class="form-group">
@@ -36,11 +36,10 @@
                 <input class="form-check-input" type="checkbox"> Lembrar senha</label>
             </div>
           </div>
-          <a class="btn btn-primary btn-block" href="index.html">Login</a>
+          <a class="btn btn-primary btn-block" href="index.php">Login</a>
         </form>
         <div class="text-center">
-          <a class="d-block small mt-3" href="register.html">Registrar-se</a>
-          <a class="d-block small" href="forgot-password.html">Esqueci a senha</a>
+          <a class="d-block small" href="forgot-password.php">Esqueci a senha</a>
         </div>
       </div>
     </div>
