@@ -46,7 +46,7 @@
 						<li><a href="aluno_ocorrencias.php">Ocorrências</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
-					title="Charts"><a class="nav-link" href="charts.html"> <i
+					title="Charts"><a class="nav-link" href="avisos.html"> <i
 						class="fa fa-fw fa-area-chart"></i> <span class="nav-link-text">Avisos</span>
 				</a></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
