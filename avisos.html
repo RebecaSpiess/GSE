@@ -32,9 +32,9 @@
 						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Alunos</span>
 				</a>
 									<ul class="sidenav-second-level collapse" id="collapseExamplePages">
-						<li><a href="login.html">Cadastro</a></li>
-						<li><a href="register.html">Notas</a></li>
-						<li><a href="forgot-password.html">Ocorrências</a></li>
+						<li><a href="aluno_cadastro.php">Cadastro</a></li>
+						<li><a href="aluno_notas.php">Notas</a></li>
+						<li><a href="ocorrencias_cadastro_busca.php">Ocorrências</a></li>
 					</ul></li>
 					<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Charts"><a class="nav-link" href="avisos.html"> <i
@@ -48,7 +48,7 @@
 				</a>
        <ul class="sidenav-second-level collapse"
 						id="collapseExamplePages1">
-						<li><a href="login.php">Cadastro</a></li>
+						<li><a href="disciplina_cadastro.php">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -134,40 +134,29 @@
         <li class="breadcrumb-item">
           <a href="#">Avisos</a>
         </li>
-        <li class="breadcrumb-item active">Charts</li>
+        <li class="breadcrumb-item active">Quadro de avisos</li>
       </ol>
       <!-- Area Chart Example-->
       <div class="card mb-3">
         <div class="card-header">
-          <i class="fa fa-area-chart"></i> Area Chart Example</div>
+          <i class="fa fa-area-chart"></i> Enviar aviso</div>
         <div class="card-body">
           <canvas id="myAreaChart" width="100%" height="30"></canvas>
         </div>
-        <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
       </div>
       <div class="row">
         <div class="col-lg-8">
           <!-- Example Bar Chart Card-->
           <div class="card mb-3">
             <div class="card-header">
-              <i class="fa fa-bar-chart"></i> Bar Chart Example</div>
+              <i class="fa fa-bar-chart"></i> Avisos recebidos</div>
             <div class="card-body">
-              <canvas id="myBarChart" width="100" height="50"></canvas>
+              <canvas id="myBarChart" width="100%" height="30"></canvas>
             </div>
-            <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+            <div class="card-footer small text-muted">Atualizado em </div>
           </div>
         </div>
-        <div class="col-lg-4">
-          <!-- Example Pie Chart Card-->
-          <div class="card mb-3">
-            <div class="card-header">
-              <i class="fa fa-pie-chart"></i> Pie Chart Example</div>
-            <div class="card-body">
-              <canvas id="myPieChart" width="100%" height="100"></canvas>
-            </div>
-            <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
-          </div>
-        </div>
+        <div class="col-lg-8">
       </div>
     </div>
     <!-- /.container-fluid-->
@@ -188,15 +177,16 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+            <h5 class="modal-title" id="exampleModalLabel">Deseja mesmo sair?</h5>
             <button class="close" type="button" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">×</span>
             </button>
           </div>
-          <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+          <div class="modal-body">Selecione "Sair" abaixo, caso você esteja 
+					pornto para encerrar a seção atual.</div>
           <div class="modal-footer">
-            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-            <a class="btn btn-primary" href="login.html">Logout</a>
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+            <a class="btn btn-primary" href="login.php">Sair</a>
           </div>
         </div>
       </div>

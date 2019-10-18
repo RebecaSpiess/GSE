@@ -153,7 +153,7 @@
           <div class="form-group">
             <div class="form-row">
               <div class="col-md-6">
-                <label for="exampleInputName">Nome</label>
+                <label for="exampleInputName">Nome*</label>
                 <input class="form-control" id="exampleInputName" type="text" aria-describedby="nameHelp" placeholder="Nome">
               </div>
               <div class="col-md-6">

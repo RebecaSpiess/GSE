@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,7 +7,7 @@
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - P�gina inicial</title>
+<title>GSE - Cadastro de frequ�ncia de alunos</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -41,12 +40,12 @@
 						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Alunos</span>
 				</a>
 					<ul class="sidenav-second-level collapse" id="collapseExamplePages">
-						<li><a href="aluno_cadastro.php">Cadastro</a></li>
-						<li><a href="aluno_notas.php">Notas</a></li>
-						<li><a href="aluno_ocorrencias.php">Ocorrências</a></li>
+						<li><a href="login.html">Cadastro</a></li>
+						<li><a href="register.html">Notas</a></li>
+						<li><a href="forgot-password.html">Ocorrências</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
-					title="Charts"><a class="nav-link" href="avisos.html"> <i
+					title="Charts"><a class="nav-link" href="charts.html"> <i
 						class="fa fa-fw fa-area-chart"></i> <span class="nav-link-text">Avisos</span>
 				</a></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
@@ -57,7 +56,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages1">
-						<li><a href="disciplina_cadastro.php">Cadastro</a></li>
+						<li><a href="login.html">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -67,7 +66,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
-						<li><a href="frequencia_cadastro.php">Cadastro</a></li>
+						<li><a href="login.html">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -77,8 +76,8 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
-						<li><a href="aluno_notas.php">Cadastro</a></li>
-						<li><a href="relatorio.html">Gerar relatório</a></li>
+						<li><a href="login.html">Cadastro</a></li>
+						<li><a href="register.html">Gerar relatório</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -99,7 +98,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages5">
-						<li><a href="ocorrencias_cadastro_busca.php">Cadastro</a></li>
+						<li><a href="login.html">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Charts"><a class="nav-link" href="charts.html"> <i
@@ -113,7 +112,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages6">
-						<li><a href="servidores_cadastro.php">Cadastro</a></li>
+						<li><a href="login.html">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -123,7 +122,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages7">
-						<li><a href="turma_cadastro.php">Cadastro</a></li>
+						<li><a href="login.html">Cadastro</a></li>
 					</ul></li>
 			</ul>
 			<ul class="navbar-nav sidenav-toggler">
@@ -138,15 +137,65 @@
 			</ul>
 		</div>
 	</nav>
-	<div class="content-wrapper">
-		<div class="container-fluid">
-		<div style=" margin: auto; width: 50%;  padding: 10px; padding: 15% 0; height=152px" >
-			<img src="imagens/GSE.png" height="152px" width="596px"  />
-		</div>
-		
-		
-		</div>
-	</div>
+	 <div class="content-wrapper">
+    <div class="container-fluid">
+      <!-- Breadcrumbs-->
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          Alunos
+        </li>
+        <li class="breadcrumb-item active">Cadastro</li>
+      </ol>
+       <div class="container">
+    <div>
+      <div class="card-body">
+        <form>
+          <div class="form-group">
+            <div class="form-row">
+              <div class="col-md-6">
+                <label for="exampleInputName">Nome</label>
+                <input class="form-control" id="exampleInputName" type="text" aria-describedby="nameHelp" placeholder="Nome">
+              </div>
+              <div class="col-md-6">
+                <label for="exampleInputLastName">Sobrenome</label>
+                <input class="form-control" id="exampleInputLastName" type="text" aria-describedby="nameHelp" placeholder="Sobrenome">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="exampleInputEmail1">Endereço de E-Mail</label>
+            <input class="form-control" id="exampleInputEmail1" type="email" aria-describedby="emailHelp" placeholder="Endereço de E-Mail">
+          </div>
+          <div class="form-group">
+            <div class="form-row">
+              <div class="col-md-6">
+                <label for="exampleInputName">Data de nascimento</label>
+                <input class="form-control" id="exampleInputName" type="date" aria-describedby="nameHelp" placeholder="Data de nascimento">
+              </div>
+              <div class="col-md-6">
+                <label for="exampleInputLastName">Sexo</label>
+                <select class="form-control" id="exampleInputLastName" aria-describedby="nameHelp" placeholder="Sexo" >
+  						<option value="M">Masculino</option>
+  						<option value="F">Feminino</option>
+				</select>
+				</div>
+              <div class="col-md-6">
+                <label for="exampleInputLastName">Turma</label>
+                <select class="form-control" id="exampleInputLastName" aria-describedby="nameHelp" placeholder="Sexo" >
+  						<option value="T1">Primeiro ano 1</option>
+  						<option value="T2">Primeiro ano 2</option>
+				</select>
+                
+                
+              </div>
+            </div>
+          </div>
+          <a class="btn btn-primary btn-block" href="login.html">Cadastrar</a>
+        </form>
+      </div>
+    </div>
+  </div>
+    </div>
 	<!-- /.container-fluid-->
 	<!-- /.content-wrapper-->
 	<footer class="sticky-footer">
@@ -172,7 +221,7 @@
 						<span aria-hidden="true">×</span>
 					</button>
 				</div>
-				<div class="modal-body">Selecione "Sair" abaixo, caso você esteja 
+				<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja 
 					pornto para encerrar a seção atual.</div>
 				<div class="modal-footer">
 					<button class="btn btn-secondary" type="button"

@@ -153,27 +153,27 @@
           <div class="form-group">
             <div class="form-row">
               <div class="col-md-6">
-                <label for="exampleInputName">Nome</label>
+                <label for="exampleInputName">Nome*</label>
                 <input class="form-control" id="exampleInputName" type="text" aria-describedby="nameHelp" placeholder="Nome">
               </div>
               <div class="col-md-6">
-                <label for="exampleInputLastName">Sobrenome</label>
+                <label for="exampleInputLastName">Sobrenome*</label>
                 <input class="form-control" id="exampleInputLastName" type="text" aria-describedby="nameHelp" placeholder="Sobrenome">
               </div>
             </div>
           </div>
           <div class="form-group">
-            <label for="exampleInputEmail1">Endereço de E-Mail</label>
+            <label for="exampleInputEmail1">Endereço de E-Mail*</label>
             <input class="form-control" id="exampleInputEmail1" type="email" aria-describedby="emailHelp" placeholder="Endereço de E-Mail">
           </div>
           <div class="form-group">
             <div class="form-row">
               <div class="col-md-6">
-                <label for="exampleInputName">Data de nascimento</label>
+                <label for="exampleInputName">Data de nascimento*</label>
                 <input class="form-control" id="exampleInputName" type="date" aria-describedby="nameHelp" placeholder="Data de nascimento">
               </div>
               <div class="col-md-6">
-                <label for="exampleInputLastName">Sexo</label>
+                <label for="exampleInputLastName">Sexo*</label>
                 <select class="form-control" id="exampleInputLastName" aria-describedby="nameHelp" placeholder="Sexo" >
   						<option value="M">Masculino</option>
   						<option value="F">Feminino</option>
@@ -188,12 +188,12 @@
                 <input class="form-control" id="exampleInputName" type="text" aria-describedby="nameHelp" placeholder="Telefone">
               </div>
               <div class="col-md-6">
-                <label for="exampleInputLastName">CPF</label>
+                <label for="exampleInputLastName">CPF*</label>
                 <input class="form-control" id="exampleInputLastName" type="text" aria-describedby="nameHelp" placeholder="CPF">
               </div>
             </div>
           </div>
-          <a class="btn btn-primary btn-block" href="login.html">Registrar</a>
+          <a class="btn btn-primary btn-block" href="login.html">Cadastrar</a>
         </form>
       </div>
     </div>
