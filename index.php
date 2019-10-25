@@ -46,7 +46,7 @@
 						<li><a href="aluno_ocorrencias.php">Ocorrências</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
-					title="Charts"><a class="nav-link" href="avisos.html"> <i
+					title="Charts"><a class="nav-link" href="avisos.php"> <i
 						class="fa fa-fw fa-area-chart"></i> <span class="nav-link-text">Avisos</span>
 				</a></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
@@ -89,7 +89,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages4">
-						<li><a href="login.html">Cadastro</a></li>
+						<li><a href="plano_aula_cadastro.php">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -102,7 +102,7 @@
 						<li><a href="ocorrencias_cadastro_busca.php">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
-					title="Charts"><a class="nav-link" href="charts.html"> <i
+					title="Charts"><a class="nav-link" href="relatorio.php"> <i
 						class="fa fa-fw fa-area-chart"></i> <span class="nav-link-text">Relatório</span>
 				</a></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"

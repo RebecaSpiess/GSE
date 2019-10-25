@@ -7,7 +7,7 @@
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Notas de aluno</title>
+<title>GSE - Cadastro de Plano de aula</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -40,7 +40,7 @@
 						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Alunos</span>
 				</a>
 					<ul class="sidenav-second-level collapse" id="collapseExamplePages">
-						<li><a href="aluno_cadastrar.php">Cadastro</a></li>
+						<li><a href="aluno_cadastro.php">Cadastro</a></li>
 						<li><a href="aluno_notas.php">Notas</a></li>
 						<li><a href="aluno_ocorrencias.php">Ocorrências</a></li>
 					</ul></li>
@@ -66,7 +66,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
-						<li><a href="frequencia_cadasro.php">Cadastro</a></li>
+						<li><a href="frequencia_cadastro.php">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -88,7 +88,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages4">
-						<li><a href="login.html">Cadastro</a></li>
+						<li><a href="plano_aula_cadastro.php">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -112,7 +112,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages6">
-						<li><a href="servidores_cadastro.php">Cadastro</a></li>
+						<li><a href="serviores_cadastro.php">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -142,50 +142,23 @@
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          Alunos
+          Plano de aula
         </li>
-        <li class="breadcrumb-item active">Notas</li>
+        <li class="breadcrumb-item active">Cadastro</li>
       </ol>
        <div class="container">
     <div>
       <div class="card-body">
         <form>
-          <div class="form-group">
+            <div class="form-group">
             <div class="form-row">
-              <div class="col-md-6">
-                <label for="exampleInputName">Nome</label>
-                <input class="form-control" id="exampleInputName" type="text" aria-describedby="nameHelp" placeholder="Nome">
               </div>
               <div class="col-md-6">
-                <label for="exampleInputLastName">Sobrenome</label>
-                <input class="form-control" id="exampleInputLastName" type="text" aria-describedby="nameHelp" placeholder="Sobrenome">
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="exampleInputEmail1">Endereço de E-Mail</label>
-            <input class="form-control" id="exampleInputEmail1" type="email" aria-describedby="emailHelp" placeholder="Endereço de E-Mail">
-          </div>
-          <div class="form-group">
-            <div class="form-row">
-              <div class="col-md-6">
-                <label for="exampleInputName">Data de nascimento</label>
-                <input class="form-control" id="exampleInputName" type="date" aria-describedby="nameHelp" placeholder="Data de nascimento">
-              </div>
-              <div class="col-md-6">
-                <label for="exampleInputLastName">Sexo</label>
+                <label for="exampleInputLastName">Turma*</label>
                 <select class="form-control" id="exampleInputLastName" aria-describedby="nameHelp" placeholder="Sexo" >
-  						<option value="M">Masculino</option>
-  						<option value="F">Feminino</option>
-				</select>      
-              </div>
-              </div>
-              <div class="col-md-6">
-                <label for="exampleInputLastName">Turma</label>
-                <select class="form-control" id="exampleInputLastName" aria-describedby="nameHelp" placeholder="Sexo" >
-  						<option value="T1">Turma 01</option>
-  						<option value="T2">Turma 02</option>
-				</select>      
+  						<option value="T1">Primeiro ano</option>
+  						<option value="T2">Segundo ano</option>
+				</select>
               </div>
             </div>
           </div>

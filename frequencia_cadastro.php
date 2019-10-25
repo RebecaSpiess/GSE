@@ -40,9 +40,9 @@
 						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Alunos</span>
 				</a>
 					<ul class="sidenav-second-level collapse" id="collapseExamplePages">
-						<li><a href="login.html">Cadastro</a></li>
-						<li><a href="register.html">Notas</a></li>
-						<li><a href="forgot-password.html">Ocorrências</a></li>
+						<li><a href="aluno_cadastro.php">Cadastro</a></li>
+						<li><a href="aluno_nota.php">Notas</a></li>
+						<li><a href="aluno_ocorrencia.php">Ocorrências</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Charts"><a class="nav-link" href="charts.html"> <i
@@ -56,7 +56,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages1">
-						<li><a href="login.html">Cadastro</a></li>
+						<li><a href="disciplina_cadastro.php">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -66,7 +66,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
-						<li><a href="login.html">Cadastro</a></li>
+						<li><a href="frequencia_cadastro.php">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -76,8 +76,8 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
-						<li><a href="login.html">Cadastro</a></li>
-						<li><a href="register.html">Gerar relatório</a></li>
+						<li><a href="aluno_notas.php">Cadastro</a></li>
+						<li><a href="relatorio.php">Gerar relatório</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -88,7 +88,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages4">
-						<li><a href="login.html">Cadastro</a></li>
+						<li><a href="plano_aula_cadastro.php">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -98,10 +98,10 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages5">
-						<li><a href="login.html">Cadastro</a></li>
+						<li><a href="ocorrencias_cadastro_busca.php">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
-					title="Charts"><a class="nav-link" href="charts.html"> <i
+					title="Charts"><a class="nav-link" href="relatorio.php"> <i
 						class="fa fa-fw fa-area-chart"></i> <span class="nav-link-text">Relatório</span>
 				</a></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
@@ -112,7 +112,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages6">
-						<li><a href="login.html">Cadastro</a></li>
+						<li><a href="servidores_cadstro.php">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -122,7 +122,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages7">
-						<li><a href="login.html">Cadastro</a></li>
+						<li><a href="turma_cadastro.php">Cadastro</a></li>
 					</ul></li>
 			</ul>
 			<ul class="navbar-nav sidenav-toggler">
