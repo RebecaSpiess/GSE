@@ -134,7 +134,7 @@
         <li class="breadcrumb-item">
           <a href="#">Relatorio</a>
         </li>
-        <li class="breadcrumb-item active">Estatísticas</li>
+        <li class="breadcrumb-item active">EstatÃ­sticas</li>
       </ol>
       <!-- Area Chart Example-->
       <div class="card mb-3">

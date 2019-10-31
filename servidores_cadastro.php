@@ -42,7 +42,7 @@
 					<ul class="sidenav-second-level collapse" id="collapseExamplePages">
 						<li><a href="login.html">Cadastro</a></li>
 						<li><a href="register.html">Notas</a></li>
-						<li><a href="forgot-password.html">Ocorrências</a></li>
+						<li><a href="forgot-password.html">OcorrÃªncias</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Charts"><a class="nav-link" href="charts.html"> <i

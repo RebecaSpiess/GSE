@@ -42,7 +42,7 @@
 					<ul class="sidenav-second-level collapse" id="collapseExamplePages">
 						<li><a href="aluno_cadastro.php">Cadastro</a></li>
 						<li><a href="aluno_notas.php">Notas</a></li>
-						<li><a href="aluno_ocorr�ncias.php">Ocorrências</a></li>
+						<li><a href="aluno_ocorrências.php">Ocorrências</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Charts"><a class="nav-link" href="avisos.php"> <i

@@ -157,7 +157,7 @@
                 <input class="form-control" id="exampleInputName" type="text" aria-describedby="nameHelp" placeholder="Nome da disciplina">
              </div>
               <div class="col-md-6">
-                <label for="exampleInputLastName">Professor respons·vel*</label>
+                <label for="exampleInputLastName">Professor respons√°vel*</label>
                 <select class="form-control" id="exampleInputLastName" aria-describedby="nameHelp" placeholder="Sexo" >
   						<option value="M">Maria Paula</option>
   						<option value="F">Luiz Glasen</option>

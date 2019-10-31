@@ -163,7 +163,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="exampleInputEmail1">Endereço de E-Mail do respons�vel*</label>
+            <label for="exampleInputEmail1">Endereço de E-Mail do responsável*</label>
             <input class="form-control" id="exampleInputEmail1" type="email" aria-describedby="emailHelp" placeholder="Endereço de E-Mail">
           </div>
           <div class="form-group">
@@ -215,7 +215,7 @@
 					</button>
 				</div>
 				<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja 
-					pornto para encerrar a seção atual.</div>
+					pronto para encerrar a seção atual.</div>
 				<div class="modal-footer">
 					<button class="btn btn-secondary" type="button"
 						data-dismiss="modal">Cancelar</button>
