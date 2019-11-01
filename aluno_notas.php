@@ -40,7 +40,7 @@
 						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Alunos</span>
 				</a>
 					<ul class="sidenav-second-level collapse" id="collapseExamplePages">
-						<li><a href="aluno_cadastrar.php">Cadastro</a></li>
+						<li><a href="aluno_cadastro.php">Cadastro</a></li>
 						<li><a href="aluno_notas.php">Notas</a></li>
 						<li><a href="aluno_ocorrencias.php">Ocorrências</a></li>
 					</ul></li>
@@ -173,15 +173,12 @@
                 <input class="form-control" id="exampleInputName" type="date" aria-describedby="nameHelp" placeholder="Data de nascimento">
               </div>
               <div class="col-md-6">
-                <label for="exampleInputLastName">Sexo</label>
-                <select class="form-control" id="exampleInputLastName" aria-describedby="nameHelp" placeholder="Sexo" >
-  						<option value="M">Masculino</option>
-  						<option value="F">Feminino</option>
-				</select>      
-              </div>
+                <label for="exampleInputLastName">Sexo*</label><br>
+                  <input type="radio" name="exampleInputLastName" value="homem" checked> Masculino<br>
+                  <input type="radio" name="exampleInputLastName" value="mulher"> Feminino<br>
               </div>
               <div class="col-md-6">
-                <label for="exampleInputLastName">Turma</label>
+                <label for="exampleInputLastName">Turma</label><br>
                 <select class="form-control" id="exampleInputLastName" aria-describedby="nameHelp" placeholder="Sexo" >
   						<option value="T1">Turma 01</option>
   						<option value="T2">Turma 02</option>
@@ -189,7 +186,7 @@
               </div>
             </div>
           </div>
-          <a class="btn btn-primary btn-block" href="">Buscar</a>
+          <a class="btn btn-primary btn-block" href="aluno_cadastro_notas.php">Buscar</a>
         </form>
       </div>
     </div>

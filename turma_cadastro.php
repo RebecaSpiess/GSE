@@ -172,6 +172,7 @@
             </div>
           </div>
           <a class="btn btn-primary btn-block" href="login.html">Cadastrar</a>
+          </div>
         </form>
       </div>
     </div>

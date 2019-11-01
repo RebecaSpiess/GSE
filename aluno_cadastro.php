@@ -173,17 +173,13 @@
                 <input class="form-control" id="exampleInputName" type="date" aria-describedby="nameHelp" placeholder="Data de nascimento">
               </div>
               <div class="col-md-6">
-                <label for="exampleInputLastName">Sexo*</label>
-                <select class="form-control" id="exampleInputLastName" aria-describedby="nameHelp" placeholder="Sexo" >
-  						<option value="M">Masculino</option>
-  						<option value="F">Feminino</option>
-				</select>
-                
-                
+                <label for="exampleInputLastName">Sexo*</label><br>
+                  <input type="radio" name="exampleInputLastName" value="homem" checked> Masculino<br>
+                  <input type="radio" name="exampleInputLastName" value="mulher"> Feminino<br>
               </div>
             </div>
           </div>
-          <a class="btn btn-primary btn-block" href="login.html">Cadastrar</a>
+          <a class="btn btn-primary btn-block" href="index.php">Cadastrar</a>
         </form>
       </div>
     </div>

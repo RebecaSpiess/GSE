@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,12 +7,20 @@
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Avisos</title>
+<style>
+table, th, td {
+	border: 1px solid black;
+}
+</style>
+<title>GSE - Notas de aluno</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
 <link href="vendor/font-awesome/css/font-awesome.min.css"
 	rel="stylesheet" type="text/css">
+<!-- Page level plugin CSS-->
+<link href="vendor/datatables/dataTables.bootstrap4.css"
+	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
 </head>
@@ -41,7 +48,7 @@
 					<ul class="sidenav-second-level collapse" id="collapseExamplePages">
 						<li><a href="aluno_cadastro.php">Cadastro</a></li>
 						<li><a href="aluno_notas.php">Notas</a></li>
-						<li><a href="ocorrencias_cadastro_busca.php">Ocorrências</a></li>
+						<li><a href="aluno_ocorrencias.php">Ocorrências</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Charts"><a class="nav-link" href="avisos.php"> <i
@@ -65,7 +72,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
-						<li><a href="frequencia_cadastro.php">Cadastro</a></li>
+						<li><a href="frequencia_cadasro.php">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -75,7 +82,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
-						<li><a href="aluno_cadastro.php">Cadastro</a></li>
+						<li><a href="aluno_notas.php">Cadastro</a></li>
 						<li><a href="relatorio.php">Gerar relatório</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
@@ -87,7 +94,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages4">
-						<li><a href="plano_aula_cadastro.php">Cadastro</a></li>
+						<li><a href="login.html">Cadastro</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -123,8 +130,11 @@
 						id="collapseExamplePages7">
 						<li><a href="turma_cadastro.php">Cadastro</a></li>
 					</ul></li>
-
-				</li>
+			</ul>
+			<ul class="navbar-nav sidenav-toggler">
+				<li class="nav-item"><a class="nav-link text-center"
+					id="sidenavToggler"> <i class="fa fa-fw fa-angle-left"></i>
+				</a></li>
 			</ul>
 			<ul class="navbar-nav ml-auto">
 				<li class="nav-item"><a class="nav-link" data-toggle="modal"
@@ -137,84 +147,95 @@
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="#">Avisos</a></li>
-				<li class="breadcrumb-item active">Quadro de avisos</li>
+				<li class="breadcrumb-item">Alunos</li>
+				<li class="breadcrumb-item active">Notas</li>
+				<li class="breadcrumb-item active">Cadastro</li>
 			</ol>
-			<div class="card mb-3">
-				<div class="card-header">
-					<i class="fa fa-area-chart"></i> Enviar aviso
-				</div>
-				<div class="col-md-6">
-					<label for="exampleInputName">Destinatário*</label> <input
-						class="form-control" id="exampleInputName" type="text"
-						aria-describedby="nameHelp" placeholder="Nome">
-				</div>
-				<div class="card-body">
-					<input class="form-control" id="exampleInputName" type="text"
-						aria-describedby="nameHelp" placeholder="descreva o aviso">
-				</div>
-				<a class="btn btn-primary btn-block" href="avisos.php">Enviar</a>
-			</div>
-			<div class="row">
-				<div class="col-lg-8">
-					<div class="card mb-3">
-						<div class="card-header">
-							<i class="fa fa-bar-chart"></i> Avisos recebidos
-						</div>
-						<div class="card-body">
-							<canvas id="myBarChart" width="100%" height="30"></canvas>
-						</div>
-						<div class="card-footer small text-muted">Atualizado em</div>
+			<div class="container">
+				<div>
+					<div class="card-body">
+						<form>
+							<div class="form-group">
+								<div class="form-row">
+									<table style="width: 100%">
+										<tr>
+											<th>Nome</th>
+											<th>Nota Prova 1</th>
+										</tr>
+										<tr>
+											<td>Ana Ramos</td>
+											<td><input class="form-control" id="exampleInputName"
+												type="number" aria-describedby="nameHelp" placeholder="Nota"></td>
+										</tr>
+										<tr>
+											<td>Breno</td>
+											<td><input class="form-control" id="exampleInputName"
+												type="number" aria-describedby="nameHelp" placeholder="Nota"></td></td>
+										</tr>
+										<tr>
+											<td>Cezar</td>
+											<td><input class="form-control" id="exampleInputName"
+												type="number" aria-describedby="nameHelp" placeholder="Nota"></td></td>
+										</tr>
+									</table>
+								</div>
+							</div>
+							<a class="btn btn-primary btn-block" href="index.php">Salvar</a>
+					</form>
 					</div>
 				</div>
 			</div>
-			<!-- /.container-fluid-->
-			<!-- /.content-wrapper-->
-			<footer class="sticky-footer">
-				<div class="container">
-					<div class="text-center">
-						<small>Copyright © Your Website 2018</small>
-					</div>
-				</div>
-			</footer>
-			<!-- Scroll to Top Button-->
-			<a class="scroll-to-top rounded" href="#page-top"> <i
-				class="fa fa-angle-up"></i>
-			</a>
-			<!-- Logout Modal-->
-			<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
-				aria-labelledby="exampleModalLabel" aria-hidden="true">
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h5 class="modal-title" id="exampleModalLabel">Deseja mesmo sair?</h5>
-							<button class="close" type="button" data-dismiss="modal"
-								aria-label="Close">
-								<span aria-hidden="true">×</span>
-							</button>
-						</div>
-						<div class="modal-body">Selecione "Sair" abaixo, caso você esteja
-							pornto para encerrar a seção atual.</div>
-						<div class="modal-footer">
-							<button class="btn btn-secondary" type="button"
-								data-dismiss="modal">Cancelar</button>
-							<a class="btn btn-primary" href="login.php">Sair</a>
-						</div>
-					</div>
-				</div>
-			</div>
-			<!-- Bootstrap core JavaScript-->
-			<script src="vendor/jquery/jquery.min.js"></script>
-			<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-			<!-- Core plugin JavaScript-->
-			<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-			<!-- Page level plugin JavaScript-->
-			<script src="vendor/chart.js/Chart.min.js"></script>
-			<!-- Custom scripts for all pages-->
-			<script src="js/sb-admin.min.js"></script>
-			<!-- Custom scripts for this page-->
-			<script src="js/sb-admin-charts.min.js"></script>
 		</div>
+		<!-- /.container-fluid-->
+		<!-- /.content-wrapper-->
+		<footer class="sticky-footer">
+			<div class="container">
+				<div class="text-center">
+					<small>Copyright © GSE 2019</small>
+				</div>
+			</div>
+		</footer>
+		<!-- Scroll to Top Button-->
+		<a class="scroll-to-top rounded" href="#page-top"> <i
+			class="fa fa-angle-up"></i>
+		</a>
+		<!-- Logout Modal-->
+		<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+			aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLabel">Deseja mesmo sair?</h5>
+						<button class="close" type="button" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+					</div>
+					<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja
+						pornto para encerrar a seção atual.</div>
+					<div class="modal-footer">
+						<button class="btn btn-secondary" type="button"
+							data-dismiss="modal">Cancel</button>
+						<a class="btn btn-primary" href="login.php">Logout</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Bootstrap core JavaScript-->
+		<script src="vendor/jquery/jquery.min.js"></script>
+		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+		<!-- Core plugin JavaScript-->
+		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+		<!-- Page level plugin JavaScript-->
+		<script src="vendor/chart.js/Chart.min.js"></script>
+		<script src="vendor/datatables/jquery.dataTables.js"></script>
+		<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
+		<!-- Custom scripts for all pages-->
+		<script src="js/sb-admin.min.js"></script>
+		<!-- Custom scripts for this page-->
+		<script src="js/sb-admin-datatables.min.js"></script>
+		<script src="js/sb-admin-charts.min.js"></script>
+	</div>
 
 </body>
 
