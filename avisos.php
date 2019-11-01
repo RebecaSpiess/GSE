@@ -144,28 +144,25 @@
 				<div class="card-header">
 					<i class="fa fa-area-chart"></i> Enviar aviso
 				</div>
-				<div class="col-md-6">
-					<label for="exampleInputName">Destinatário*</label> <input
+					<label for="exampleInputName" style="margin-left: 16px;">Destinatário*</label> 
+					<input
 						class="form-control" id="exampleInputName" type="text"
-						aria-describedby="nameHelp" placeholder="Nome">
-				</div>
-				<div class="card-body">
-					<input class="form-control" id="exampleInputName" type="text"
-						aria-describedby="nameHelp" placeholder="descreva o aviso">
+						aria-describedby="nameHelp" placeholder="Nome" style="width: 96.9%;margin-left: 15px; margin-right: 90px" />
+				<div class="card-body" style="margin-left: -5px; width: 100%">
+					<textarea class="form-control" id="exampleInputName"
+						aria-describedby="nameHelp" placeholder="descreva o aviso"> </textarea>
 				</div>
 				<a class="btn btn-primary btn-block" href="avisos.php">Enviar</a>
 			</div>
 			<div class="row">
-				<div class="col-lg-8">
-					<div class="card mb-3">
-						<div class="card-header">
-							<i class="fa fa-bar-chart"></i> Avisos recebidos
-						</div>
-						<div class="card-body">
-							<canvas id="myBarChart" width="100%" height="30"></canvas>
-						</div>
-						<div class="card-footer small text-muted">Atualizado em</div>
+				<div class="card mb-3" style="width: 100%; margin-left: 17px; margin-right: 17px">
+					<div class="card-header">
+						<i class="fa fa-bar-chart"></i> Avisos recebidos
 					</div>
+					<div class="card-body">
+						<canvas id="myBarChart" width="100%" height="30"></canvas>
+					</div>
+					<div class="card-footer small text-muted">Atualizado em</div>
 				</div>
 			</div>
 			<!-- /.container-fluid-->

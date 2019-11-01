@@ -159,7 +159,7 @@ table, th, td {
 								<div class="form-row">
 									<table style="width: 100%">
 										<tr>
-											<th>Nome</th>
+											<th width = "50%">Nome</th>
 											<th>Nota Prova 1</th>
 										</tr>
 										<tr>
