@@ -1,3 +1,29 @@
+<?php 
+
+require 'database/db.php';
+
+$mostrarMensagemSenhaErrada = false;
+
+if (isset($_POST['email']) and isset($_POST['senha'])){
+    $email = $_POST["email"];    
+    $senha = $_POST["senha"];
+    if (!empty(trim($email)) && !empty(trim($senha))){
+        $db = new db();
+        $pessoa = $db->query('SELECT * FROM PESSOA WHERE EMAIL = ? AND SENHA = ?',
+            $email, $senha);
+        
+        $contador = $pessoa->numRows();
+        if ($contador == 0){
+            $mostrarMensagemSenhaErrada = true;
+        } else {
+            session_start();
+            $_SESSION['loggedGSEUser'] = $loggedUser;
+            header("Location: index.php");
+        }
+    }
+} 
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,6 +40,34 @@
   <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
   <!-- Custom styles for this template-->
   <link href="css/sb-admin.css" rel="stylesheet">
+  
+  <script type="text/javascript">
+	function submit() {
+		document.forms[0].submit();
+	}
+  
+	function validateAndSubmitForm() {
+		var email = document.getElementById("exampleInputEmail1");
+		var senha = document.getElementById("exampleInputPassword1");
+
+		if (!isNotBlank(email)){
+
+		}
+
+		if (!isNotBlank(senha)){
+
+		}	
+	}
+
+	function isNotBlank(value){
+		if (value == null){
+			return false;
+		}
+		return value.trim().isEmpty();	
+	}	
+
+  </script>
+  
 </head>
 
 <body class="bg-dark">
@@ -21,25 +75,24 @@
     <div class="card card-login mx-auto mt-5">
       <div class="card-header">GSE - Login</div>
       <div class="card-body">
-        <form>
+        <form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
           <div class="form-group">
             <label for="exampleInputEmail1">Endereço de e-mail</label>
-            <input class="form-control" id="exampleInputEmail1" type="email" aria-describedby="emailHelp" placeholder="E-Mail">
+            <input class="form-control" id="exampleInputEmail1" name="email" type="email" aria-describedby="emailHelp" placeholder="E-Mail" required>
           </div>
           <div class="form-group">
             <label for="exampleInputPassword1">Senha</label>
-            <input class="form-control" id="exampleInputPassword1" type="password" placeholder="Senha">
-          </div>
-          <div class="form-group">
-            <div class="form-check">
-              <label class="form-check-label">
-                <input class="form-check-input" type="checkbox"> Lembrar senha</label>
-            </div>
-          </div>
-          <a class="btn btn-primary btn-block" href="index.php">Login</a>
+            <input class="form-control" id="exampleInputPassword1" name="senha" type="password" placeholder="Senha">
+          </div>          
+          <a class="btn btn-primary btn-block" onclick="validateAndSubmitForm();">Login</a>
         </form>
         <div class="text-center">
           <a class="d-block small" href="forgot-password.php">Esqueci a senha</a>
+          <?php 
+          if ($mostrarMensagemSenhaErrada){
+              echo '<br><span style="font-size: 12pt; color:red">Credenciais inválidas!</span>';
+          }
+          ?>
         </div>
       </div>
     </div>

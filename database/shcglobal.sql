@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `PESSOA` (
   `ID` int(15) NOT NULL AUTO_INCREMENT,
   `NOME` varchar(250) COLLATE latin1_general_ci NOT NULL,
   `SOBRENOME` varchar(250) COLLATE latin1_general_ci NOT NULL,
-  `E-MAIL` varchar(250) COLLATE latin1_general_ci NOT NULL,
+  `EMAIL` varchar(250) COLLATE latin1_general_ci NOT NULL,
   `TIPO_PESSOA` int(1) NOT NULL,
   `SENHA` varchar(250) COLLATE latin1_general_ci NOT NULL,
   PRIMARY KEY (`ID`),
