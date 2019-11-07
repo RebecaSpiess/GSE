@@ -1,10 +1,15 @@
 <?php 
 
     require 'bo/Sessao.php';
+    require 'bo/ControleAcesso.php';
     
     use bo\Sessao;
+    use bo\ControleAcesso;
 
     Sessao::validar();
+    
+    $papeisPermitidos = array(2,4);
+    ControleAcesso::validar($papeisPermitidos);
 
 ?>
 
