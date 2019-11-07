@@ -10,5 +10,11 @@ class Pessoa
     public $tipo_pessoa;
     public $senha;
     
+    
+    function __construct()
+    {
+        
+    }
+    
 }
 

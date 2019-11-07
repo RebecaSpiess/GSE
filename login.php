@@ -1,5 +1,9 @@
 <?php 
 
+use model\Pessoa;
+
+require 'model/Pessoa.php';
+
 require 'database/db.php';
 
 $mostrarMensagemSenhaErrada = false;
@@ -13,11 +17,18 @@ if (isset($_POST['email']) and isset($_POST['senha'])){
             $email, $senha);
         
         $contador = $pessoa->numRows();
+        $pessoaResult = $pessoa->fetchAll();
         if ($contador == 0){
             $mostrarMensagemSenhaErrada = true;
         } else {
             session_start();
-            $_SESSION['loggedGSEUser'] = $loggedUser;
+            $usuarioLogado =  new Pessoa();
+            $usuarioLogado->email=$pessoaResult["EMAIL"];
+            $usuarioLogado->id=$pessoaResult["ID"];
+            $usuarioLogado->nome=$pessoaResult["NOME"];
+            $usuarioLogado->sobrenome=$pessoaResult["SOBRENOME"];
+            $usuarioLogado->tipo_pessoa=$pessoaResult["TIPO_PESSOA"];;
+            $_SESSION['loggedGSEUser'] = $usuarioLogado;
             header("Location: index.php");
         }
     }
@@ -49,21 +60,32 @@ if (isset($_POST['email']) and isset($_POST['senha'])){
 	function validateAndSubmitForm() {
 		var email = document.getElementById("exampleInputEmail1");
 		var senha = document.getElementById("exampleInputPassword1");
-
-		if (!isNotBlank(email)){
-
-		}
-
-		if (!isNotBlank(senha)){
-
+		var camposPreenchidos = true; 
+		if (!isNotBlank(email.value)){
+			camposPreenchidos = false;
+			document.getElementById("emailValidacao").style.display = "block";
+		} else {
+			camposPreenchidos = true;
+			document.getElementById("emailValidacao").style.display = "none";
 		}	
+
+		if (!isNotBlank(senha.value)){
+			camposPreenchidos = false;
+			document.getElementById("senhaValidacao").style.display = "block";
+		} else {				
+			document.getElementById("senhaValidacao").style.display = "none";
+		}	
+
+		if (camposPreenchidos){
+			submit();
+		}		
 	}
 
 	function isNotBlank(value){
 		if (value == null){
 			return false;
 		}
-		return value.trim().isEmpty();	
+		return value.trim().length !== 0;
 	}	
 
   </script>
@@ -79,10 +101,12 @@ if (isset($_POST['email']) and isset($_POST['senha'])){
           <div class="form-group">
             <label for="exampleInputEmail1">Endereço de e-mail</label>
             <input class="form-control" id="exampleInputEmail1" name="email" type="email" aria-describedby="emailHelp" placeholder="E-Mail" required>
+          	<div id="emailValidacao" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
           </div>
           <div class="form-group">
             <label for="exampleInputPassword1">Senha</label>
             <input class="form-control" id="exampleInputPassword1" name="senha" type="password" placeholder="Senha">
+            <div id="senhaValidacao" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
           </div>          
           <a class="btn btn-primary btn-block" onclick="validateAndSubmitForm();">Login</a>
         </form>
