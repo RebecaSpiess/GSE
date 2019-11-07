@@ -28,7 +28,7 @@ if (isset($_POST['email']) and isset($_POST['senha'])){
             $usuarioLogado->email = $pessoaResult[0]['EMAIL'];
             $usuarioLogado->tipo_pessoa = $pessoaResult[0]['TIPO_PESSOA'];
             session_start();
-            $_SESSION['loggedGSEUser'] = $usuarioLogado;
+            $_SESSION['loggedGSEUser'] = serialize($usuarioLogado);
             header("Location: index.php");
         }
     }
