@@ -111,7 +111,9 @@ if (isset($_POST['email']) and isset($_POST['senha'])){
           <a class="btn btn-primary btn-block" onclick="validateAndSubmitForm();">Login</a>
         </form>
         <div class="text-center">
-          <a class="d-block small" href="forgot-password.php">Esqueci a senha</a>
+         <div style="display: none">
+          	<a class="d-block small" href="forgot-password.php">Esqueci a senha</a>
+          </div>
           <?php 
           if ($mostrarMensagemSenhaErrada){
               echo '<br><span style="font-size: 12pt; color:red">Credenciais inválidas!</span>';
