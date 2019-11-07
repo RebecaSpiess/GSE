@@ -9,6 +9,8 @@ class Pessoa
     public $email;
     public $tipo_pessoa;
     public $senha;
+    public $data_nascimento;
+    public $sexo;
     
     
     function __construct()

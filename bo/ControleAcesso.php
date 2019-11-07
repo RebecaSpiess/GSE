@@ -14,8 +14,6 @@ class ControleAcesso
             $pessoa = unserialize($_SESSION['loggedGSEUser']);
             $tipoPessoaId = $pessoa->tipo_pessoa;
             foreach ($papeisPermitidos as $value){
-                echo $value;
-                echo $tipoPessoaId;
                 if ($tipoPessoaId == $value){
                     return;
                 }
