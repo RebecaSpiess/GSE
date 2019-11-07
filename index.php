@@ -187,7 +187,10 @@
 				<div class="modal-footer">
 					<button class="btn btn-secondary" type="button"
 						data-dismiss="modal">Cancelar</button>
-					<a class="btn btn-primary" href="login.php">Sair</a>
+					<form action="bo/Sessao.php" name="logout" method="POST">
+					    <input type="hidden" value="GSElogout" name="logout">
+						<a class="btn btn-primary" onclick="document.logout.submit()">Sair</a>
+					</form>
 				</div>
 			</div>
 		</div>

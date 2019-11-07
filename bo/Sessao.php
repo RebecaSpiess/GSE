@@ -13,5 +13,15 @@ class Sessao
         }
     }
     
+    
 }
 
+if (isset($_POST['logout'])){
+    $logout = $_POST['logout'];
+    if ($logout == 'GSElogout' ) {
+        session_start();
+        unset ($_SESSION['loggedGSEUser']);
+        session_destroy();
+        header("Location: ../login.php");
+    }
+}

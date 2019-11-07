@@ -21,13 +21,13 @@ if (isset($_POST['email']) and isset($_POST['senha'])){
         if ($contador == 0){
             $mostrarMensagemSenhaErrada = true;
         } else {
-            session_start();
             $usuarioLogado =  new Pessoa();
-            $usuarioLogado->email=$pessoaResult["EMAIL"];
-            $usuarioLogado->id=$pessoaResult["ID"];
-            $usuarioLogado->nome=$pessoaResult["NOME"];
-            $usuarioLogado->sobrenome=$pessoaResult["SOBRENOME"];
-            $usuarioLogado->tipo_pessoa=$pessoaResult["TIPO_PESSOA"];;
+            $usuarioLogado->id = $pessoaResult[0]['ID'];
+            $usuarioLogado->nome = $pessoaResult[0]['NOME'];
+            $usuarioLogado->sobrenome = $pessoaResult[0]['SOBRENOME'];
+            $usuarioLogado->email = $pessoaResult[0]['EMAIL'];
+            $usuarioLogado->tipo_pessoa = $pessoaResult[0]['TIPO_PESSOA'];
+            session_start();
             $_SESSION['loggedGSEUser'] = $usuarioLogado;
             header("Location: index.php");
         }
