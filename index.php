@@ -1,8 +1,10 @@
 <?php 
 
     require 'bo/Sessao.php';
+    require 'bo/ControleAcesso.php';
     
     use bo\Sessao;
+    use bo\ControleAcesso;
 
     Sessao::validar();
 
@@ -51,7 +53,9 @@
 						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Alunos</span>
 				</a>
 					<ul class="sidenav-second-level collapse" id="collapseExamplePages">
-						<li><a href="aluno_cadastro.php">Cadastro</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+							<li><a href="aluno_cadastro.php">Cadastro</a></li>
+						<?php } ?>
 						<li><a href="aluno_notas.php">Notas</a></li>
 						<li><a href="aluno_ocorrencias.php">Ocorrências</a></li>
 					</ul></li>
