@@ -1,10 +1,9 @@
-<?php 
+<?php
+require 'bo/Sessao.php';
 
-    require 'bo/Sessao.php';
-    
-    use bo\Sessao;
+use bo\Sessao;
 
-    Sessao::validar();
+Sessao::validar();
 
 ?>
 
@@ -154,10 +153,10 @@
 				<div class="card-header">
 					<i class="fa fa-area-chart"></i> Enviar aviso
 				</div>
-					<label for="exampleInputName" style="margin-left: 16px;">Destinatário*</label> 
-					<input
-						class="form-control" id="exampleInputName" type="text"
-						aria-describedby="nameHelp" placeholder="Nome" style="width: 96.9%;margin-left: 15px; margin-right: 90px" />
+				<label for="exampleInputName" style="margin-left: 16px;">Destinatário*</label>
+				<input class="form-control" id="exampleInputName" type="text"
+					aria-describedby="nameHelp" placeholder="Nome"
+					style="width: 96.9%; margin-left: 15px; margin-right: 90px" />
 				<div class="card-body" style="margin-left: -5px; width: 100%">
 					<textarea class="form-control" id="exampleInputName"
 						aria-describedby="nameHelp" placeholder="descreva o aviso"> </textarea>
@@ -165,7 +164,8 @@
 				<a class="btn btn-primary btn-block" href="avisos.php">Enviar</a>
 			</div>
 			<div class="row">
-				<div class="card mb-3" style="width: 100%; margin-left: 17px; margin-right: 17px">
+				<div class="card mb-3"
+					style="width: 100%; margin-left: 17px; margin-right: 17px">
 					<div class="card-header">
 						<i class="fa fa-bar-chart"></i> Avisos recebidos
 					</div>
@@ -205,7 +205,10 @@
 						<div class="modal-footer">
 							<button class="btn btn-secondary" type="button"
 								data-dismiss="modal">Cancelar</button>
-							<a class="btn btn-primary" href="login.php">Sair</a>
+							<form action="bo/Sessao.php" name="logout" method="POST">
+								<input type="hidden" value="GSElogout" name="logout"> <a
+									class="btn btn-primary" onclick="document.logout.submit()">Sair</a>
+							</form>
 						</div>
 					</div>
 				</div>

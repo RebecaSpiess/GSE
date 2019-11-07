@@ -1,10 +1,9 @@
-<?php 
+<?php
+require 'bo/Sessao.php';
 
-    require 'bo/Sessao.php';
-    
-    use bo\Sessao;
+use bo\Sessao;
 
-    Sessao::validar();
+Sessao::validar();
 
 ?>
 
@@ -169,7 +168,7 @@ table, th, td {
 								<div class="form-row">
 									<table style="width: 100%">
 										<tr>
-											<th width = "50%">Nome</th>
+											<th width="50%">Nome</th>
 											<th>Nota Prova 1</th>
 										</tr>
 										<tr>
@@ -180,18 +179,20 @@ table, th, td {
 										<tr>
 											<td>Breno</td>
 											<td><input class="form-control" id="exampleInputName"
-												type="number" aria-describedby="nameHelp" placeholder="Nota"></td></td>
+												type="number" aria-describedby="nameHelp" placeholder="Nota"></td>
+											</td>
 										</tr>
 										<tr>
 											<td>Cezar</td>
 											<td><input class="form-control" id="exampleInputName"
-												type="number" aria-describedby="nameHelp" placeholder="Nota"></td></td>
+												type="number" aria-describedby="nameHelp" placeholder="Nota"></td>
+											</td>
 										</tr>
 									</table>
 								</div>
 							</div>
 							<a class="btn btn-primary btn-block" href="index.php">Salvar</a>
-					</form>
+						</form>
 					</div>
 				</div>
 			</div>
@@ -225,8 +226,11 @@ table, th, td {
 						pornto para encerrar a seção atual.</div>
 					<div class="modal-footer">
 						<button class="btn btn-secondary" type="button"
-							data-dismiss="modal">Cancel</button>
-						<a class="btn btn-primary" href="login.php">Logout</a>
+							data-dismiss="modal">Cancelar</button>
+						<form action="bo/Sessao.php" name="logout" method="POST">
+							<input type="hidden" value="GSElogout" name="logout"> <a
+								class="btn btn-primary" onclick="document.logout.submit()">Sair</a>
+						</form>
 					</div>
 				</div>
 			</div>
