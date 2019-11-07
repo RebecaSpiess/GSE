@@ -1,3 +1,13 @@
+<?php 
+
+    require 'bo/Sessao.php';
+    
+    use bo\Sessao;
+
+    Sessao::validar();
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
