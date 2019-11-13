@@ -1,10 +1,61 @@
 <?php
 require 'bo/Sessao.php';
+require 'bo/ControleAcesso.php';
+require 'database/db.php';
 
 use bo\Sessao;
+use bo\ControleAcesso;
+use model\Pessoa;
 
 Sessao::validar();
 
+$papeisPermitidos = array(
+    2,
+    4
+);
+ControleAcesso::validar($papeisPermitidos);
+
+$db = new db();
+
+$tipo_pessoas_db = $db->query("SELECT * FROM TIPO_PESSOA WHERE TRIM(upper(NOME)) <> 'ALUNO' ORDER BY NOME");
+
+$showErrorMessage = null;
+$showSuccessMessage = false;
+
+if (isset($_POST['tipo_pessoa']) and isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email']) and isset($_POST['data_nascimento']) and isset($_POST['sexo'])) {
+    $nome = $_POST['nome'];
+    $sobrenome = $_POST['sobrenome'];
+    $email = $_POST['email'];
+    $data_nascimento = $_POST['data_nascimento'];
+    $sexo = $_POST['sexo'];
+    $tipo_pessoa = $_POST['tipo_pessoa'];
+   
+    if (! empty(trim($nome)) and ! empty(trim($sobrenome)) and ! empty(trim($email)) and ! empty(trim($data_nascimento)) and ! empty(trim($sexo))) {
+        $pessoa = new Pessoa();
+        $pessoa->nome = $nome;
+        $pessoa->sobrenome = $sobrenome;
+        $pessoa->email = $email;
+        $pessoa->data_nascimento = $data_nascimento;
+        $pessoa->sexo = $sexo;
+        $pessoa->senha = 'Start1234'; // Senha padrão
+        $pessoa->tipo_pessoa = $tipo_pessoa; 
+        echo "TIPO PESSOA: " . $pessoa->tipo_pessoa;
+        try {
+            $result = $db->query("INSERT INTO PESSOA (NOME, SOBRENOME, EMAIL, DATA_NASCIMENTO, TIPO_SEXO, TIPO_PESSOA, SENHA)
+                          VALUES (?,?,?,?,?,?,?)", $pessoa->nome, $pessoa->sobrenome, $pessoa->email, $pessoa->data_nascimento, $pessoa->sexo, $pessoa->tipo_pessoa, $pessoa->senha)->query_count;
+            if ($result == 1) {
+                $showSuccessMessage = true;
+            }
+        } catch (Exception $ex) {
+            $error_code = $ex->getMessage();
+            if ($error_code == 1062) {
+                $showErrorMessage = "Já existe um registro com o e-mail informado!";
+            } else {
+                $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
+            }
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -157,39 +208,42 @@ Sessao::validar();
 			<div class="container">
 				<div>
 					<div class="card-body">
-						<form>
+						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
 							<div class="form-group">
 								<div class="form-row">
 									<div class="col-md-6">
 										<label for="exampleInputName">Nome*</label> <input
 											class="form-control" id="exampleInputName" type="text"
-											aria-describedby="nameHelp" placeholder="Nome">
+											aria-describedby="nameHelp" placeholder="Nome" name="nome">
 									</div>
 									<div class="col-md-6">
 										<label for="exampleInputLastName">Sobrenome*</label> <input
 											class="form-control" id="exampleInputLastName" type="text"
-											aria-describedby="nameHelp" placeholder="Sobrenome">
+											aria-describedby="nameHelp" placeholder="Sobrenome"
+											name="sobrenome">
 									</div>
 								</div>
 							</div>
 							<div class="form-group">
 								<label for="exampleInputEmail1">Endereço de E-Mail*</label> <input
 									class="form-control" id="exampleInputEmail1" type="email"
-									aria-describedby="emailHelp" placeholder="Endereço de E-Mail">
+									aria-describedby="emailHelp" placeholder="Endereço de E-Mail"
+									name="email">
 							</div>
 							<div class="form-group">
 								<div class="form-row">
 									<div class="col-md-6">
 										<label for="exampleInputName">Data de nascimento*</label> <input
 											class="form-control" id="exampleInputName" type="date"
-											aria-describedby="nameHelp" placeholder="Data de nascimento">
+											aria-describedby="nameHelp" placeholder="Data de nascimento"
+											name="data_nascimento">
 									</div>
 									<div class="col-md-6">
 										<label for="exampleInputLastName">Sexo*</label> <select
 											class="form-control" id="exampleInputLastName"
-											aria-describedby="nameHelp" placeholder="Sexo">
-											<option value="M">Masculino</option>
-											<option value="F">Feminino</option>
+											aria-describedby="nameHelp" placeholder="Sexo" name="sexo">
+											<option value="1">Masculino</option>
+											<option value="0">Feminino</option>
 										</select>
 									</div>
 								</div>
@@ -206,11 +260,46 @@ Sessao::validar();
 											class="form-control" id="exampleInputLastName" type="text"
 											aria-describedby="nameHelp" placeholder="CPF">
 									</div>
+									<div class="col-md-6">
+										<label for="exampleInputLastName">Tipo pessoa*</label> <select
+											class="form-control" id="exampleInputLastName"
+											aria-describedby="nameHelp" placeholder="Sexo" name="tipo_pessoa">
+											<?php
+											$tipo_pessoas_db_fetch = $tipo_pessoas_db->fetchAll();
+											foreach ($tipo_pessoas_db_fetch as $single_row) {
+											    echo "<option value=\"" 
+                                                . $single_row['ID']
+                                                . "\">"
+                                                .$single_row['NOME']
+                                                . "</option>";
+											    
+											}
+											?>
+
+										</select>
+									</div>
 								</div>
 							</div>
-							<a class="btn btn-primary btn-block" href="login.html">Cadastrar</a>
+							<a class="btn btn-primary btn-block"
+								onclick="document.forms[0].submit()">Cadastrar</a>
 						</form>
 					</div>
+					<?php
+    if (isset($showErrorMessage)) {
+        ?>
+						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </div>
+					<?php
+    }
+
+    if ($showSuccessMessage and ! isset($showErrorMessage)) {
+        ?>
+					    <div style="color: green; text-align: center;">Registro criado
+						com sucesso!</div>
+					<?php
+
+}
+
+    ?>
 				</div>
 			</div>
 		</div>
