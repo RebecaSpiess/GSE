@@ -1,10 +1,56 @@
 <?php
 require 'bo/Sessao.php';
+require 'bo/ControleAcesso.php';
+require 'database/db.php';
 
 use bo\Sessao;
+use bo\ControleAcesso;
+use model\Pessoa;
+use model\Turma;
 
 Sessao::validar();
 
+$papeisPermitidos = array(
+    2,
+    4
+);
+ControleAcesso::validar($papeisPermitidos);
+
+$db = new db();
+
+$aluno_db = $db->query("SELECT * FROM PESSOA" );
+$professor_db = $db->query("SELECT * FROM PESSOA");
+
+$showErrorMessage = null;
+$showSuccessMessage = false;
+
+if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and isset($_POST['nome_aluno'])) {
+    $nome_turma = $_POST['nome_turma'];
+    $professor_responsavel = $_POST['professor_responsavel'];
+    $nome_aluno = $_POST['nome_aluno'];
+
+    if (! empty(trim($nome_turma)) and ! empty(trim($professor_responsavel)) and ! empty(trim($nome_aluno))) {
+        $turma = new Turma();
+        $turma->id_pessoa = $nome_aluno;
+        $turma->id_pessoa = $professor_responsavel;
+        $turma->nome_turma = $nome_turma;
+        echo "TIPO PESSOA: " . $pessoa->nome;
+        try {
+            $result = $db->query("INSERT INTO TURMA (ID_PESSOA, ID_MATERIA, NOME_TURMA)
+                          VALUES (?,?,?)", $turma->id_pessoa, $turma->id_materia, $turma->nome_turma)->query_count;
+            if ($result == 1) {
+                $showSuccessMessage = true;
+            }
+        } catch (Exception $ex) {
+            $error_code = $ex->getMessage();
+            if ($error_code == 1062) {
+                $showErrorMessage = "Já existe um registro com o e-mail informado!";
+            } else {
+                $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
+            }
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -157,35 +203,62 @@ Sessao::validar();
 			<div class="container">
 				<div>
 					<div class="card-body">
-						<form>
+						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
 							<div class="form-group">
 								<div class="form-row">
 									<div class="col-md-6">
 										<label for="exampleInputName">Nome da turma*</label> <input
 											class="form-control" id="exampleInputName" type="text"
-											aria-describedby="nameHelp" placeholder="Nome da disciplina">
+											aria-describedby="nameHelp" placeholder="Nome da disciplina"
+											name="nome_turma">
 									</div>
 									<div class="col-md-6">
 										<label for="exampleInputLastName">Professor responsável*</label>
 										<select class="form-control" id="exampleInputLastName"
-											aria-describedby="nameHelp" placeholder="Sexo">
-											<option value="M">Maria Paula</option>
-											<option value="F">Luiz Glasenapp</option>
+											aria-describedby="nameHelp" placeholder="Sexo"
+											name="professor_responsavel">
+																							<?php
+        $professor_db_fetch = $professor_db->fetchAll();
+        foreach ($professor_db_fetch as $single_row) {
+            echo "<option value=\"" . $single_row['ID'] . "\">" . $single_row['NOME'] . "</option>";
+        }
+        ?>
 										</select>
 										<div class="form-group">
 											<label for="exampleInputEmail1">Alunos*</label> <select
 												class="form-control" id="exampleInputLastName"
-												aria-describedby="nameHelp" placeholder="Sexo">
-												<option value="A1">Ana Helena</option>
-												<option value="A2">Bruno Garcia</option>
+												aria-describedby="nameHelp" placeholder="Sexo"
+												name="nome_aluno">
+																							<?php
+        $aluno_db_fetch = $aluno_db->fetchAll();
+        foreach ($aluno_db_fetch as $single_row) {
+            echo "<option value=\"" . $single_row['ID'] . "\">" . $single_row['NOME'] . "</option>";
+        }
+        ?>
 											</select>
 										</div>
 									</div>
 								</div>
-								<a class="btn btn-primary btn-block" href="login.html">Cadastrar</a>
-							</div>
+								<a class="btn btn-primary btn-block"
+									onclick="document.forms[0].submit()">Cadastrar</a>
+						
 						</form>
 					</div>
+										<?php
+        if (isset($showErrorMessage)) {
+            ?>
+						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </div>
+					<?php
+        }
+
+        if ($showSuccessMessage and ! isset($showErrorMessage)) {
+            ?>
+					    <div style="color: green; text-align: center;">Registro criado
+						com sucesso!</div>
+					<?php
+        }
+
+        ?>
 				</div>
 			</div>
 		</div>
