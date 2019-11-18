@@ -5,7 +5,6 @@ require 'database/db.php';
 
 use bo\Sessao;
 use bo\ControleAcesso;
-use model\Pessoa;
 use model\Turma;
 
 Sessao::validar();
@@ -17,9 +16,10 @@ $papeisPermitidos = array(
 ControleAcesso::validar($papeisPermitidos);
 
 $db = new db();
+$db2 = new db();
 
-$aluno_db = $db->query("SELECT * FROM PESSOA" );
-$professor_db = $db->query("SELECT * FROM PESSOA");
+$aluno_db = $db->query("SELECT p.* FROM PESSOA p JOIN TIPO_PESSOA tp ON (p.TIPO_PESSOA = tp.ID and tp.NOME = 'Aluno') ORDER BY p.nome, p.sobrenome");
+$professor_db = $db2->query("SELECT p.* FROM PESSOA p JOIN TIPO_PESSOA tp ON (p.TIPO_PESSOA = tp.ID and tp.NOME = 'Professor') ORDER BY p.nome, p.sobrenome");
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
@@ -34,7 +34,6 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
         $turma->id_pessoa = $nome_aluno;
         $turma->id_pessoa = $professor_responsavel;
         $turma->nome_turma = $nome_turma;
-        echo "TIPO PESSOA: " . $pessoa->nome;
         try {
             $result = $db->query("INSERT INTO TURMA (ID_PESSOA, ID_MATERIA, NOME_TURMA)
                           VALUES (?,?,?)", $turma->id_pessoa, $turma->id_materia, $turma->nome_turma)->query_count;
@@ -44,7 +43,7 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
         } catch (Exception $ex) {
             $error_code = $ex->getMessage();
             if ($error_code == 1062) {
-                $showErrorMessage = "Já existe um registro com o e-mail informado!";
+                $showErrorMessage = "Turma existente!";
             } else {
                 $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
             }
@@ -62,7 +61,7 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Cadastro de disciplina</title>
+<title>GSE - Cadastro de turma</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -197,7 +196,7 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
-				<li class="breadcrumb-item">Disciplina</li>
+				<li class="breadcrumb-item">Turma</li>
 				<li class="breadcrumb-item active">Cadastro</li>
 			</ol>
 			<div class="container">
@@ -209,7 +208,7 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 									<div class="col-md-6">
 										<label for="exampleInputName">Nome da turma*</label> <input
 											class="form-control" id="exampleInputName" type="text"
-											aria-describedby="nameHelp" placeholder="Nome da disciplina"
+											aria-describedby="nameHelp" placeholder="Nome da turma"
 											name="nome_turma">
 									</div>
 									<div class="col-md-6">
@@ -219,23 +218,20 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 											name="professor_responsavel">
 																							<?php
         $professor_db_fetch = $professor_db->fetchAll();
-        foreach ($professor_db_fetch as $single_row) {
-            echo "<option value=\"" . $single_row['ID'] . "\">" . $single_row['NOME'] . "</option>";
-        }
+        foreach ($professor_db_fetch as $single_row0) {
+            echo "<option value=\"" . $single_row0['ID'] . "\">" . $single_row0['NOME'] . "</option>";
+        } 
         ?>
 										</select>
 										<div class="form-group">
-											<label for="exampleInputEmail1">Alunos*</label> <select
-												class="form-control" id="exampleInputLastName"
-												aria-describedby="nameHelp" placeholder="Sexo"
-												name="nome_aluno">
+											<label for="exampleInputEmail1">Alunos*</label><br>
 																							<?php
         $aluno_db_fetch = $aluno_db->fetchAll();
-        foreach ($aluno_db_fetch as $single_row) {
-            echo "<option value=\"" . $single_row['ID'] . "\">" . $single_row['NOME'] . "</option>";
+        foreach ($aluno_db_fetch as $single_row1) {
+            echo "<input type=\"checkbox\" value=\"" . $single_row1['ID'] . "\"> " . $single_row1['NOME'] . " " 
+ . $single_row1['SOBRENOME'] . "</input> <br>";
         }
         ?>
-											</select>
 										</div>
 									</div>
 								</div>
