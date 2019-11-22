@@ -72,6 +72,47 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+
+<script type="text/javascript">
+debbuger;
+	function submit() {
+		alert("chegou até aqui");
+		document.forms[0].submit();
+	}
+  
+	function validateAndSubmitForm() {
+		var nome_turma = document.getElementById("nomeTurma");
+		var professor_responsavel = document.getElementById("professorResp");
+		var camposPreenchidos = true; 
+		if (!isNotBlank(nome_turma.value)){
+			camposPreenchidos = false;
+			document.getElementById("nome_turma").style.display = "block";
+		} else {
+			camposPreenchidos = true;
+			document.getElementById("nome_turma").style.display = "none";
+		}	
+
+		if (!isNotBlank(professor_responsavel.value)){
+			camposPreenchidos = false;
+			document.getElementById("professorResponsavel").style.display = "block";
+		} else {				
+			document.getElementById("professorResponsavel").style.display = "none";
+		}	
+
+		if (camposPreenchidos){
+			submit();
+		}		
+	}
+
+	function isNotBlank(value){
+		if (value == null){
+			return false;
+		}
+		return value.trim().length !== 0;
+	}	
+
+  </script>
+
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -207,15 +248,19 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 								<div class="form-row">
 									<div class="col-md-6">
 										<label for="exampleInputName">Nome da turma*</label> <input
-											class="form-control" id="exampleInputName" type="text"
+											class="form-control" id="nomeTurma" type="text"
 											aria-describedby="nameHelp" placeholder="Nome da turma"
-											name="nome_turma">
+											name="nome_turma" required>
+											<div id="nome_turma" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
+          </div>
 									</div>
 									<div class="col-md-6">
 										<label for="exampleInputLastName">Professor responsável*</label>
-										<select class="form-control" id="exampleInputLastName"
+										<select class="form-control" id="professorResp"
 											aria-describedby="nameHelp" placeholder="Sexo"
-											name="professor_responsavel">
+											name="professor_responsavel" required>
+											<div id="professorResponsavel" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
+          </div>
 																							<?php
         $professor_db_fetch = $professor_db->fetchAll();
         foreach ($professor_db_fetch as $single_row0) {
@@ -236,7 +281,7 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 									</div>
 								</div>
 								<a class="btn btn-primary btn-block"
-									onclick="document.forms[0].submit()">Cadastrar</a>
+									onclick= "submit()">Cadastrar</a>
 						
 						</form>
 					</div>
@@ -301,15 +346,6 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 		<!-- Core plugin JavaScript-->
 		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-		<!-- Page level plugin JavaScript-->
-		<script src="vendor/chart.js/Chart.min.js"></script>
-		<script src="vendor/datatables/jquery.dataTables.js"></script>
-		<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
-		<!-- Custom scripts for all pages-->
-		<script src="js/sb-admin.min.js"></script>
-		<!-- Custom scripts for this page-->
-		<script src="js/sb-admin-datatables.min.js"></script>
-		<script src="js/sb-admin-charts.min.js"></script>
 	</div>
 </body>
 

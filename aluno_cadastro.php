@@ -88,6 +88,70 @@
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+
+  <script type="text/javascript">
+	function submit() {
+		alert("chegou até aqui");
+		document.forms[0].submit();
+	}
+  
+	function validateAndSubmitForm() {
+		var nome = document.getElementById("nome");
+		var sobreNome = document.getElementById("sobreNome");
+		var email = document.getElementById("email");
+		var dataNascimento = document.getElementById("nascimento");
+		var sexo = document.getElementById("typeSexo");
+		var camposPreenchidos = true; 
+		if (!isNotBlank(nome.value)){
+			camposPreenchidos = false;
+			document.getElementById("name").style.display = "block";
+		} else {
+			camposPreenchidos = true;
+			document.getElementById("name").style.display = "none";
+		}	
+
+		if (!isNotBlank(sobreNome.value)){
+			camposPreenchidos = false;
+			document.getElementById("sobrenome").style.display = "block";
+		} else {				
+			document.getElementById("sobrenome").style.display = "none";
+		}	
+
+		if (!isNotBlank(email.value)){
+			camposPreenchidos = false;
+			document.getElementById("emailValidacao").style.display = "block";
+		} else {				
+			document.getElementById("emailValidacao").style.display = "none";
+		}
+
+		if (!isNotBlank(dataNascimento.value)){
+			camposPreenchidos = false;
+			document.getElementById("data_nascimento").style.display = "block";
+		} else {				
+			document.getElementById("data_nascimento").style.display = "none";
+		}
+
+		if (!isNotBlank(sexo.value)){
+			camposPreenchidos = false;
+			document.getElementById("intputSexo").style.display = "block";
+		} else {				
+			document.getElementById("intputSexo").style.display = "none";
+		}
+		
+		if (camposPreenchidos){
+			submit();
+		}		
+	}
+
+	function isNotBlank(value){
+		if (value == null){
+			return false;
+		}
+		return value.trim().length !== 0;
+	}	
+
+  </script>
+
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -223,40 +287,45 @@
 								<div class="form-row">
 									<div class="col-md-6">
 										<label for="exampleInputName">Nome*</label> <input
-											class="form-control" id="exampleInputName" type="text"
-											aria-describedby="nameHelp" placeholder="Nome" name="nome">
+											class="form-control" id="nome" type="text"
+											aria-describedby="nameHelp" placeholder="Nome" name="nome" required>
+											<div id="name" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
 									</div>
 									<div class="col-md-6">
 										<label for="exampleInputLastName">Sobrenome*</label> <input
-											class="form-control" id="exampleInputLastName" type="text"
-											aria-describedby="nameHelp" placeholder="Sobrenome" name="sobrenome">
+											class="form-control" id="sobreNome" type="text"
+											aria-describedby="nameHelp" placeholder="Sobrenome" name="sobrenome" required>
+											<div id="sobrenome" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
 									</div>
 								</div>
 							</div>
 							<div class="form-group">
 								<label for="exampleInputEmail1">Endereço de E-Mail do
 									responsável*</label> <input class="form-control"
-									id="exampleInputEmail1" type="email" name="email"
-									aria-describedby="emailHelp" placeholder="Endereço de E-Mail">
+									id="email" type="email" name="email"
+									aria-describedby="emailHelp" placeholder="Endereço de E-Mail" required>
+									<div id="emailValidacao" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
 							</div>
 							<div class="form-group">
 								<div class="form-row">
 									<div class="col-md-6">
 										<label for="exampleInputName">Data de nascimento*</label> <input
-											class="form-control" id="exampleInputName" name="data_nascimento" type="date"
-											aria-describedby="nameHelp" placeholder="Data de nascimento">
+											class="form-control" id="nascimento" name="data_nascimento" type="date"
+											aria-describedby="nameHelp" placeholder="Data de nascimento" required>
+											<div id="data_nascimento" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
 									</div>
 									<div class="col-md-6">
-										<label for="exampleInputLastName">Sexo*</label><br> 
+										<label for="typeSexo">Sexo*</label><br> 
 										<input
 											type="radio" name="sexo" value="1"
-											checked> Masculino<br> 
+											checked required> Masculino<br> 
 										<input type="radio"
-											name="sexo" value="0">Feminino<br>
+											name="sexo" value="0" required>Feminino<br>
+											<div id="intputSexo" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
 									</div>
 								</div>
 							</div>
-							<a class="btn btn-primary btn-block" onclick="document.forms[0].submit()">Cadastrar</a>
+							<a class="btn btn-primary btn-block" onclick="submit()">Cadastrar</a>
 						</form>
 					</div>
 					<?php 
@@ -316,15 +385,6 @@
 		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 		<!-- Core plugin JavaScript-->
 		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-		<!-- Page level plugin JavaScript-->
-		<script src="vendor/chart.js/Chart.min.js"></script>
-		<script src="vendor/datatables/jquery.dataTables.js"></script>
-		<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
-		<!-- Custom scripts for all pages-->
-		<script src="js/sb-admin.min.js"></script>
-		<!-- Custom scripts for this page-->
-		<script src="js/sb-admin-datatables.min.js"></script>
-		<script src="js/sb-admin-charts.min.js"></script>
 	</div>
 </body>
 
