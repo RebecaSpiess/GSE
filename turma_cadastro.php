@@ -281,7 +281,7 @@ debbuger;
 									</div>
 								</div>
 								<a class="btn btn-primary btn-block"
-									onclick= "submit()">Cadastrar</a>
+									onclick= "validateAndSubmitForm()">Cadastrar</a>
 						
 						</form>
 					</div>

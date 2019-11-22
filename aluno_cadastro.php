@@ -325,7 +325,7 @@
 									</div>
 								</div>
 							</div>
-							<a class="btn btn-primary btn-block" onclick="submit()">Cadastrar</a>
+							<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>
 						</form>
 					</div>
 					<?php 
