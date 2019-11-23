@@ -1,15 +1,42 @@
 <?php
+
 require 'bo/Sessao.php';
+require 'bo/ControleAcesso.php';
+require 'database/db.php';
+require 'relatorio_alunos.php';
+require 'relatorio_turma.php';
 
 use bo\Sessao;
+use bo\ControleAcesso;
+use model\Pessoa;
 
 Sessao::validar();
+
+$papeisPermitidos = array(2,4);
+ControleAcesso::validar($papeisPermitidos);
+
+
+$showErrorMessage = null;
+$showSuccessMessage = false;
+
+if (isset($_POST['tipo'])){
+    $tipo = $_POST['tipo'];
+    if (!empty(trim($tipo))){
+        if ($tipo == 'alunos') {
+            $relatorio = new relatorio_alunos();
+            $relatorio->gerarRelatorio();
+        } else if ($tipo ==  'turmas') {
+            $relatorio = new relatorio_turma();
+            $relatorio->gerarRelatorio();
+        }
+        
+    }
+}
 
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -17,14 +44,50 @@ Sessao::validar();
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Relatorio</title>
+<title>GSE - Cadastro de aluno</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
 <link href="vendor/font-awesome/css/font-awesome.min.css"
 	rel="stylesheet" type="text/css">
+<!-- Page level plugin CSS-->
+<link href="vendor/datatables/dataTables.bootstrap4.css"
+	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+
+
+<script type="text/javascript">
+
+function submit() {
+	document.forms[0].submit();
+}
+
+function validateAndSubmitForm() {
+	var tipo = document.getElementById("tipo");
+	var camposPreenchidos = true; 
+	if (!isNotBlank(tipo.value)){
+		camposPreenchidos = false;
+		document.getElementById("tipoValidacao").style.display = "block";
+	} else {
+		camposPreenchidos = true;
+		document.getElementById("tipoValidacao").style.display = "none";
+	}	
+
+	if (camposPreenchidos){
+		submit();
+	}		
+}
+
+function isNotBlank(value){
+	if (value == null){
+		return false;
+	}
+	return value.trim().length !== 0;
+}
+
+</script>
+  
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -50,7 +113,7 @@ Sessao::validar();
 					<ul class="sidenav-second-level collapse" id="collapseExamplePages">
 						<li><a href="aluno_cadastro.php">Cadastro</a></li>
 						<li><a href="aluno_notas.php">Notas</a></li>
-						<li><a href="ocorrencias_cadastro_busca.php">Ocorrências</a></li>
+						<li><a href="aluno_ocorrencias.php">Ocorrências</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Charts"><a class="nav-link" href="avisos.php"> <i
@@ -84,7 +147,7 @@ Sessao::validar();
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
-						<li><a href="aluno_cadastro.php">Cadastro</a></li>
+						<li><a href="aluno_notas.php">Cadastro</a></li>
 						<li><a href="relatorio.php">Gerar relatório</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
@@ -132,8 +195,11 @@ Sessao::validar();
 						id="collapseExamplePages7">
 						<li><a href="turma_cadastro.php">Cadastro</a></li>
 					</ul></li>
-
-				</li>
+			</ul>
+			<ul class="navbar-nav sidenav-toggler">
+				<li class="nav-item"><a class="nav-link text-center"
+					id="sidenavToggler"> <i class="fa fa-fw fa-angle-left"></i>
+				</a></li>
 			</ul>
 			<ul class="navbar-nav ml-auto">
 				<li class="nav-item"><a class="nav-link" data-toggle="modal"
@@ -146,46 +212,38 @@ Sessao::validar();
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="#">Relatorio</a></li>
-				<li class="breadcrumb-item active">Estatísticas</li>
+				<li class="breadcrumb-item">Relatório</li>
 			</ol>
-			<!-- Area Chart Example-->
-			<div class="card mb-3">
-				<div class="card-header">
-					<i class="fa fa-area-chart"></i> Area Chart Example
-				</div>
-				<div class="card-body">
-					<canvas id="myAreaChart" width="100%" height="30"></canvas>
-				</div>
-				<div class="card-footer small text-muted">Updated yesterday at 11:59
-					PM</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-8">
-					<!-- Example Bar Chart Card-->
-					<div class="card mb-3">
-						<div class="card-header">
-							<i class="fa fa-bar-chart"></i> Bar Chart Example
-						</div>
-						<div class="card-body">
-							<canvas id="myBarChart" width="100" height="50"></canvas>
-						</div>
-						<div class="card-footer small text-muted">Updated yesterday at
-							11:59 PM</div>
+			<div class="container">
+				<div>
+					<div class="card-body">
+						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
+							<div class="form-group">
+								<div class="form-row">
+									<div class="col-md-6" style="width: 100%; max-width: 100%; -webkit-box-flex: none; flex: none; ms-flex:none;">
+										<label for="exampleInputName">Tipo*</label> 
+										<select class="form-control" style="width: 100%; box-sizing:border-box;" id="tipo" aria-describedby="nameHelp" name="tipo" required> 
+											<option value="alunos" >Alunos</option>
+ 											<option value="turmas">Turmas</option>
+										</select>
+										<div id="tipoValidacao" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
+									</div>
+								</div>
+							</div>
+							<a class="btn btn-primary btn-block" onclick="submit()">Gerar relatório</a>
+						</form>
 					</div>
-				</div>
-				<div class="col-lg-4">
-					<!-- Example Pie Chart Card-->
-					<div class="card mb-3">
-						<div class="card-header">
-							<i class="fa fa-pie-chart"></i> Pie Chart Example
-						</div>
-						<div class="card-body">
-							<canvas id="myPieChart" width="100%" height="100"></canvas>
-						</div>
-						<div class="card-footer small text-muted">Updated yesterday at
-							11:59 PM</div>
-					</div>
+					<?php 
+					if (isset($showErrorMessage)){ ?>
+						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </div>
+					<?php 
+					}
+					
+					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
+					    <div style="color:green;text-align: center;">Registro criado com sucesso!</div>
+					<?php }
+					
+					?>
 				</div>
 			</div>
 		</div>
@@ -194,7 +252,7 @@ Sessao::validar();
 		<footer class="sticky-footer">
 			<div class="container">
 				<div class="text-center">
-					<small>Copyright © Your Website 2018</small>
+					<small>Copyright © GSE 2019</small>
 				</div>
 			</div>
 		</footer>
@@ -214,8 +272,8 @@ Sessao::validar();
 							<span aria-hidden="true">×</span>
 						</button>
 					</div>
-					<div class="modal-body">Selecione "Sair" abaixo, caso você esteja
-						pornto para encerrar a seção atual.</div>
+					<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja
+						pronto para encerrar a seção atual.</div>
 					<div class="modal-footer">
 						<button class="btn btn-secondary" type="button"
 							data-dismiss="modal">Cancelar</button>
@@ -232,12 +290,6 @@ Sessao::validar();
 		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 		<!-- Core plugin JavaScript-->
 		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-		<!-- Page level plugin JavaScript-->
-		<script src="vendor/chart.js/Chart.min.js"></script>
-		<!-- Custom scripts for all pages-->
-		<script src="js/sb-admin.min.js"></script>
-		<!-- Custom scripts for this page-->
-		<script src="js/sb-admin-charts.min.js"></script>
 	</div>
 </body>
 
