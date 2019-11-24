@@ -31,7 +31,12 @@ class relatorio_alunos {
                 $sheet->setCellValue('B'.($i + 2), $alunosResult[$i]["SOBRENOME"]);
                 $sheet->setCellValue('C'.($i + 2), $alunosResult[$i]["EMAIL"]);
                 $sheet->setCellValue('D'.($i + 2), $alunosResult[$i]["DATA_NASCIMENTO"]);
-                $sheet->setCellValue('E'.($i + 2), $alunosResult[$i]["TIPO_SEXO"]);
+                $sexo_db = $alunosResult[$i]["TIPO_SEXO"];
+                if ($sexo_db == 0){
+                    $sheet->setCellValue('E'.($i + 2), 'Feminino');
+                } else {
+                    $sheet->setCellValue('E'.($i + 2), 'Masculino');
+                }
             }
             
             $writer = new Xlsx($spreadsheet);
