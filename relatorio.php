@@ -223,8 +223,8 @@ function isNotBlank(value){
 									<div class="col-md-6" style="width: 100%; max-width: 100%; -webkit-box-flex: none; flex: none; ms-flex:none;">
 										<label for="exampleInputName">Tipo*</label> 
 										<select class="form-control" style="width: 100%; box-sizing:border-box;" id="tipo" aria-describedby="nameHelp" name="tipo" required> 
-											<option value="alunos" >Alunos</option>
- 											<option value="turmas">Turmas</option>
+											<option value="alunos" >Aluno</option>
+ 											<option value="turmas">Turma</option>
 										</select>
 										<div id="tipoValidacao" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
 									</div>
