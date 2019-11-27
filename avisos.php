@@ -25,7 +25,7 @@ $db2 = new db();
 $db3 = new db();
 
 $servidores_db = $db->query("SELECT p.ID, p.NOME, p.EMAIL, tp.NOME as PROFISSAO FROM PESSOA p JOIN TIPO_PESSOA tp ON
- (p.TIPO_PESSOA = tp.ID and tp.ID IN (1,2,4)) ORDER BY p.nome, p.sobrenome");
+ (p.TIPO_PESSOA = tp.ID) ORDER BY p.nome, p.sobrenome");
 
 $id = $pessoa->id;
 $mensagens_recebidas = $db1->query("SELECT m.AVISO, DATE_FORMAT(m.DATA_HORA_AVISO, '%d/%m/%Y %H:%i:%s') as DATA_HORA_AVISO , p.NOME, 
