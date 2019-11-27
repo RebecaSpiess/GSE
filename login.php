@@ -31,6 +31,7 @@ if (isset($_POST['email']) and isset($_POST['senha'])){
             $_SESSION['loggedGSEUser'] = serialize($usuarioLogado);
             header("Location: index.php");
         }
+        $db->close();
     }
 } 
 

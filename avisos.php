@@ -3,26 +3,44 @@ require 'bo/Sessao.php';
 require 'database/db.php';
 require 'model/Pessoa.php';
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
+// Load Composer's autoloader
+require 'vendor/autoload.php';
+
+// Instantiation and passing `true` enables exceptions
+$mail = new PHPMailer();
+
 use bo\Sessao;
 
 Sessao::validar();
 
-
+$pessoa = unserialize($_SESSION['loggedGSEUser']);
 
 $db = new db();
+$db1 = new db();
 $db2 = new db();
+$db3 = new db();
 
-$servidores_db = $db->query("SELECT p.ID, p.NOME, p.EMAIL, tp.NOME as PROFISSAO FROM PESSOA p JOIN TIPO_PESSOA tp ON (p.TIPO_PESSOA = tp.ID and tp.ID IN (1,2,4)) ORDER BY p.nome, p.sobrenome");
+$servidores_db = $db->query("SELECT p.ID, p.NOME, p.EMAIL, tp.NOME as PROFISSAO FROM PESSOA p JOIN TIPO_PESSOA tp ON
+ (p.TIPO_PESSOA = tp.ID and tp.ID IN (1,2,4)) ORDER BY p.nome, p.sobrenome");
+
+$id = $pessoa->id;
+$mensagens_recebidas = $db1->query("SELECT m.AVISO, DATE_FORMAT(m.DATA_HORA_AVISO, '%d/%m/%Y %H:%i:%s') as DATA_HORA_AVISO , p.NOME, 
+p.SOBRENOME, p.EMAIL FROM MENSAGEM m JOIN PESSOA p ON (m.REMETENTE = p.ID) WHERE m.DESTINATARIO = ? ORDER BY m.DATA_HORA_AVISO DESC", $id)->fetchAll();
 
 if (isset($_POST['servidor']) and
     isset($_POST['aviso'])){
         $servidor = $_POST['servidor'];
         $aviso = $_POST['aviso'];
-        $pessoa = unserialize($_SESSION['loggedGSEUser']);
         $remetente = $pessoa->id;
          
         if (!empty(trim($servidor)) and
             !empty(trim($aviso))){
+                $destinatario_db =  $db3->query("SELECT * FROM PESSOA WHERE ID = '" . $servidor . "'")->fetchAll();
+                
                 try {
                     $result = $db2->query("INSERT INTO MENSAGEM (REMETENTE, DESTINATARIO, AVISO)
                           VALUES (?,?,?) "
@@ -31,16 +49,29 @@ if (isset($_POST['servidor']) and
                         , substr($aviso,0,249)
                         )->query_count;
                         if ($result == 1){
-                            ini_set('SMTP', 'mysmtphost');
-                            ini_set('smtp_port', 587); 
-                            $from = "gse_aviso@smarthomecontrol.com.br";
-                            $to = "luizglasenapp@gmail.com";
-                            $subject = "GSE - Aviso";
-                            $message = "<html><body>" . $aviso . "</body></html>";
-                            $headers =  'MIME-Version: 1.0' . "\r\n";
-                            $headers .= 'From: GSE aviso ' . $from . "\r\n";
-                            $headers .= 'Content-type: text/html; charset=UTF-8' . "\r\n";
-                            mail($to, $subject, $message, $headers);
+                            //Server settings
+                            #$mail->SMTPDebug = SMTP::                      // Enable verbose debug output
+                            $mail->isSMTP();                                            // Send using SMTP
+                            $mail->Host       = 'email-ssl.com.br';                    // Set the SMTP server to send through
+                            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+                            $mail->Username   = 'gse_aviso@smarthomecontrol.com.br';                     // SMTP username
+                            $mail->Password   = 'Gse#2019!MB';                               // SMTP password
+                            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
+                            $mail->Port       = 587;                                    // TCP port to connect to
+                            
+                            //Recipients
+                            $mail->setFrom('gse_aviso@smarthomecontrol.com.br', 'GSE - ' . $pessoa->nome . ' ' . $pessoa->sobrenome);
+                            $mail->addReplyTo($pessoa->email);
+                            $mail->addAddress($destinatario_db[0]['EMAIL']); 
+                            
+                            // Content
+                            $mail->isHTML(true);                                  // Set email format to HTML
+                            $mail->Subject = 'GSE - Aviso';
+                            $mail->Body    = '<div style="color: #363534; font-family: Calibri, Candara;font-size: 12pt;"> Olá, <br/><br/> você recebeu a seguinte mensagem de <a href="mailto:' 
+                                . $pessoa->email . '">' . $pessoa->nome . ' '
+                                . $pessoa->sobrenome  . '</a>: <br/> <br/>' . $aviso . 
+                            '<br/><br/>Atenciosamente,<br/>GSE - Gestão Sócio Educacional.</div><span style="font-family: Calibri, Candara;font-size:10pt">http://smarthomecontrol.com.br</span>';
+                            $mail->send();
                         }
                 } catch (Exception $ex){
                     $error_code = $ex->getMessage();
@@ -48,6 +79,18 @@ if (isset($_POST['servidor']) and
                 }
         }
 }
+
+$msg = null;
+$msg_temp = null;
+foreach ($mensagens_recebidas as $single_row0) {
+    $horarioRecebimento = $single_row0['DATA_HORA_AVISO'];
+    $avisoRecebimento = $single_row0['AVISO'];
+    $nomeRecebimento = $single_row0['NOME'] . ' ' . $single_row0['SOBRENOME'];
+    $email = $single_row0['EMAIL'];
+    $msg_temp = $horarioRecebimento . '&#13;&#10;'. $nomeRecebimento . ' (' . $email . '): ' . $avisoRecebimento . '&#13;&#10;&#13;&#10;';
+    $msg .= trim($msg_temp);
+}
+
 
 
 ?>
@@ -73,6 +116,11 @@ if (isset($_POST['servidor']) and
 
 
 <script type="text/javascript">
+	function trimMensagensRecebidas() {
+		element = document.getElementById('mensagensRecebidas');
+		element.value = element.value.trim(); 
+	}
+
 	function submit() {
 		document.forms[0].submit();
 	}
@@ -111,7 +159,7 @@ if (isset($_POST['servidor']) and
 
 </head>
 
-<body class="fixed-nav sticky-footer bg-dark" id="page-top">
+<body class="fixed-nav sticky-footer bg-dark" id="page-top" onload="trimMensagensRecebidas();">
 	<!-- Navigation-->
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"
 		id="mainNav">
@@ -263,7 +311,7 @@ if (isset($_POST['servidor']) and
 						Avisos recebidos
 					</div>
 					<div class="card-body">
-						<canvas id="myBarChart" width="100%" height="90"></canvas>
+					<textarea class="form-control" id="mensagensRecebidas" rows="3" style="text-align: left;" disabled>	<?php echo $msg;?></textarea>
 					</div>
 				</div>
 			</div>
@@ -321,3 +369,11 @@ if (isset($_POST['servidor']) and
 </body>
 
 </html>
+
+<?php 
+$db->close();
+$db1->close();
+$db2->close();
+$db3->close();
+
+?>
