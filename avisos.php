@@ -1,9 +1,54 @@
 <?php
 require 'bo/Sessao.php';
+require 'database/db.php';
+require 'model/Pessoa.php';
 
 use bo\Sessao;
 
 Sessao::validar();
+
+
+
+$db = new db();
+$db2 = new db();
+
+$servidores_db = $db->query("SELECT p.ID, p.NOME, p.EMAIL, tp.NOME as PROFISSAO FROM PESSOA p JOIN TIPO_PESSOA tp ON (p.TIPO_PESSOA = tp.ID and tp.ID IN (1,2,4)) ORDER BY p.nome, p.sobrenome");
+
+if (isset($_POST['servidor']) and
+    isset($_POST['aviso'])){
+        $servidor = $_POST['servidor'];
+        $aviso = $_POST['aviso'];
+        $pessoa = unserialize($_SESSION['loggedGSEUser']);
+        $remetente = $pessoa->id;
+         
+        if (!empty(trim($servidor)) and
+            !empty(trim($aviso))){
+                try {
+                    $result = $db2->query("INSERT INTO MENSAGEM (REMETENTE, DESTINATARIO, AVISO)
+                          VALUES (?,?,?) "
+                        , $remetente
+                        , $servidor
+                        , substr($aviso,0,249)
+                        )->query_count;
+                        if ($result == 1){
+                            ini_set('SMTP', 'mysmtphost');
+                            ini_set('smtp_port', 587); 
+                            $from = "gse_aviso@smarthomecontrol.com.br";
+                            $to = "luizglasenapp@gmail.com";
+                            $subject = "GSE - Aviso";
+                            $message = "<html><body>" . $aviso . "</body></html>";
+                            $headers =  'MIME-Version: 1.0' . "\r\n";
+                            $headers .= 'From: GSE aviso ' . $from . "\r\n";
+                            $headers .= 'Content-type: text/html; charset=UTF-8' . "\r\n";
+                            mail($to, $subject, $message, $headers);
+                        }
+                } catch (Exception $ex){
+                    $error_code = $ex->getMessage();
+                    echo $error_code;
+                }
+        }
+}
+
 
 ?>
 
@@ -25,6 +70,45 @@ Sessao::validar();
 	rel="stylesheet" type="text/css">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+
+
+<script type="text/javascript">
+	function submit() {
+		document.forms[0].submit();
+	}
+  
+	function validateAndSubmitForm() {
+		var servidor = document.getElementById("servidor");
+		var aviso = document.getElementById("aviso");
+		var camposPreenchidos = true; 
+		if (!isNotBlank(servidor.value)){
+			camposPreenchidos = false;
+		} else {
+			camposPreenchidos = true;
+		}	
+
+		if (!isNotBlank(aviso.value)){
+			camposPreenchidos = false;
+		} else {
+			camposPreenchidos = true;				
+		}	
+
+		if (camposPreenchidos){
+			submit();
+		} else {
+			alert('Por favor preencha todos os campos!');
+		}			
+	}
+
+	function isNotBlank(value){
+		if (value == null){
+			return false;
+		}
+		return value.trim().length !== 0;
+	}	
+
+  </script>
+
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -151,28 +235,36 @@ Sessao::validar();
 			</ol>
 			<div class="card mb-3">
 				<div class="card-header">
-					<i class="fa fa-area-chart"></i> Enviar aviso
+					Enviar aviso
 				</div>
-				<label for="exampleInputName" style="margin-left: 16px;">Destinatário*</label>
-				<input class="form-control" id="exampleInputName" type="text"
-					aria-describedby="nameHelp" placeholder="Nome"
-					style="width: 96.9%; margin-left: 15px; margin-right: 90px" />
+		<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
 				<div class="card-body" style="margin-left: -5px; width: 100%">
-					<textarea class="form-control" id="exampleInputName"
-						aria-describedby="nameHelp" placeholder="descreva o aviso"> </textarea>
+					<label for="exampleInputName" style="margin-left: 16px;">Destinatário*</label>
+				<select class="form-control" id="servidor" name="servidor" required style="marging: 50px">
+					<div id="servidor" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
+          </div>
+																							<?php
+        $servidores_db_fetch = $servidores_db->fetchAll();
+        foreach ($servidores_db_fetch as $single_row0) {
+            echo "<option value=\"" . $single_row0['ID'] . "\">" . $single_row0['NOME'] . " (" . $single_row0['EMAIL'] . ") - " . $single_row0['PROFISSAO'] . "</option>";
+        } 
+        ?>
+										</select> <br>
+					<textarea class="form-control" id="aviso" rows="3"
+						name="aviso" placeholder="descreva o aviso" maxlength="250"> </textarea>
 				</div>
-				<a class="btn btn-primary btn-block" href="avisos.php">Enviar</a>
+				<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Enviar</a>
+				</form>
 			</div>
 			<div class="row">
 				<div class="card mb-3"
 					style="width: 100%; margin-left: 17px; margin-right: 17px">
 					<div class="card-header">
-						<i class="fa fa-bar-chart"></i> Avisos recebidos
+						Avisos recebidos
 					</div>
 					<div class="card-body">
-						<canvas id="myBarChart" width="100%" height="30"></canvas>
+						<canvas id="myBarChart" width="100%" height="90"></canvas>
 					</div>
-					<div class="card-footer small text-muted">Atualizado em</div>
 				</div>
 			</div>
 			<!-- /.container-fluid-->
@@ -180,7 +272,7 @@ Sessao::validar();
 			<footer class="sticky-footer">
 				<div class="container">
 					<div class="text-center">
-						<small>Copyright © Your Website 2018</small>
+						<small>Copyright © GSE 2019</small>
 					</div>
 				</div>
 			</footer>

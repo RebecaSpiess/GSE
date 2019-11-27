@@ -91,7 +91,6 @@
 
   <script type="text/javascript">
 	function submit() {
-		alert("chegou até aqui");
 		document.forms[0].submit();
 	}
   

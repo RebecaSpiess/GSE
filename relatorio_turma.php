@@ -15,11 +15,11 @@ class relatorio_turma {
             
             $db = new db();
             $alunos = $db->query("SELECT TU.NOME_TURMA AS TURMA, MA.NOME AS MATERIA, CONCAT(CONCAT(PE_PROFESSOR.NOME, ' '), PE_PROFESSOR.SOBRENOME) AS 'PROFESSOR',  PE.NOME, PE.SOBRENOME, PE.EMAIL, PE.DATA_NASCIMENTO, SEX.SEXO from TURMA TU 
-JOIN TURMA_PESSOA TUP ON (TU.ID = TUP.ID_TURMA)
-JOIN PESSOA PE ON (PE.ID = TU.ID_PESSOA)
-JOIN PESSOA PE_PROFESSOR ON (TU.ID_PESSOA = PE_PROFESSOR.ID)
-JOIN SEXO SEX ON (SEX.ID = PE.TIPO_SEXO)
-JOIN MATERIA MA ON (MA.ID = TU.ID)");
+            JOIN TURMA_PESSOA TUP ON (TU.ID = TUP.ID_TURMA)
+            JOIN PESSOA PE ON (PE.ID = TU.ID_PESSOA)
+            JOIN PESSOA PE_PROFESSOR ON (TU.ID_PESSOA = PE_PROFESSOR.ID)
+            JOIN SEXO SEX ON (SEX.ID = PE.TIPO_SEXO)
+            JOIN MATERIA MA ON (MA.ID = TU.ID)");
             $alunosResult = $alunos->fetchAll();
             
             $spreadsheet = new Spreadsheet();

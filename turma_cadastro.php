@@ -18,8 +18,8 @@ ControleAcesso::validar($papeisPermitidos);
 $db = new db();
 $db2 = new db();
 
-$aluno_db = $db->query("SELECT p.* FROM PESSOA p JOIN TIPO_PESSOA tp ON (p.TIPO_PESSOA = tp.ID and tp.NOME = 'Aluno') ORDER BY p.nome, p.sobrenome");
-$professor_db = $db2->query("SELECT p.* FROM PESSOA p JOIN TIPO_PESSOA tp ON (p.TIPO_PESSOA = tp.ID and tp.NOME = 'Professor') ORDER BY p.nome, p.sobrenome");
+$aluno_db = $db->query("SELECT p.* FROM PESSOA p JOIN TIPO_PESSOA tp ON (p.TIPO_PESSOA = tp.ID and tp.ID = 3) ORDER BY p.nome, p.sobrenome");
+$professor_db = $db2->query("SELECT p.* FROM PESSOA p JOIN TIPO_PESSOA tp ON (p.TIPO_PESSOA = tp.ID and tp.ID = 1) ORDER BY p.nome, p.sobrenome");
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
