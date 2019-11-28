@@ -244,7 +244,7 @@ if (isset($_SESSION['mensagem_notas'])){
 									<label for="turma">Turma*</label> 
 									<select
 										class="form-control"
-										aria-describedby="nameHelp" placeholder="Turma" id="turma" name="turma">
+										aria-describedby="nameHelp" id="turma" name="turma">
 									
 									<?php
                                             foreach ($db_turma_fetch as $single_row1) {
@@ -256,7 +256,7 @@ if (isset($_SESSION['mensagem_notas'])){
 								</div>
 								<br>
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-								<label for="planoAula">Assunto*</label> 
+								<label for="assunto">Assunto*</label> 
 									<input
 										class="form-control" id="assunto" type="text"
 										maxlength="255"  name="assunto"

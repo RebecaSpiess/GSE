@@ -2,6 +2,7 @@
 require 'bo/Sessao.php';
 require  'bo/ControleAcesso.php';
 require 'database/db.php';
+
 use bo\Sessao;
 use bo\ControleAcesso;
 use model\Pessoa;
@@ -11,24 +12,44 @@ Sessao::validar();
 $papeisPermitidos = array(2,4,1);
 ControleAcesso::validar($papeisPermitidos);
 
+$turma_id = $_POST['turma'];
+$data = $_POST['data'];
 
+$showErrorMessage = null;
 $showSuccessMessage = false;
-$mensagem_sucesso = null;
 
 $db0 = new db();
+$db1 = new db();
+$db2 = new db();
 
-$db_turma_fetch = $db0->query("SELECT NOME_TURMA, ID FROM TURMA ORDER BY NOME_TURMA")->fetchAll();
+$db_turma_fetch = $db0->query("SELECT PE.ID, PE.NOME, PE.SOBRENOME, TU.NOME_TURMA FROM TURMA TU JOIN TURMA_PESSOA TU_PE ON (TU_PE.ID_TURMA = TU.ID) JOIN PESSOA PE ON (TU_PE.ID_PESSOA = PE.ID) 
+WHERE PE.TIPO_PESSOA = 3 AND TU.ID = ? ORDER BY PE.NOME, PE.SOBRENOME", $turma_id)->fetchAll();
 
-$db0->close();
-
-if (isset($_SESSION['mensagem_frequencia'])){
-    $showSuccessMessage = true;
-    $mensagem_sucesso = $_SESSION['mensagem_frequencia'];
-    unset($_SESSION['mensagem_frequencia']);
+if (isset($_POST['cadastro_frequencia'])){
+        $cadastro_frequencia = $_POST['cadastro_frequencia'];
+        $count = 0;
+        if (!empty(trim($cadastro_frequencia)) and $cadastro_frequencia == 'true'){
+            $db2->query("DELETE FROM FREQUENCIA WHERE ID_TURMA = ? AND DATA = ?", $turma_id, $data);
+            $db2->close();
+            foreach ($db_turma_fetch as $single_row0) {
+                $count++;
+                $presente = 0;
+                if (isset($_POST[$single_row0['ID']])){
+                    $presente = 1;
+                }
+                $db1->query("INSERT INTO FREQUENCIA (ID_PESSOA, DATA, PRESENCA, ID_TURMA) VALUES (?,?,?,?) ",$single_row0['ID'],$data,$presente,$turma_id);
+                $db1->close();
+                $db1 = new db();
+            }
+            header("Location: /GSE/frequencia_cadastro.php");
+            if ($count == 1){
+                $_SESSION['mensagem_frequencia'] = "Frequência cadastrada com sucesso!";
+            } else if ($count > 1){
+                $_SESSION['mensagem_frequencia'] = "Frequências cadastradas com sucesso!";
+            }
+        }
+        $db1->close();
 }
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -40,7 +61,7 @@ if (isset($_SESSION['mensagem_frequencia'])){
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Cadastro de frequência de alunos</title>
+<title>GSE - Notas de aluno</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -53,34 +74,35 @@ if (isset($_SESSION['mensagem_frequencia'])){
 <link href="css/sb-admin.css" rel="stylesheet">
 
 
-
  <script type="text/javascript">
 	function submit() {
 		document.forms[0].submit();
 	}
   
 	function validateAndSubmitForm() {
-		var mensagem = document.getElementById("mensagemSucesso");
-		if (mensagem != null){
-			mensagem.style.display = 'none';
-		}	
-		
-		var turma = document.getElementById("turma");
-		var data = document.getElementById("data");
 		var camposPreenchidos = true;
-		 
-		if (!isNotBlank(turma.value)){
-			camposPreenchidos = false;
-		}
-
-		if (!isNotBlank(data.value)){
-			camposPreenchidos = false;
-		}
-		
-		if (camposPreenchidos){
+		var existeCampoPreenchido = false;
+		<?php
+        foreach ($db_turma_fetch as $single_row1) {
+            echo "var aluno_" .  $single_row1['ID'] . " = document.getElementById(\"" . $single_row1['ID'] . "\");\n";
+            
+            echo "if (isNotBlank(aluno_" .$single_row1['ID'] . ".value)){\n";
+            echo "    var value_aluno_" .$single_row1['ID'] . " =  aluno_" .$single_row1['ID'] . ".value;\n";
+            echo "    existeCampoPreenchido = true;\n";
+            echo "    if (value_aluno_" . $single_row1['ID'] . " < 0 || value_aluno_" . $single_row1['ID'] ."  > 10) {\n";
+            echo "         camposPreenchidos = false;\n";
+            echo "    }\n";
+            echo "}\n\n";
+        } 
+       ?>
+       	
+		if (!existeCampoPreenchido){
+			alert('Preencha ao menos um campo de nota!');
+		} else if (camposPreenchidos){
+			document.getElementById('cadastro_frequencia').value = 'true';
 			submit();
 		} else {
-			alert('Preencha os campos obrigatórios!');
+			alert('Preencha os campos cujo os valores deverão estar entre o seguinte intervalo: 0 e 10!');
 		}			
 	}
 
@@ -238,42 +260,47 @@ if (isset($_SESSION['mensagem_frequencia'])){
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item">Alunos</li>
-				<li class="breadcrumb-item active">Cadastro</li>
+				<li class="breadcrumb-item active">Notas</li>
 			</ol>
 			<div class="container">
 				<div>
-					<div class="card-body">
-						<form method="post" action="cadastro_frequencia_aluno.php">
+					<div class="card-body" style="border-style: solid; border-width: 1px; border-color: #b3b8bd;">
+						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
 							<div class="form-group">
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-									<label for="turma">Turma*</label> 
-									<select
-										class="form-control"
-										aria-describedby="nameHelp" id="turma" name="turma">
-									
+								
+								<span style="font-weight: bold;">Turma:</span> <?php echo $db_turma_fetch[0]['NOME_TURMA'];?><br>
+								<span style="font-weight: bold;">Data:</span> <?php echo $data;?><br>
+								<input type="hidden" name="turma" value="<?php echo $turma_id;?>" />
+								<input type="hidden" name="data" value="<?php echo $data;?>" />
+								<input type="hidden" name="cadastro_frequencia" id="cadastro_frequencia" value="false" />
+								<br>
+								<table cellpadding="3">									
 									<?php
                                             foreach ($db_turma_fetch as $single_row1) {
-                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME_TURMA'] . "</option>";
+                                                echo "<tr>";
+                                                echo "<td>" . $single_row1['NOME'] . ' ' . $single_row1['SOBRENOME'] . "</td>";
+                                                echo "<td>" . "<input type=\"checkbox\" name=\"". $single_row1['ID'] . "\" id=\"". $single_row1['ID'] . "\" /> </td>";
+                                                echo "</tr>";
                                             } 
                                         ?>
-										
-									</select>
+								</table>		
 								</div>
 								<br>
-								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-								
-								<label for="data">Data*</label> 
-								<input class="form-control" name="data" type="date" id="data" placeholder="Data de nascimento" required>
-								</div>
 							</div>
 					
-        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>
+        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar frequências</a>
 					</form>
 					</div>
 				</div>
 				<?php 
-					if ($showSuccessMessage){ ?>
-					    <div style="color:green;text-align: center;" id="mensagemSucesso"><?php echo $mensagem_sucesso;?></div>
+					if (isset($showErrorMessage)){ ?>
+						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </div>
+					<?php 
+					}
+					
+					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
+					    <div style="color:green;text-align: center;">Notas cadastradas com sucesso!</div>
 					<?php }
 					
 					?>
@@ -335,3 +362,7 @@ if (isset($_SESSION['mensagem_frequencia'])){
 </body>
 
 </html>
+
+<?php 
+$db0->close();
+?>
