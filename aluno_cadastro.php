@@ -17,11 +17,13 @@
     $showErrorMessage = null;
     $showSuccessMessage = false;
     
+    
     if (isset($_POST['nome']) and
         isset($_POST['sobrenome']) and
         isset($_POST['email']) and
         isset($_POST['data_nascimento']) and
         isset($_POST['sexo'])){
+            
             $nome = $_POST['nome'];
             $sobrenome = $_POST['sobrenome'];
             $email = $_POST['email'];
@@ -31,8 +33,7 @@
             if (!empty(trim($nome)) and
                 !empty(trim($sobrenome)) and
                 !empty(trim($email)) and
-                !empty(trim($data_nascimento)) and
-                !empty(trim($sexo))){
+                !empty(trim($data_nascimento))){
                       $pessoa = new Pessoa();
                       $pessoa->nome = $nome;
                       $pessoa->sobrenome = $sobrenome;
@@ -100,7 +101,6 @@
 		var sobreNome = document.getElementById("sobreNome");
 		var email = document.getElementById("email");
 		var dataNascimento = document.getElementById("nascimento");
-		var sexo = document.getElementById("typeSexo");
 		var camposPreenchidos = true; 
 		if (!isNotBlank(nome.value)){
 			camposPreenchidos = false;
@@ -329,10 +329,10 @@
 									<div class="col-md-6">
 										<label for="typeSexo">Sexo*</label><br> 
 										<input
-											type="radio" name="sexo" value="1"
+											type="radio" name="sexo" id="sexo"  value="1"
 											checked required> Masculino<br> 
 										<input type="radio"
-											name="sexo" value="0" required>Feminino<br>
+											name="sexo" value="0" id="sexo" required>Feminino<br>
 											<div id="intputSexo" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
 									</div>
 								</div>
