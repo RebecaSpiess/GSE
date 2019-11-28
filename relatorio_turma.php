@@ -12,8 +12,8 @@ class relatorio_turma {
     function gerarRelatorio() {
         $streamedResponse = new StreamedResponse();
         $streamedResponse->setCallback(function () {
-            
             $db = new db();
+            
             $alunos = $db->query("SELECT TU.NOME_TURMA AS TURMA, MA.NOME AS MATERIA, CONCAT(CONCAT(PE_PROFESSOR.NOME, ' '), PE_PROFESSOR.SOBRENOME) AS 'PROFESSOR',  PE.NOME, PE.SOBRENOME, PE.EMAIL, PE.DATA_NASCIMENTO, SEX.SEXO from TURMA TU 
             JOIN TURMA_PESSOA TUP ON (TU.ID = TUP.ID_TURMA)
             JOIN PESSOA PE ON (PE.ID = TU.ID_PESSOA)
@@ -55,12 +55,15 @@ class relatorio_turma {
             $spreadsheet->removeSheetByIndex(1);
             $writer = new Xlsx($spreadsheet);
             $writer->save('php://output');
+            
+            $db->close();
         });
             
         $streamedResponse->setStatusCode(Response::HTTP_OK);
         $streamedResponse->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         $streamedResponse->headers->set('Content-Disposition', 'attachment; filename="Relatório de turmas.xlsx"');
         $streamedResponse->send();
+        
         exit;
     }
 }

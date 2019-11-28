@@ -16,22 +16,24 @@ $papeisPermitidos = array(
 ControleAcesso::validar($papeisPermitidos);
 
 $db = new db();
+$db1 = new db();
 $db2 = new db();
+
 
 $aluno_db = $db->query("SELECT p.* FROM PESSOA p JOIN TIPO_PESSOA tp ON (p.TIPO_PESSOA = tp.ID and tp.ID = 3) ORDER BY p.nome, p.sobrenome");
 $professor_db = $db2->query("SELECT p.* FROM PESSOA p JOIN TIPO_PESSOA tp ON (p.TIPO_PESSOA = tp.ID and tp.ID = 1) ORDER BY p.nome, p.sobrenome");
 
+$materia_db = $db1->query("SELECT ID, NOME FROM MATERIA ORDER BY NOME")->fetchAll();
+
 $showErrorMessage = null;
 $showSuccessMessage = false;
 
-if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and isset($_POST['nome_aluno'])) {
+if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel'])) {
     $nome_turma = $_POST['nome_turma'];
     $professor_responsavel = $_POST['professor_responsavel'];
-    $nome_aluno = $_POST['nome_aluno'];
-
-    if (! empty(trim($nome_turma)) and ! empty(trim($professor_responsavel)) and ! empty(trim($nome_aluno))) {
+    
+    if (! empty(trim($nome_turma)) and ! empty(trim($professor_responsavel))) {
         $turma = new Turma();
-        $turma->id_pessoa = $nome_aluno;
         $turma->id_pessoa = $professor_responsavel;
         $turma->nome_turma = $nome_turma;
         try {
@@ -92,13 +94,6 @@ debbuger;
 			document.getElementById("nome_turma").style.display = "none";
 		}	
 
-		if (!isNotBlank(professor_responsavel.value)){
-			camposPreenchidos = false;
-			document.getElementById("professorResponsavel").style.display = "block";
-		} else {				
-			document.getElementById("professorResponsavel").style.display = "none";
-		}	
-
 		if (camposPreenchidos){
 			submit();
 		}		
@@ -136,89 +131,108 @@ debbuger;
 						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Alunos</span>
 				</a>
 					<ul class="sidenav-second-level collapse" id="collapseExamplePages">
-						<li><a href="login.html">Cadastro</a></li>
-						<li><a href="register.html">Notas</a></li>
-						<li><a href="forgot-password.html">Ocorrências</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+							<li><a href="aluno_cadastro.php">Cadastro</a></li>
+						<?php } ?>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="aluno_ocorrencias.php">Ocorrências</a></li>
+						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
-					title="Charts"><a class="nav-link" href="charts.html"> <i
+					title="Charts"><a class="nav-link" href="avisos.php"> <i
 						class="fa fa-fw fa-area-chart"></i> <span class="nav-link-text">Avisos</span>
 				</a></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages1" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Disciplinas</span>
+					href="#collapseExamplePages1" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Disciplinas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages1">
-						<li><a href="login.html">Cadastro</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="disciplina_cadastro.php">Cadastro</a></li>
+						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages2" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
+					href="#collapseExamplePages2" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
-						<li><a href="login.html">Cadastro</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="frequencia_cadastro.php">Cadastro</a></li>
+						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages3" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
+					href="#collapseExamplePages3" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
-						<li><a href="login.html">Cadastro</a></li>
-						<li><a href="register.html">Gerar relatório</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="aluno_notas.php">Cadastro</a></li>
+						<?php } ?>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="relatorio.php">Gerar relatório</a></li>
+						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages4" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Plano de
-							aula</span>
+					href="#collapseExamplePages4" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Plano
+							de aula</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages4">
-						<li><a href="login.html">Cadastro</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="plano_aula_cadastro.php">Cadastro</a></li>
+						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages5" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Ocorrências</span>
+					href="#collapseExamplePages5" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Ocorrências</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages5">
-						<li><a href="login.html">Cadastro</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="ocorrencias_cadastro_busca.php">Cadastro</a></li>
+						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
-					title="Charts"><a class="nav-link" href="charts.html"> <i
+					title="Charts"><a class="nav-link" href="relatorio.php"> <i
 						class="fa fa-fw fa-area-chart"></i> <span class="nav-link-text">Relatório</span>
 				</a></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages6" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Servidores</span>
+					href="#collapseExamplePages6" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Servidores</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages6">
-						<li><a href="login.html">Cadastro</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="servidores_cadastro.php">Cadastro</a></li>
+						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages7" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Turmas</span>
+					href="#collapseExamplePages7" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Turmas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages7">
-						<li><a href="login.html">Cadastro</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="turma_cadastro.php">Cadastro</a></li>
+						<?php } ?>
 					</ul></li>
 			</ul>
 			<ul class="navbar-nav sidenav-toggler">
@@ -246,35 +260,54 @@ debbuger;
 						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
 							<div class="form-group">
 								<div class="form-row">
-									<div class="col-md-6">
+									<div class="col-md-6" style="width:100%; max-width: 100%; flex: none;">
 										<label for="exampleInputName">Nome da turma*</label> <input
 											class="form-control" id="nomeTurma" type="text"
 											aria-describedby="nameHelp" placeholder="Nome da turma"
 											name="nome_turma" required>
 											<div id="nome_turma" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
-          </div>
-									</div>
-									<div class="col-md-6">
+          							</div>
+								</div>
+								<br>
+								<div class="col-md-6" style="padding-left: 0px;padding-right: 0px;width:100%; max-width: 100%;">
 										<label for="exampleInputLastName">Professor responsável*</label>
 										<select class="form-control" id="professorResp"
-											aria-describedby="nameHelp" placeholder="Sexo"
+											aria-describedby="nameHelp"
 											name="professor_responsavel" required>
-											<div id="professorResponsavel" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
-          </div>
-																							<?php
-        $professor_db_fetch = $professor_db->fetchAll();
-        foreach ($professor_db_fetch as $single_row0) {
-            echo "<option value=\"" . $single_row0['ID'] . "\">" . $single_row0['NOME'] . "</option>";
-        } 
-        ?>
+          
+                            		<?php
+                                        $professor_db_fetch = $professor_db->fetchAll();
+                                        foreach ($professor_db_fetch as $single_row0) {
+                                            echo "<option value=\"" . $single_row0['ID'] . "\">" . $single_row0['NOME'] . "</option>";
+                                        } 
+                                    ?>
 										</select>
+								</div>
+								<br>
+								<div class="col-md-6" style="padding-left: 0px;padding-right: 0px;width:100%; max-width: 100%;">
+										<label>Matéria*</label>
+										<select class="form-control" id="materia" name="materia" required>
+										<?php
+                                            foreach ($materia_db as $single_row1) {
+                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME'] . "</option>";
+                                            } 
+                                        ?>
+										</select>
+								</div>
+								<br>		
+										
+										
+										
+
 										<div class="form-group">
 											<label for="exampleInputEmail1">Alunos*</label><br>
 																							<?php
         $aluno_db_fetch = $aluno_db->fetchAll();
+        $nameCheckBox = 0;
         foreach ($aluno_db_fetch as $single_row1) {
-            echo "<input type=\"checkbox\" value=\"" . $single_row1['ID'] . "\"> " . $single_row1['NOME'] . " " 
+            echo "<input type=\"checkbox\" name=\"alunoCheck_" . $nameCheckBox . "\" value=\"" . $single_row1['ID'] . "\"> " . $single_row1['NOME'] . " " 
  . $single_row1['SOBRENOME'] . "</input> <br>";
+        $nameCheckBox++;
         }
         ?>
 										</div>
@@ -350,3 +383,10 @@ debbuger;
 </body>
 
 </html>
+
+<?php 
+$db->close();
+$db1->close();
+$db2->close();
+?>
+

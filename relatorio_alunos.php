@@ -27,7 +27,7 @@ class relatorio_alunos {
             $sheet->setCellValue('D1', 'Data de nascimento');
             $sheet->setCellValue('E1', 'Sexo');
             
-            $spreadsheet->getSheet(0)->getStyle('A1:E1')->getFont()->setBold(true);
+            $spreadsheet->getSheet(0)->getStyle('A1:E1')->getFont()->setBold(true); //Deixa negrito
             $spreadsheet->getSheet(0)->setSelectedCell('A1');
             
             for($i = 0; $i < sizeof($alunosResult); $i++){
@@ -38,6 +38,7 @@ class relatorio_alunos {
                 
                 $date = date_create($alunosResult[$i]["DATA_NASCIMENTO"]);
                 $sheet->setCellValue('D'.($i + 2), date_format($date, 'd/m/Y'));
+                
                 $sexo_db = $alunosResult[$i]["TIPO_SEXO"];
                 if ($sexo_db == 0){
                     $sheet->setCellValue('E'.($i + 2), 'Feminino');
@@ -46,13 +47,19 @@ class relatorio_alunos {
                 }
             }
             foreach(range('A',$sheet->getHighestColumn()) as $column) {
-                $sheet->getColumnDimension($column)->setAutoSize(true);
+                $sheet->getColumnDimension($column)->setAutoSize(true); // Ajuste de colunas
             }
+            
+            //Baixar excel
             
             $spreadsheet->removeSheetByIndex(1);
             $writer = new Xlsx($spreadsheet);
             $writer->save('php://output');
+            
+            $db->close();
         });
+        
+        //Cabeçalho navegador
         
         $streamedResponse->setStatusCode(Response::HTTP_OK);
         $streamedResponse->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

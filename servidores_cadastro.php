@@ -101,89 +101,108 @@ if (isset($_POST['tipo_pessoa']) and isset($_POST['nome']) and isset($_POST['sob
 						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Alunos</span>
 				</a>
 					<ul class="sidenav-second-level collapse" id="collapseExamplePages">
-						<li><a href="login.html">Cadastro</a></li>
-						<li><a href="register.html">Notas</a></li>
-						<li><a href="forgot-password.html">Ocorrências</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+							<li><a href="aluno_cadastro.php">Cadastro</a></li>
+						<?php } ?>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="aluno_ocorrencias.php">Ocorrências</a></li>
+						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
-					title="Charts"><a class="nav-link" href="charts.html"> <i
+					title="Charts"><a class="nav-link" href="avisos.php"> <i
 						class="fa fa-fw fa-area-chart"></i> <span class="nav-link-text">Avisos</span>
 				</a></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages1" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Disciplinas</span>
+					href="#collapseExamplePages1" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Disciplinas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages1">
-						<li><a href="login.html">Cadastro</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="disciplina_cadastro.php">Cadastro</a></li>
+						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages2" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
+					href="#collapseExamplePages2" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
-						<li><a href="login.html">Cadastro</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="frequencia_cadastro.php">Cadastro</a></li>
+						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages3" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
+					href="#collapseExamplePages3" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
-						<li><a href="login.html">Cadastro</a></li>
-						<li><a href="register.html">Gerar relatório</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="aluno_notas.php">Cadastro</a></li>
+						<?php } ?>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="relatorio.php">Gerar relatório</a></li>
+						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages4" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Plano de
-							aula</span>
+					href="#collapseExamplePages4" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Plano
+							de aula</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages4">
-						<li><a href="login.html">Cadastro</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="plano_aula_cadastro.php">Cadastro</a></li>
+						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages5" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Ocorrências</span>
+					href="#collapseExamplePages5" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Ocorrências</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages5">
-						<li><a href="login.html">Cadastro</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="ocorrencias_cadastro_busca.php">Cadastro</a></li>
+						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
-					title="Charts"><a class="nav-link" href="charts.html"> <i
+					title="Charts"><a class="nav-link" href="relatorio.php"> <i
 						class="fa fa-fw fa-area-chart"></i> <span class="nav-link-text">Relatório</span>
 				</a></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages6" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Servidores</span>
+					href="#collapseExamplePages6" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Servidores</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages6">
-						<li><a href="login.html">Cadastro</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="servidores_cadastro.php">Cadastro</a></li>
+						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages7" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Turmas</span>
+					href="#collapseExamplePages7" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Turmas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages7">
-						<li><a href="login.html">Cadastro</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<li><a href="turma_cadastro.php">Cadastro</a></li>
+						<?php } ?>
 					</ul></li>
 			</ul>
 			<ul class="navbar-nav sidenav-toggler">
@@ -359,3 +378,7 @@ if (isset($_POST['tipo_pessoa']) and isset($_POST['nome']) and isset($_POST['sob
 </body>
 
 </html>
+
+<?php 
+$db->close();
+?>
