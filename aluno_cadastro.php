@@ -131,13 +131,6 @@
 			document.getElementById("data_nascimento").style.display = "none";
 		}
 
-		if (!isNotBlank(sexo.value)){
-			camposPreenchidos = false;
-			document.getElementById("intputSexo").style.display = "block";
-		} else {				
-			document.getElementById("intputSexo").style.display = "none";
-		}
-		
 		if (camposPreenchidos){
 			submit();
 		}		
