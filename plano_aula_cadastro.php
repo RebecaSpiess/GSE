@@ -1,6 +1,7 @@
 <?php
 require 'bo/Sessao.php';
 require  'bo/ControleAcesso.php';
+require 'database/db.php';
 
 use bo\Sessao;
 use bo\ControleAcesso;
@@ -10,6 +11,43 @@ Sessao::validar();
 
 $papeisPermitidos = array(2,4,1);
 ControleAcesso::validar($papeisPermitidos);
+
+
+$showErrorMessage = null;
+$showSuccessMessage = false;
+
+$db0 = new db();
+$db1 = new db();
+
+$db_turma_fetch = $db0->query("SELECT NOME_TURMA, ID FROM TURMA ORDER BY NOME_TURMA")->fetchAll();
+
+if (isset($_POST['turma']) and
+    isset($_POST['planoAula'])){
+        $turma = $_POST['turma'];
+        $planoAula = $_POST['planoAula'];
+        
+        if (!empty(trim($turma)) and
+            !empty(trim($planoAula))){
+                try {
+                    $result = $db1->query("INSERT INTO PLANO_AULA (ID_TURMA, DESCRICAO)
+                          VALUES (?,?) "
+                        , $turma
+                        , $planoAula                        
+                        )->query_count;
+                        if ($result == 1){
+                            $showSuccessMessage = true;
+                        }
+                } catch (Exception $ex){
+                    $error_code = $ex->getMessage();
+                    if ($error_code == 1062){
+                        $showErrorMessage = "Já existe um registro com ID informado!";
+                    } else {
+                        $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
+                    }
+                }
+        }
+    }
+
 ?>
 
 <!DOCTYPE html>
@@ -32,6 +70,41 @@ ControleAcesso::validar($papeisPermitidos);
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+
+
+  <script type="text/javascript">
+	function submit() {
+		document.forms[0].submit();
+	}
+  
+	function validateAndSubmitForm() {
+		var turma = document.getElementById("turma");
+		var planoAula = document.getElementById("planoAula");
+		var camposPreenchidos = true;
+		 
+		if (!isNotBlank(turma.value)){
+			camposPreenchidos = false;
+		}
+		
+		if (!isNotBlank(planoAula.value)){
+			camposPreenchidos = false;
+		}	
+
+		if (camposPreenchidos){
+			submit();
+		} else {
+			alert('Preencha todos os campos obrigatórios!');
+		}			
+	}
+
+	function isNotBlank(value){
+		if (value == null){
+			return false;
+		}
+		return value.trim().length !== 0;
+	}	
+
+  </script>
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -181,23 +254,44 @@ ControleAcesso::validar($papeisPermitidos);
 			<div class="container">
 				<div>
 					<div class="card-body">
-						<form>
+						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
 							<div class="form-group">
-								<div class="form-row"></div>
-								<div class="col-md-6">
-									<label for="exampleInputLastName">Turma*</label> <select
-										class="form-control" id="exampleInputLastName"
-										aria-describedby="nameHelp" placeholder="Sexo">
-										<option value="T1">Primeiro ano</option>
-										<option value="T2">Segundo ano</option>
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+									<label for="turma">Turma*</label> 
+									<select
+										class="form-control"
+										aria-describedby="nameHelp" placeholder="Turma" id="turma" name="turma">
+									
+									<?php
+                                            foreach ($db_turma_fetch as $single_row1) {
+                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME_TURMA'] . "</option>";
+                                            } 
+                                        ?>
+										
 									</select>
+								</div>
+								<br>
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+								<label for="planoAula">Plano de aula*</label> 
+									<textarea rows="10" cols="30" style="width: 100%; max-width:100% " maxlength="250" id="planoAula" name="planoAula"></textarea>
 								</div>
 							</div>
 					
-					</div>
-					<a class="btn btn-primary btn-block" href="">Buscar</a>
+        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>
 					</form>
+					</div>
 				</div>
+				<?php 
+					if (isset($showErrorMessage)){ ?>
+						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </div>
+					<?php 
+					}
+					
+					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
+					    <div style="color:green;text-align: center;">Registro criado com sucesso!</div>
+					<?php }
+					
+					?>
 			</div>
 		</div>
 	</div>
@@ -257,3 +351,9 @@ ControleAcesso::validar($papeisPermitidos);
 </body>
 
 </html>
+
+<?php 
+$db0->close();
+$db1->close();
+
+?>
