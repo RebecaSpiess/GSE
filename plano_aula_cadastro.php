@@ -1,4 +1,5 @@
 <?php
+
 require 'bo/Sessao.php';
 require  'bo/ControleAcesso.php';
 require 'database/db.php';
@@ -6,7 +7,6 @@ require 'database/db.php';
 use bo\Sessao;
 use bo\ControleAcesso;
 use model\Pessoa;
-
 Sessao::validar();
 
 $papeisPermitidos = array(2,4,1);
@@ -49,6 +49,8 @@ if (isset($_POST['turma']) and
     }
 
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">

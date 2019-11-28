@@ -66,7 +66,6 @@ if (isset($_POST['aluno']) and
                             
                             $mail->addAddress($db_aluno_email_fetch[0]['EMAIL']);
                             $mail->CharSet='UTF-8';
-                            #$mail->Encoding = 'base64';
                             
                             // Content
                             $mail->isHTML(true);                                  // Set email format to HTML

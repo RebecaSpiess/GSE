@@ -13,8 +13,9 @@ if (isset($_POST['email']) and isset($_POST['senha'])){
     $senha = $_POST["senha"];
     if (!empty(trim($email)) and !empty(trim($senha))){
         $db = new db();
+        $enc_senha = hash('sha512',$senha.'GSE');
         $pessoa = $db->query('SELECT * FROM PESSOA WHERE EMAIL = ? AND SENHA = ?',
-            $email, $senha);
+            $email, $enc_senha);
         
         $contador = $pessoa->numRows();
         $pessoaResult = $pessoa->fetchAll();

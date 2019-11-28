@@ -42,12 +42,13 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
         $pessoa->data_nascimento = $data_nascimento;
         $pessoa->sexo = $sexo;
         $pessoa->senha = 'Start1234'; // Senha padrão
+        $enc_senha = hash('sha512',$pessoa->senha.'GSE');
         $pessoa->tipo_pessoa = $tipo_pessoa;
         $pessoa->cpf = $cpf;
         $pessoa->telefone = $telefone;
         try {
             $result = $db1->query("INSERT INTO PESSOA (NOME, SOBRENOME, EMAIL, DATA_NASCIMENTO, TIPO_SEXO, TIPO_PESSOA, SENHA, CPF, TELEFONE)
-                          VALUES (?,?,?,?,?,?,?,?,?)", $pessoa->nome, $pessoa->sobrenome, $pessoa->email, $pessoa->data_nascimento, $pessoa->sexo, $pessoa->tipo_pessoa, $pessoa->senha, $pessoa->cpf, $pessoa->telefone)->query_count;
+                          VALUES (?,?,?,?,?,?,?,?,?)", $pessoa->nome, $pessoa->sobrenome, $pessoa->email, $pessoa->data_nascimento, $pessoa->sexo, $pessoa->tipo_pessoa, $enc_senha, $pessoa->cpf, $pessoa->telefone)->query_count;
             if ($result == 1) {
                 $showSuccessMessage = true;
             }

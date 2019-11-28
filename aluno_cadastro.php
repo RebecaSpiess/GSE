@@ -39,7 +39,8 @@
                       $pessoa->email = $email;
                       $pessoa->data_nascimento = $data_nascimento;
                       $pessoa->sexo = $sexo;
-                      $pessoa->senha = 'Start1234'; //Senha padrão
+                      $pessoa->senha = '123456'; //Senha padrão
+                      $enc_senha = hash('sha512',$pessoa->senha.'GSE');
                       $pessoa->tipo_pessoa = 3; //Aluno
                       try {
                           $result = $db->query("INSERT INTO PESSOA (NOME, SOBRENOME, EMAIL, DATA_NASCIMENTO, TIPO_SEXO, TIPO_PESSOA, SENHA)
@@ -50,7 +51,7 @@
                               , $pessoa->data_nascimento
                               , $pessoa->sexo
                               , $pessoa->tipo_pessoa
-                              , $pessoa->senha
+                              , $enc_senha
                               )->query_count;
                               if ($result == 1){
                                   $showSuccessMessage = true;
