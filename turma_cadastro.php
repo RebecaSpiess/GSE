@@ -330,7 +330,7 @@ debbuger;
 										
 
 										<div class="form-group">
-											<label for="exampleInputEmail1">Alunos*</label><br>
+											<label for="exampleInputEmail1">Alunos</label><br>
 																							<?php
         $nameCheckBox = 0;
         foreach ($aluno_db_fetch as $single_row1) {
