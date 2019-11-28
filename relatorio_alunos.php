@@ -27,15 +27,16 @@ class relatorio_alunos {
             $sheet->setCellValue('C1', 'E-Mail');
             $sheet->setCellValue('D1', 'Data de nascimento');
             $sheet->setCellValue('E1', 'Sexo');
+            $sheet->setCellValue('F1', 'Notas');
             
-            $spreadsheet->getSheet(0)->getStyle('A1:E1')->getFont()->setBold(true); //Deixa negrito
+            $spreadsheet->getSheet(0)->getStyle('A1:F1')->getFont()->setBold(true); //Deixa negrito
             $spreadsheet->getSheet(0)->setSelectedCell('A1');
             
             for($i = 0; $i < sizeof($alunosResult); $i++){
                 $sheet->setCellValue('A'.($i + 2), $alunosResult[$i]["NOME"]);
                 $sheet->setCellValue('B'.($i + 2), $alunosResult[$i]["SOBRENOME"]);
                 $sheet->setCellValue('C'.($i + 2), $alunosResult[$i]["EMAIL"]);
-                
+                $alunoId = $alunosResult[$i]["ID"];
                 
                 $date = date_create($alunosResult[$i]["DATA_NASCIMENTO"]);
                 $sheet->setCellValue('D'.($i + 2), date_format($date, 'd/m/Y'));
@@ -46,13 +47,20 @@ class relatorio_alunos {
                 } else {
                     $sheet->setCellValue('E'.($i + 2), 'Masculino');
                 }
+                $columnNotas=6;
+                $notas_alunos = $db0->query("SELECT NOTA, DESCRICAO FROM NOTAS WHERE ID_PESSOA = ?", $alunoId)->fetchAll();
+                for($j = 0; $j < sizeof($notas_alunos); $j++){
+                    $sheet->setCellValueByColumnAndRow($columnNotas, $i, $notas_alunos[$j]["NOTA"]);
+                    $columnNotas++;
+                }
                 
-                
+                $db0->close();
+                $db0 = new db();
             }
             foreach(range('A',$sheet->getHighestColumn()) as $column) {
                 $sheet->getColumnDimension($column)->setAutoSize(true); // Ajuste de colunas
             }
-            
+            $db0->close();
             //Baixar excel
             
             $spreadsheet->removeSheetByIndex(1);
