@@ -177,7 +177,7 @@
 						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
 							<li><a href="aluno_cadastro.php">Cadastro</a></li>
 						<?php } ?>
-						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1))) { ?>
 						<li><a href="aluno_ocorrencias.php">Ocorrências</a></li>
 						<?php } ?>
 					</ul></li>
@@ -193,7 +193,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages1">
-						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1))) { ?>
 						<li><a href="disciplina_cadastro.php">Cadastro</a></li>
 						<?php } ?>
 					</ul></li>
@@ -205,7 +205,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
-						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1))) { ?>
 						<li><a href="frequencia_cadastro.php">Cadastro</a></li>
 						<?php } ?>
 					</ul></li>
@@ -217,10 +217,10 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
-						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1))) { ?>
 						<li><a href="aluno_notas.php">Cadastro</a></li>
 						<?php } ?>
-						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1))) { ?>
 						<li><a href="relatorio.php">Gerar relatório</a></li>
 						<?php } ?>
 					</ul></li>
@@ -233,7 +233,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages4">
-						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1))) { ?>
 						<li><a href="plano_aula_cadastro.php">Cadastro</a></li>
 						<?php } ?>
 					</ul></li>
@@ -245,7 +245,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages5">
-						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1))) { ?>
 						<li><a href="ocorrencias_cadastro_busca.php">Cadastro</a></li>
 						<?php } ?>
 					</ul></li>
@@ -253,6 +253,7 @@
 					title="Charts"><a class="nav-link" href="relatorio.php"> <i
 						class="fa fa-fw fa-area-chart"></i> <span class="nav-link-text">Relatório</span>
 				</a></li>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
@@ -261,10 +262,9 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages6">
-						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
 						<li><a href="servidores_cadastro.php">Cadastro</a></li>
-						<?php } ?>
 					</ul></li>
+						<?php } ?>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
@@ -273,7 +273,7 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages7">
-						<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1))) { ?>
 						<li><a href="turma_cadastro.php">Cadastro</a></li>
 						<?php } ?>
 					</ul></li>
