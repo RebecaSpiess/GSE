@@ -70,7 +70,7 @@ if (isset($_POST['servidor']) and
                             $mail->setFrom('gse_aviso@smarthomecontrol.com.br', 'GSE - ' . $pessoa->nome . ' ' . $pessoa->sobrenome);
                             $mail->addReplyTo($pessoa->email);
                             $mail->addAddress($destinatario_db[0]['EMAIL']); 
-                            
+                            $mail->CharSet='UTF-8';
                             // Content
                             $mail->isHTML(true);                                  // Set email format to HTML
                             $mail->Subject = 'GSE - Aviso';

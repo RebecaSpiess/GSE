@@ -1,15 +1,94 @@
 <?php
 require 'bo/Sessao.php';
 require  'bo/ControleAcesso.php';
-
+require 'database/db.php';
 use bo\Sessao;
 use bo\ControleAcesso;
 use model\Pessoa;
 
 Sessao::validar();
 
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
+// Load Composer's autoloader
+require 'vendor/autoload.php';
+
+$mail = new PHPMailer();
+
 $papeisPermitidos = array(2,4,1);
 ControleAcesso::validar($papeisPermitidos);
+
+
+$pessoa = unserialize($_SESSION['loggedGSEUser']);
+
+$showErrorMessage = null;
+$showSuccessMessage = false;
+
+$db0 = new db();
+$db1 = new db();
+$db2 = new db();
+
+$db_alunos_fetch = $db0->query("SELECT ID, NOME, SOBRENOME, EMAIL FROM PESSOA WHERE TIPO_PESSOA = 3 ORDER  BY NOME, SOBRENOME ")->fetchAll();
+
+if (isset($_POST['aluno']) and
+    isset($_POST['ocorrencia'])){
+        $aluno = $_POST['aluno'];
+        $ocorrencia = $_POST['ocorrencia'];
+        $autor = $pessoa->id;
+        if (!empty(trim($aluno)) and
+            !empty(trim($ocorrencia))){
+                try {
+                    $result = $db1->query("INSERT INTO OCORRENCIA (ID_PESSOA_ALUNO, ID_PESSOA_AUTOR,DESCRICAO)
+                          VALUES (?,?,?) "
+                        , $aluno
+                        , $autor
+                        , $ocorrencia
+                        )->query_count;
+                        if ($result == 1){
+                            $showSuccessMessage = true;
+                            
+                            $mail->isSMTP();                                            // Send using SMTP
+                            $mail->Host       = 'email-ssl.com.br';                    // Set the SMTP server to send through
+                            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+                            $mail->Username   = 'gse_aviso@smarthomecontrol.com.br';                     // SMTP username
+                            $mail->Password   = 'Gse#2019!MB';                               // SMTP password
+                            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
+                            $mail->Port       = 587;                                    // TCP port to connect to
+                            
+                            //Recipients
+                            $mail->setFrom('gse_aviso@smarthomecontrol.com.br', 'GSE - ' . $pessoa->nome . ' ' . $pessoa->sobrenome);
+                            $mail->addReplyTo($pessoa->email);
+                            
+                            $db_aluno_email_fetch = $db0->query("SELECT EMAIL FROM PESSOA WHERE ID = ? " , $aluno)->fetchAll();
+                            
+                            $mail->addAddress($db_aluno_email_fetch[0]['EMAIL']);
+                            $mail->CharSet='UTF-8';
+                            #$mail->Encoding = 'base64';
+                            
+                            // Content
+                            $mail->isHTML(true);                                  // Set email format to HTML
+                            $mail->Subject = 'GSE - Ocorrência';
+                            $mail->Body    = '<div style="color: #363534; font-family: Calibri, Candara;font-size: 12pt;"> Olá, <br/><br/> você recebeu a seguinte ocorrência de <a href="mailto:'
+                                . $pessoa->email . '">' . $pessoa->nome . ' '
+                                    . $pessoa->sobrenome  . '</a>: <br/> <br/>' . $ocorrencia .
+                                    '<br/><br/>Atenciosamente,<br/>GSE - Gestão Sócio Educacional.</div><span style="font-family: Calibri, Candara;font-size:10pt">http://smarthomecontrol.com.br</span>';
+                                    $mail->send();
+                            
+                        }
+                } catch (Exception $ex){
+                    $error_code = $ex->getMessage();
+                    if ($error_code == 1062){
+                        $showErrorMessage = "Já existe um registro com ID informado!";
+                    } else {
+                        $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
+                    }
+                }
+        }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -32,6 +111,44 @@ ControleAcesso::validar($papeisPermitidos);
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+
+
+
+  <script type="text/javascript">
+	function submit() {
+		document.forms[0].submit();
+	}
+  
+	function validateAndSubmitForm() {
+		var ocorrencia = document.getElementById("ocorrencia");
+		var aluno = document.getElementById("aluno");
+		var camposPreenchidos = true;
+		 
+		if (!isNotBlank(aluno.value)){
+			camposPreenchidos = false;
+		}
+		
+		if (!isNotBlank(ocorrencia.value)){
+			camposPreenchidos = false;
+		}	
+
+		if (camposPreenchidos){
+			submit();
+		} else {
+			alert('Preencha todos os campos obrigatórios!');
+		}			
+	}
+
+	function isNotBlank(value){
+		if (value == null){
+			return false;
+		}
+		return value.trim().length !== 0;
+	}	
+
+  </script>
+
+
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -181,49 +298,44 @@ ControleAcesso::validar($papeisPermitidos);
 			<div class="container">
 				<div>
 					<div class="card-body">
-						<form>
+						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
 							<div class="form-group">
-								<div class="form-row">
-									<div class="col-md-6">
-										<label for="exampleInputName">Nome</label> <input
-											class="form-control" id="exampleInputName" type="text"
-											aria-describedby="nameHelp" placeholder="Nome">
-									</div>
-									<div class="col-md-6">
-										<label for="exampleInputLastName">Sobrenome</label> <input
-											class="form-control" id="exampleInputLastName" type="text"
-											aria-describedby="nameHelp" placeholder="Sobrenome">
-									</div>
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+									<label for="turma">Aluno*</label> 
+									<select
+										class="form-control"
+										aria-describedby="nameHelp" id="aluno" name="aluno">
+									
+									<?php
+                                            foreach ($db_alunos_fetch as $single_row1) {
+                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME'] . ' ' . $single_row1['SOBRENOME'] . ' - ' .  $single_row1['EMAIL'] . "</option>";
+                                            } 
+                                        ?>
+										
+									</select>
+								</div>
+								<br>
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+								<label for="planoAula">Ocorrência*</label> 
+									<textarea rows="10" cols="30" style="width: 100%; max-width:100% " maxlength="250" id="ocorrencia" name="ocorrencia"></textarea>
 								</div>
 							</div>
-							<div class="form-group">
-								<label for="exampleInputEmail1">Endereço de E-Mail</label> <input
-									class="form-control" id="exampleInputEmail1" type="email"
-									aria-describedby="emailHelp" placeholder="Endereço de E-Mail">
-							</div>
-							<div class="form-group">
-								<div class="form-row">
-									<div class="col-md-6">
-										<label for="exampleInputName">Data de nascimento</label> <input
-											class="form-control" id="exampleInputName" type="date"
-											aria-describedby="nameHelp" placeholder="Data de nascimento">
-									</div>
-									<div class="col-md-6">
-										<label for="exampleInputLastName">Sexo</label> <select
-											class="form-control" id="exampleInputLastName"
-											aria-describedby="nameHelp" placeholder="Sexo">
-											<option value="M">Masculino</option>
-											<option value="F">Feminino</option>
-										</select>
-
-
-									</div>
-								</div>
-							</div>
-							<a class="btn btn-primary btn-block" href="">Buscar</a>
-						</form>
+					
+        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>
+					</form>
 					</div>
 				</div>
+				<?php 
+					if (isset($showErrorMessage)){ ?>
+						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </div>
+					<?php 
+					}
+					
+					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
+					    <div style="color:green;text-align: center;">Ocorrência criada com sucesso!</div>
+					<?php }
+					
+					?>
 			</div>
 		</div>
 		<!-- /.container-fluid-->
@@ -282,3 +394,9 @@ ControleAcesso::validar($papeisPermitidos);
 </body>
 
 </html>
+<?php 
+$db0->close();
+$db1->close();
+$db2->close();
+?>
+
