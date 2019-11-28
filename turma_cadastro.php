@@ -2,6 +2,7 @@
 require 'bo/Sessao.php';
 require 'bo/ControleAcesso.php';
 require 'database/db.php';
+require 'model/Turma.php';
 
 use bo\Sessao;
 use bo\ControleAcesso;
@@ -19,7 +20,9 @@ ControleAcesso::validar($papeisPermitidos);
 $db = new db();
 $db1 = new db();
 $db2 = new db();
-
+$db3 = new db();
+$db4 = new db();
+$db5 = new db();
 
 $aluno_db = $db->query("SELECT p.* FROM PESSOA p JOIN TIPO_PESSOA tp ON (p.TIPO_PESSOA = tp.ID and tp.ID = 3) ORDER BY p.nome, p.sobrenome");
 $professor_db = $db2->query("SELECT p.* FROM PESSOA p JOIN TIPO_PESSOA tp ON (p.TIPO_PESSOA = tp.ID and tp.ID = 1) ORDER BY p.nome, p.sobrenome");
@@ -28,30 +31,57 @@ $materia_db = $db1->query("SELECT ID, NOME FROM MATERIA ORDER BY NOME")->fetchAl
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
-
-if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel'])) {
+$aluno_db_fetch = $aluno_db->fetchAll();
+if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and isset($_POST['materia'])) {
     $nome_turma = $_POST['nome_turma'];
     $professor_responsavel = $_POST['professor_responsavel'];
+    $materia = $_POST['materia'];
     
-    if (! empty(trim($nome_turma)) and ! empty(trim($professor_responsavel))) {
+    if (! empty(trim($nome_turma)) and !empty(trim($professor_responsavel)) and !empty(trim($materia))) {
         $turma = new Turma();
         $turma->id_pessoa = $professor_responsavel;
+        $turma->id_materia = $materia;
         $turma->nome_turma = $nome_turma;
         try {
-            $result = $db->query("INSERT INTO TURMA (ID_PESSOA, ID_MATERIA, NOME_TURMA)
-                          VALUES (?,?,?)", $turma->id_pessoa, $turma->id_materia, $turma->nome_turma)->query_count;
+            $result = $db3->query("INSERT INTO TURMA (ID_PESSOA, ID_MATERIA, NOME_TURMA) VALUES (?,?,?) "
+                , $turma->id_pessoa, $turma->id_materia, $turma->nome_turma)->query_count;
             if ($result == 1) {
                 $showSuccessMessage = true;
             }
         } catch (Exception $ex) {
             $error_code = $ex->getMessage();
             if ($error_code == 1062) {
-                $showErrorMessage = "Turma existente!";
+                $showErrorMessage = "Turma já existente!";
             } else {
                 $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
             }
         }
+    } //primeiro if referente a turma
+    
+    if ($showSuccessMessage){
+        $nameCheckBox = 0;
+        $qtd_linhas = 0;
+        
+        $turma_fetch = $db5->query("SELECT ID FROM TURMA WHERE NOME_TURMA = '" . $nome_turma . "'")->fetchAll();
+        
+        $id_turma = $turma_fetch[0]['ID'];
+        $sql_insert = "INSERT INTO TURMA_PESSOA (ID_TURMA, ID_PESSOA) VALUES ";
+        foreach ($aluno_db_fetch as $single_row1) {
+            $campo_aluno = "alunoCheck_" . $nameCheckBox;
+            if (isset($_POST[$campo_aluno])){
+                $qtd_linhas++;
+                $id_aluno_check = $_POST[$campo_aluno];
+                $sql_insert.=  " (" . $id_turma . "," . $id_aluno_check . "),";
+            }
+            $nameCheckBox++;
+        }
+        $final_sql = substr($sql_insert,0,strlen($sql_insert)-1);
+        $result = $db4->query($final_sql)->query_count;
+        if ($result >= 1) {
+            $showSuccessMessage = true;
+        }
     }
+   
 }
 ?>
 
@@ -79,7 +109,6 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel'])) {
 <script type="text/javascript">
 debbuger;
 	function submit() {
-		alert("chegou até aqui");
 		document.forms[0].submit();
 	}
   
@@ -93,7 +122,7 @@ debbuger;
 		} else {
 			camposPreenchidos = true;
 			document.getElementById("nome_turma").style.display = "none";
-		}	
+		}
 
 		if (camposPreenchidos){
 			submit();
@@ -257,7 +286,7 @@ debbuger;
 			</ol>
 			<div class="container">
 				<div>
-					<div class="card-body">
+					<div class="card-body" style="padding: 0px;">
 						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
 							<div class="form-group">
 								<div class="form-row">
@@ -303,7 +332,6 @@ debbuger;
 										<div class="form-group">
 											<label for="exampleInputEmail1">Alunos*</label><br>
 																							<?php
-        $aluno_db_fetch = $aluno_db->fetchAll();
         $nameCheckBox = 0;
         foreach ($aluno_db_fetch as $single_row1) {
             echo "<input type=\"checkbox\" name=\"alunoCheck_" . $nameCheckBox . "\" value=\"" . $single_row1['ID'] . "\"> " . $single_row1['NOME'] . " " 
@@ -319,6 +347,7 @@ debbuger;
 						
 						</form>
 					</div>
+					<br>
 										<?php
         if (isset($showErrorMessage)) {
             ?>
@@ -334,6 +363,7 @@ debbuger;
         }
 
         ?>
+        <br>
 				</div>
 			</div>
 		</div>
@@ -389,5 +419,8 @@ debbuger;
 $db->close();
 $db1->close();
 $db2->close();
+$db3->close();
+$db4->close();
+$db5->close();
 ?>
 

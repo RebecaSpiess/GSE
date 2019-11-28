@@ -11,6 +11,8 @@ class Pessoa
     public $senha;
     public $data_nascimento;
     public $sexo;
+    public $telefone;
+    public $cpf;
     
     
     function __construct()

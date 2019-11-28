@@ -16,21 +16,25 @@ $papeisPermitidos = array(
 ControleAcesso::validar($papeisPermitidos);
 
 $db = new db();
+$db1 = new db();
 
-$tipo_pessoas_db = $db->query("SELECT * FROM TIPO_PESSOA WHERE TRIM(upper(NOME)) <> 'ALUNO' ORDER BY NOME");
+$tipo_pessoas_db = $db->query("SELECT * FROM TIPO_PESSOA WHERE ID <> 3 ORDER BY NOME");
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
 
-if (isset($_POST['tipo_pessoa']) and isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email']) and isset($_POST['data_nascimento']) and isset($_POST['sexo'])) {
+if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pessoa']) and isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email']) and isset($_POST['data_nascimento']) and isset($_POST['sexo'])) {
     $nome = $_POST['nome'];
     $sobrenome = $_POST['sobrenome'];
     $email = $_POST['email'];
     $data_nascimento = $_POST['data_nascimento'];
     $sexo = $_POST['sexo'];
     $tipo_pessoa = $_POST['tipo_pessoa'];
+    $cpf = $_POST['cpf'];
+    $telefone = $_POST['telefone'];
    
-    if (! empty(trim($nome)) and ! empty(trim($sobrenome)) and ! empty(trim($email)) and ! empty(trim($data_nascimento)) and ! empty(trim($sexo))) {
+    if (! empty(trim($nome)) and ! empty(trim($sobrenome)) and ! empty(trim($email)) and ! empty(trim($data_nascimento)) 
+        and ! empty(trim($sexo)) and ! empty(trim($cpf)) and ! empty(trim($telefone))) {
         $pessoa = new Pessoa();
         $pessoa->nome = $nome;
         $pessoa->sobrenome = $sobrenome;
@@ -38,11 +42,12 @@ if (isset($_POST['tipo_pessoa']) and isset($_POST['nome']) and isset($_POST['sob
         $pessoa->data_nascimento = $data_nascimento;
         $pessoa->sexo = $sexo;
         $pessoa->senha = 'Start1234'; // Senha padrão
-        $pessoa->tipo_pessoa = $tipo_pessoa; 
-        echo "TIPO PESSOA: " . $pessoa->tipo_pessoa;
+        $pessoa->tipo_pessoa = $tipo_pessoa;
+        $pessoa->cpf = $cpf;
+        $pessoa->telefone = $telefone;
         try {
-            $result = $db->query("INSERT INTO PESSOA (NOME, SOBRENOME, EMAIL, DATA_NASCIMENTO, TIPO_SEXO, TIPO_PESSOA, SENHA)
-                          VALUES (?,?,?,?,?,?,?)", $pessoa->nome, $pessoa->sobrenome, $pessoa->email, $pessoa->data_nascimento, $pessoa->sexo, $pessoa->tipo_pessoa, $pessoa->senha)->query_count;
+            $result = $db1->query("INSERT INTO PESSOA (NOME, SOBRENOME, EMAIL, DATA_NASCIMENTO, TIPO_SEXO, TIPO_PESSOA, SENHA, CPF, TELEFONE)
+                          VALUES (?,?,?,?,?,?,?,?,?)", $pessoa->nome, $pessoa->sobrenome, $pessoa->email, $pessoa->data_nascimento, $pessoa->sexo, $pessoa->tipo_pessoa, $pessoa->senha, $pessoa->cpf, $pessoa->telefone)->query_count;
             if ($result == 1) {
                 $showSuccessMessage = true;
             }
@@ -78,6 +83,72 @@ if (isset($_POST['tipo_pessoa']) and isset($_POST['nome']) and isset($_POST['sob
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+
+
+<script type="text/javascript">
+	function submit() {
+		document.forms[0].submit();
+	}
+  
+	function validateAndSubmitForm() {
+		var nome = document.getElementById("exampleInputName");
+		var sobreNome = document.getElementById("exampleInputLastName");
+		var email = document.getElementById("exampleInputEmail1");
+		var dataNascimento = document.getElementById("exampleInputName");
+		var sexo = document.getElementById("sexo");
+		var telefone = document.getElementById("telefone");
+		var cpf = document.getElementById("cpf");
+		var tipoPessoa = document.getElementById("tipoPessoa");
+
+		
+		var camposPreenchidos = true; 
+		if (!isNotBlank(nome.value)){
+			camposPreenchidos = false;
+		} 
+
+		if (!isNotBlank(sobreNome.value)){
+			camposPreenchidos = false;
+		} 	
+
+		if (!isNotBlank(email.value)){
+			camposPreenchidos = false;
+		} 
+
+		if (!isNotBlank(dataNascimento.value)){
+			camposPreenchidos = false;
+		} 
+
+		if (!isNotBlank(sexo.value)){
+			camposPreenchidos = false;
+		} 
+
+		if (!isNotBlank(telefone.value)){
+			camposPreenchidos = false;
+		}
+
+		if (!isNotBlank(cpf.value)){
+			camposPreenchidos = false;
+		}
+
+		if (!isNotBlank(tipoPessoa.value)){
+			camposPreenchidos = false;
+		}
+		
+		if (camposPreenchidos){
+			submit();
+		} else {
+			alert('Preencha todos os campos obrigatórios!');
+		}			
+	}
+
+	function isNotBlank(value){
+		if (value == null){
+			return false;
+		}
+		return value.trim().length !== 0;
+	}	
+
+  </script>
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -258,8 +329,9 @@ if (isset($_POST['tipo_pessoa']) and isset($_POST['nome']) and isset($_POST['sob
 											name="data_nascimento">
 									</div>
 									<div class="col-md-6">
-										<label for="exampleInputLastName">Sexo*</label> <select
-											class="form-control" id="exampleInputLastName"
+										<label for="exampleInputLastName">Sexo*</label> 
+										<select
+											class="form-control" id="sexo"
 											aria-describedby="nameHelp" placeholder="Sexo" name="sexo">
 											<option value="1">Masculino</option>
 											<option value="0">Feminino</option>
@@ -270,19 +342,20 @@ if (isset($_POST['tipo_pessoa']) and isset($_POST['nome']) and isset($_POST['sob
 							<div class="form-group">
 								<div class="form-row">
 									<div class="col-md-6">
-										<label for="exampleInputName">Telefone</label> <input
-											class="form-control" id="exampleInputName" type="text"
-											aria-describedby="nameHelp" placeholder="Telefone">
+										<label for="exampleInputName">Telefone*</label> <input
+											class="form-control" id="telefone" type="text"
+											aria-describedby="nameHelp" placeholder="Telefone" name="telefone" maxlength="13">
 									</div>
 									<div class="col-md-6">
-										<label for="exampleInputLastName">CPF*</label> <input
-											class="form-control" id="exampleInputLastName" type="text"
-											aria-describedby="nameHelp" placeholder="CPF">
+										<label for="exampleInputLastName">CPF*</label>
+										 <input
+											class="form-control" id="cpf" type="text"
+											aria-describedby="nameHelp" placeholder="CPF" name="cpf" maxlength="11">
 									</div>
 									<div class="col-md-6">
 										<label for="exampleInputLastName">Tipo pessoa*</label> <select
-											class="form-control" id="exampleInputLastName"
-											aria-describedby="nameHelp" placeholder="Sexo" name="tipo_pessoa">
+											class="form-control" id="tipoPessoa"
+											aria-describedby="nameHelp"  name="tipo_pessoa">
 											<?php
 											$tipo_pessoas_db_fetch = $tipo_pessoas_db->fetchAll();
 											foreach ($tipo_pessoas_db_fetch as $single_row) {
@@ -300,7 +373,7 @@ if (isset($_POST['tipo_pessoa']) and isset($_POST['nome']) and isset($_POST['sob
 								</div>
 							</div>
 							<a class="btn btn-primary btn-block"
-								onclick="document.forms[0].submit()">Cadastrar</a>
+								onclick="validateAndSubmitForm()">Cadastrar</a>
 						</form>
 					</div>
 					<?php
@@ -381,4 +454,5 @@ if (isset($_POST['tipo_pessoa']) and isset($_POST['nome']) and isset($_POST['sob
 
 <?php 
 $db->close();
+$db1->close();
 ?>
