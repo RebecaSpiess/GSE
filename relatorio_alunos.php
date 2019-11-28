@@ -15,6 +15,7 @@ class relatorio_alunos {
         $streamedResponse->setCallback(function () {
             
             $db = new db();
+            $db0 = new db();
             $alunos = $db->query('SELECT * FROM PESSOA WHERE TIPO_PESSOA = 3');
             $alunosResult = $alunos->fetchAll();
             
@@ -45,6 +46,8 @@ class relatorio_alunos {
                 } else {
                     $sheet->setCellValue('E'.($i + 2), 'Masculino');
                 }
+                
+                
             }
             foreach(range('A',$sheet->getHighestColumn()) as $column) {
                 $sheet->getColumnDimension($column)->setAutoSize(true); // Ajuste de colunas

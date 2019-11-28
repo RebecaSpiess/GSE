@@ -134,7 +134,7 @@ if (isset($_POST['turma']) and
 							<li><a href="aluno_cadastro.php">Cadastro</a></li>
 						<?php } ?>
 						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1))) { ?>
-						<li><a href="aluno_ocorrencias.php">Ocorrências</a></li>
+						<li><a href="ocorrencias_cadastro_busca.php">Ocorrências</a></li>
 						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
