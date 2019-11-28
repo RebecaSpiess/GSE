@@ -1,6 +1,7 @@
 <?php
 require 'bo/Sessao.php';
-require  'bo/ControleAcesso.php';
+require 'bo/ControleAcesso.php';
+require 'database/db.php';
 
 use bo\Sessao;
 use bo\ControleAcesso;
@@ -8,8 +9,41 @@ use model\Pessoa;
 
 Sessao::validar();
 
-$papeisPermitidos = array(2,4,1);
+$papeisPermitidos = array(
+    2,
+    4,
+    1
+);
 ControleAcesso::validar($papeisPermitidos);
+
+
+$showErrorMessage = null;
+$showSuccessMessage = false;
+
+$db0 = new db();
+
+if (isset($_POST['disciplina'])){
+    $disciplina = $_POST['disciplina'];
+    
+    if (!empty(trim($disciplina))){
+        try {
+            $result = $db0->query("INSERT INTO MATERIA (NOME)
+                          VALUES (?) "
+                , $disciplina
+                )->query_count;
+                if ($result == 1){
+                    $showSuccessMessage = true;
+                }
+        } catch (Exception $ex){
+            $error_code = $ex->getMessage();
+            if ($error_code == 1062){
+                $showErrorMessage = "Já existe uma disciplina com o nome informado!";
+            } else {
+                $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
+            }
+        }
+    }
+}
 
 ?>
 
@@ -33,6 +67,36 @@ ControleAcesso::validar($papeisPermitidos);
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+
+ <script type="text/javascript">
+	function submit() {
+		document.forms[0].submit();
+	}
+  
+	function validateAndSubmitForm() {
+		var disciplina = document.getElementById("disciplina");
+		var camposPreenchidos = true;
+		 
+		if (!isNotBlank(disciplina.value)){
+			camposPreenchidos = false;
+		}
+		
+		if (camposPreenchidos){
+			submit();
+		} else {
+			alert('Preencha o campo obrigatório!');
+		}			
+	}
+
+	function isNotBlank(value){
+		if (value == null){
+			return false;
+		}
+		return value.trim().length !== 0;
+	}	
+
+  </script>
+
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -70,8 +134,8 @@ ControleAcesso::validar($papeisPermitidos);
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages1" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Disciplinas</span>
+					href="#collapseExamplePages1" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Disciplinas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages1">
@@ -82,8 +146,8 @@ ControleAcesso::validar($papeisPermitidos);
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages2" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
+					href="#collapseExamplePages2" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
@@ -94,8 +158,8 @@ ControleAcesso::validar($papeisPermitidos);
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages3" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
+					href="#collapseExamplePages3" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
@@ -109,9 +173,9 @@ ControleAcesso::validar($papeisPermitidos);
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages4" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Plano
-							de aula</span>
+					href="#collapseExamplePages4" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Plano de
+							aula</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages4">
@@ -122,8 +186,8 @@ ControleAcesso::validar($papeisPermitidos);
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages5" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Ocorrências</span>
+					href="#collapseExamplePages5" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Ocorrências</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages5">
@@ -139,8 +203,8 @@ ControleAcesso::validar($papeisPermitidos);
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages6" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Servidores</span>
+					href="#collapseExamplePages6" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Servidores</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages6">
@@ -150,8 +214,8 @@ ControleAcesso::validar($papeisPermitidos);
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages7" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Turmas</span>
+					href="#collapseExamplePages7" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Turmas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages7">
@@ -182,35 +246,31 @@ ControleAcesso::validar($papeisPermitidos);
 			<div class="container">
 				<div>
 					<div class="card-body">
-						<form>
-							<div class="form-group">
-								<div class="form-row">
-									<div class="col-md-6">
-										<label for="exampleInputName">Nome da disciplina*</label> <input
-											class="form-control" id="exampleInputName" type="text"
-											aria-describedby="nameHelp" placeholder="Nome da disciplina">
-									</div>
-									<div class="col-md-6">
-										<label for="exampleInputLastName">Professor responsável*</label>
-										<select class="form-control" id="exampleInputLastName"
-											aria-describedby="nameHelp" placeholder="Sexo">
-											<option value="M">Maria Paula</option>
-											<option value="F">Luiz Glasen</option>
-										</select>
-										<div class="form-group">
-											<label for="exampleInputEmail1">Turma*</label> <select
-												class="form-control" id="exampleInputLastName"
-												aria-describedby="nameHelp" placeholder="Sexo">
-												<option value="T1">Primeiro ano</option>
-												<option value="T2">Segundo ano</option>
-											</select>
-										</div>
-									</div>
+						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
+							<div class="form-row">
+								<div class="col-md-6"
+									style="width: 100%; max-width: 100%; flex: none;">
+									<label for="exampleInputName">Nome da disciplina*</label> 
+									<input
+										class="form-control" id="disciplina" type="text"
+										maxlength="255"  name="disciplina"
+										placeholder="Nome da disciplina">
 								</div>
-								<a class="btn btn-primary btn-block" href="login.html">Cadastrar</a>
-						
+							</div>
+							<br> <a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>
 						</form>
 					</div>
+					<?php 
+					if (isset($showErrorMessage)){ ?>
+						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </div>
+					<?php 
+					}
+					
+					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
+					    <div style="color:green;text-align: center;">Registro criado com sucesso!</div>
+					<?php }
+					
+					?>
 				</div>
 			</div>
 		</div>
@@ -270,3 +330,6 @@ ControleAcesso::validar($papeisPermitidos);
 </body>
 
 </html>
+<?php 
+$db0->close();
+?>
