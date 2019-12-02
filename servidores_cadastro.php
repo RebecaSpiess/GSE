@@ -136,12 +136,30 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 		}
 		
 		if (camposPreenchidos){
-			submit();
+			if (validateEmail(email.value)){
+				replaceAll(cpf, ".","");
+				replaceAll(cpf, "-","");
+
+				replaceAll(telefone, "-","");
+				replaceAll(telefone, "(","");
+				replaceAll(telefone, ")","");
+				submit();
+			} else {
+				alert('Você informou um endereço de e-mail inválido!');
+			}		
 		} else {
 			alert('Preencha todos os campos obrigatórios!');
 		}			
 	}
 
+	function replaceAll(campo, valor, replace){
+		var stringFinal = campo.value;
+		for(i = 0; i < stringFinal.length; i++){
+			stringFinal = stringFinal.replace(valor, replace);
+		}	
+		campo.value = stringFinal;  
+	}	
+	
 	function isNotBlank(value){
 		if (value == null){
 			return false;
@@ -149,6 +167,49 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 		return value.trim().length !== 0;
 	}	
 
+	function fMasc(objeto,mascara) {
+		obj=objeto
+		masc=mascara
+		setTimeout("fMascEx()",1)
+	}
+	
+	function fMascEx() {
+		obj.value=masc(obj.value)
+	}
+	
+	function mTel(tel) {
+		tel=tel.replace(/\D/g,"")
+		tel=tel.replace(/^(\d)/,"($1")
+		tel=tel.replace(/(.{3})(\d)/,"$1)$2")
+		if(tel.length == 9) {
+			tel=tel.replace(/(.{1})$/,"-$1")
+		} else if (tel.length == 10) {
+			tel=tel.replace(/(.{2})$/,"-$1")
+		} else if (tel.length == 11) {
+			tel=tel.replace(/(.{3})$/,"-$1")
+		} else if (tel.length == 12) {
+			tel=tel.replace(/(.{4})$/,"-$1")
+		} else if (tel.length > 12) {
+			tel=tel.replace(/(.{4})$/,"-$1")
+		}
+		return tel;
+	}
+
+	function mCPF(cpf){
+		cpf=cpf.replace(/\D/g,"")
+		cpf=cpf.replace(/(\d{3})(\d)/,"$1.$2")
+		cpf=cpf.replace(/(\d{3})(\d)/,"$1.$2")
+		cpf=cpf.replace(/(\d{3})(\d{1,2})$/,"$1-$2")
+		return cpf
+	}
+
+    function validateEmail(mail) { 
+         if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
+            return true;
+         }
+         return false;
+    }
+	
   </script>
 </head>
 
@@ -305,13 +366,14 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 									<div class="col-md-6">
 										<label for="exampleInputName">Nome*</label> <input
 											class="form-control" id="exampleInputName" type="text"
-											aria-describedby="nameHelp" placeholder="Nome" name="nome">
+											aria-describedby="nameHelp" placeholder="Nome" name="nome" maxlength="250">
 									</div>
 									<div class="col-md-6">
 										<label for="exampleInputLastName">Sobrenome*</label> <input
 											class="form-control" id="exampleInputLastName" type="text"
 											aria-describedby="nameHelp" placeholder="Sobrenome"
-											name="sobrenome">
+											name="sobrenome"
+											maxlength="250">
 									</div>
 								</div>
 							</div>
@@ -319,6 +381,7 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 								<label for="exampleInputEmail1">Endereço de E-Mail*</label> <input
 									class="form-control" id="exampleInputEmail1" type="email"
 									aria-describedby="emailHelp" placeholder="Endereço de E-Mail"
+									maxlength="250"
 									name="email">
 							</div>
 							<div class="form-group">
@@ -345,13 +408,14 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 									<div class="col-md-6">
 										<label for="exampleInputName">Telefone*</label> <input
 											class="form-control" id="telefone" type="text"
-											aria-describedby="nameHelp" placeholder="Telefone" name="telefone" maxlength="13">
+											placeholder="Telefone" name="telefone" maxlength="13"
+											onkeydown="javascript: fMasc( this, mTel );">
 									</div>
 									<div class="col-md-6">
 										<label for="exampleInputLastName">CPF*</label>
 										 <input
-											class="form-control" id="cpf" type="text"
-											aria-describedby="nameHelp" placeholder="CPF" name="cpf" maxlength="11">
+											class="form-control cpf-mask" id="cpf" type="text"
+											placeholder="CPF" name="cpf" maxlength="14" onkeydown="javascript: fMasc( this, mCPF );" >
 									</div>
 									<div class="col-md-6">
 										<label for="exampleInputLastName">Tipo pessoa*</label> <select

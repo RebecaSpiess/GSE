@@ -132,10 +132,22 @@
 		}
 
 		if (camposPreenchidos){
-			submit();
+			if (validateEmail(email.value)){
+				submit();
+			} else {
+				alert('Você informou um endereço de e-mail inválido!');
+			}		
 		}		
 	}
 
+	function replaceAll(campo, valor, replace){
+		var stringFinal = campo.value;
+		for(i = 0; i < stringFinal.length; i++){
+			stringFinal = stringFinal.replace(valor, replace);
+		}	
+		campo.value = stringFinal;  
+	}	
+	
 	function isNotBlank(value){
 		if (value == null){
 			return false;
@@ -143,6 +155,49 @@
 		return value.trim().length !== 0;
 	}	
 
+	function fMasc(objeto,mascara) {
+		obj=objeto
+		masc=mascara
+		setTimeout("fMascEx()",1)
+	}
+	
+	function fMascEx() {
+		obj.value=masc(obj.value)
+	}
+	
+	function mTel(tel) {
+		tel=tel.replace(/\D/g,"")
+		tel=tel.replace(/^(\d)/,"($1")
+		tel=tel.replace(/(.{3})(\d)/,"$1)$2")
+		if(tel.length == 9) {
+			tel=tel.replace(/(.{1})$/,"-$1")
+		} else if (tel.length == 10) {
+			tel=tel.replace(/(.{2})$/,"-$1")
+		} else if (tel.length == 11) {
+			tel=tel.replace(/(.{3})$/,"-$1")
+		} else if (tel.length == 12) {
+			tel=tel.replace(/(.{4})$/,"-$1")
+		} else if (tel.length > 12) {
+			tel=tel.replace(/(.{4})$/,"-$1")
+		}
+		return tel;
+	}
+
+	function mCPF(cpf){
+		cpf=cpf.replace(/\D/g,"")
+		cpf=cpf.replace(/(\d{3})(\d)/,"$1.$2")
+		cpf=cpf.replace(/(\d{3})(\d)/,"$1.$2")
+		cpf=cpf.replace(/(\d{3})(\d{1,2})$/,"$1-$2")
+		return cpf
+	}
+
+    function validateEmail(mail) { 
+         if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
+            return true;
+         }
+         return false;
+    }
+	
   </script>
 
 </head>
@@ -300,29 +355,30 @@
 									<div class="col-md-6">
 										<label for="exampleInputName">Nome*</label> <input
 											class="form-control" id="nome" type="text"
-											aria-describedby="nameHelp" placeholder="Nome" name="nome" required>
+											aria-describedby="nameHelp" placeholder="Nome" name="nome" required maxlength="250">
 											<div id="name" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
 									</div>
 									<div class="col-md-6">
 										<label for="exampleInputLastName">Sobrenome*</label> <input
 											class="form-control" id="sobreNome" type="text"
-											aria-describedby="nameHelp" placeholder="Sobrenome" name="sobrenome" required>
+											aria-describedby="nameHelp" placeholder="Sobrenome" name="sobrenome" required maxlength="250">
 											<div id="sobrenome" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
 									</div>
 								</div>
 							</div>
 							<div class="form-group">
 								<label for="exampleInputEmail1">Endereço de E-Mail do
-									responsável*</label> <input class="form-control"
+									responsável*</label>
+									<input class="form-control"
 									id="email" type="email" name="email"
-									aria-describedby="emailHelp" placeholder="Endereço de E-Mail" required>
+									aria-describedby="emailHelp" placeholder="Endereço de E-Mail" required maxlength="250">
 									<div id="emailValidacao" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
 							</div>
 							<div class="form-group">
 								<div class="form-row">
 									<div class="col-md-6">
-										<label for="exampleInputName">Data de nascimento*</label> <input
-											class="form-control" id="nascimento" name="data_nascimento" type="date"
+										<label for="exampleInputName">Data de nascimento*</label> 
+										<input class="form-control date-mask" id="nascimento" name="data_nascimento" type="date"
 											aria-describedby="nameHelp" placeholder="Data de nascimento" required>
 											<div id="data_nascimento" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
 									</div>

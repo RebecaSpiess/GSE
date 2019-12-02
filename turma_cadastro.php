@@ -107,7 +107,6 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 <link href="css/sb-admin.css" rel="stylesheet">
 
 <script type="text/javascript">
-debbuger;
 	function submit() {
 		document.forms[0].submit();
 	}
@@ -294,7 +293,7 @@ debbuger;
 										<label for="exampleInputName">Nome da turma*</label> <input
 											class="form-control" id="nomeTurma" type="text"
 											aria-describedby="nameHelp" placeholder="Nome da turma"
-											name="nome_turma" required>
+											name="nome_turma" required maxlength="255">
 											<div id="nome_turma" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
           							</div>
 								</div>
