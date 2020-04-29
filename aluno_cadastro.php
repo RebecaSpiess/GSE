@@ -381,70 +381,102 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 									</div>
 								</div>
 							</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container-fluid">
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item">Resposáveis</li>
 				<li class="breadcrumb-item active">Cadastro</li>
 			</ol>
-							<div class="form-group">
-								<div class="form-row">
-									<div class="col-md-6">
-										<label for="exampleInputLastName">Nome do responsável 1*</label>
-										<input class="form-control" id="nomeResponsavel1" type="text"
-											aria-describedby="nameHelp" placeholder="Nome responsável 1"
-											name="nomeResponsavel1" required maxlength="250">
-										<div id="nomeResponsavel1"
-											style="display: none; font-size: 10pt; color: red">Campo
-											obrigatório!</div>
-									</div>
-									<div class="col-md-6">
-										<label for="exampleInputLastName">Sobrenome do responsável 1*</label>
-										<input class="form-control" id="sobrenomeResponsavel1"
-											type="text" aria-describedby="nameHelp"
-											placeholder="Nome responsável 1" name="sobrenomeResponsavel1"
-											required maxlength="250">
-										<div id="sobrenomeResponsavel1"
-											style="display: none; font-size: 10pt; color: red">Campo
-											obrigatório!</div>
-									</div>
-								</div>
-							</div>
-							<div class="form-group">
-								<div class="form-row">
-									<div class="col-md-6">
-										<label for="exampleInputLastName">Nome do responsável 2</label>
-										<input class="form-control" id="nomeResponsavel2" type="text"
-											aria-describedby="nameHelp" placeholder="Nome responsável 2"
-											name="nomeResponsavel1" required maxlength="250">
-										<div id="nomeResponsavel2"
-											style="display: none; font-size: 10pt; color: red">
-										</div>
-									</div>
-									<div class="col-md-6">
-										<label for="exampleInputLastName">Sobrenome do responsável 2</label>
-										<input class="form-control" id="sobrenomeResponsavel2"
-											type="text" aria-describedby="nameHelp"
-											placeholder="Nome responsável 2" name="sobrenomeResponsavel1"
-											required maxlength="250">
-										<div id="sobrenomeResponsavel2"
-											style="display: none; font-size: 10pt; color: red">
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="form-group">
-								<label for="exampleInputEmail1">Endereço de E-Mail do
-									responsável*</label> <input class="form-control" id="email"
-									type="email" name="email" aria-describedby="emailHelp"
-									placeholder="Endereço de E-Mail" required maxlength="250">
-								<div id="emailValidacao"
-									style="display: none; font-size: 10pt; color: red">Campo
-									obrigatório!</div>
-							</div>
-
-							<a class="btn btn-primary btn-block"
-								onclick="validateAndSubmitForm()">Cadastrar</a>
-						</form>
+			<div class="container" style="padding-left: 30px;">
+			<div class="form-group">
+				<div class="form-row">
+					<div class="col-md-6">
+						<label for="exampleInputLastName">Nome do responsável 1*</label> <input
+							class="form-control" id="nomeResponsavel1" type="text"
+							aria-describedby="nameHelp" placeholder="Nome responsável 1"
+							name="nomeResponsavel1" required maxlength="250">
+						<div id="nomeResponsavel1"
+							style="display: none; font-size: 10pt; color: red">Campo
+							obrigatório!</div>
 					</div>
+					<div class="col-md-6">
+						<label for="exampleInputLastName">Sobrenome do responsável 1*</label>
+						<input class="form-control" id="sobrenomeResponsavel1" type="text"
+							aria-describedby="nameHelp" placeholder="Nome responsável 1"
+							name="sobrenomeResponsavel1" required maxlength="250">
+						<div id="sobrenomeResponsavel1"
+							style="display: none; font-size: 10pt; color: red">Campo
+							obrigatório!</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="exampleInputEmail1"> CPF do responsável 1*</label>
+				<input class="form-control" id="CPF1" type="CPF1" name="CPF1"
+					aria-describedby="CPF1" placeholder="CPF do responsável 1"
+					required maxlength="250">
+				<div id="cpfValidacao"
+					style="display: none; font-size: 10pt; color: red">Campo
+					obrigatório!</div>
+			</div>	
+			<div class="form-group">
+				<label for="exampleInputEmail1">Endereço de E-Mail do responsável 1*</label>
+				<input class="form-control" id="email1" type="email1" name="email1"
+					aria-describedby="emailHelp" placeholder="Endereço de E-Mail do responsável 1"
+					required maxlength="250">
+				<div id="emailValidacao"
+					style="display: none; font-size: 10pt; color: red">Campo
+					obrigatório!</div>
+			</div>	
+			<div class="form-group">
+				<div class="form-row">
+					<div class="col-md-6">
+						<label for="exampleInputLastName">Nome do responsável 2</label> <input
+							class="form-control" id="nomeResponsavel2" type="text"
+							aria-describedby="nameHelp" placeholder="Nome responsável 2"
+							name="nomeResponsavel1" required maxlength="250">
+						<div id="nomeResponsavel2"
+							style="display: none; font-size: 10pt; color: red"></div>
+					</div>
+					<div class="col-md-6">
+						<label for="exampleInputLastName">Sobrenome do responsável 2</label>
+						<input class="form-control" id="sobrenomeResponsavel2" type="text"
+							aria-describedby="nameHelp" placeholder="Nome responsável 2"
+							name="sobrenomeResponsavel1" required maxlength="250">
+						<div id="sobrenomeResponsavel2"
+							style="display: none; font-size: 10pt; color: red"></div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="exampleInputEmail1"> CPF do responsável 2*</label>
+				<input class="form-control" id="CPF2" type="CPF2" name="CPF2"
+					aria-describedby="CPF2" placeholder="CPF do responsável 2"
+					required maxlength="250">
+				<div id="cpfValidacao"
+					style="display: none; font-size: 10pt; color: red">Campo
+					obrigatório!</div>
+			</div>	
+			<div class="form-group">
+				<label for="exampleInputEmail1">Endereço de E-Mail do responsável 2*</label>
+				<input class="form-control" id="email2" type="email2" name="email2"
+					aria-describedby="emailHelp" placeholder="Endereço de E-Mail do responsável 2"
+					required maxlength="250">
+				<div id="emailValidacao"
+					style="display: none; font-size: 10pt; color: red">Campo
+					obrigatório!</div>
+			</div>		
+				<a class="btn btn-primary btn-block"
+				onclick="validateAndSubmitForm()">Cadastrar</a>
+		
+		</form>
+	</div>
+	</div>
+	
+
 					<?php
     if (isset($showErrorMessage)) {
         ?>
@@ -455,64 +487,63 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
     if ($showSuccessMessage and ! isset($showErrorMessage)) {
         ?>
 					    <div style="color: green; text-align: center;">Registro criado
-						com sucesso!</div>
+		com sucesso!</div>
 					<?php
-
-}
+    }
 
     ?>
 				</div>
+	</div>
+	</div>
+	<!-- /.container-fluid-->
+	<!-- /.content-wrapper-->
+	<footer class="sticky-footer">
+		<div class="container">
+			<div class="text-center">
+				<small>Copyright © GSE 2019</small>
 			</div>
 		</div>
-		<!-- /.container-fluid-->
-		<!-- /.content-wrapper-->
-		<footer class="sticky-footer">
-			<div class="container">
-				<div class="text-center">
-					<small>Copyright © GSE 2019</small>
+	</footer>
+	<!-- Scroll to Top Button-->
+	<a class="scroll-to-top rounded" href="#page-top"> <i
+		class="fa fa-angle-up"></i>
+	</a>
+	<!-- Logout Modal-->
+	<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Deseja mesmo sair?</h5>
+					<button class="close" type="button" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
 				</div>
-			</div>
-		</footer>
-		<!-- Scroll to Top Button-->
-		<a class="scroll-to-top rounded" href="#page-top"> <i
-			class="fa fa-angle-up"></i>
-		</a>
-		<!-- Logout Modal-->
-		<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
-			aria-labelledby="exampleModalLabel" aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="exampleModalLabel">Deseja mesmo sair?</h5>
-						<button class="close" type="button" data-dismiss="modal"
-							aria-label="Close">
-							<span aria-hidden="true">×</span>
-						</button>
-					</div>
-					<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja
-						pronto para encerrar a seção atual.</div>
-					<div class="modal-footer">
-						<button class="btn btn-secondary" type="button"
-							data-dismiss="modal">Cancelar</button>
-						<form action="bo/Sessao.php" name="logout" method="POST">
-							<input type="hidden" value="GSElogout" name="logout"> <a
-								class="btn btn-primary" onclick="document.logout.submit()">Sair</a>
-						</form>
-					</div>
+				<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja
+					pronto para encerrar a seção atual.</div>
+				<div class="modal-footer">
+					<button class="btn btn-secondary" type="button"
+						data-dismiss="modal">Cancelar</button>
+					<form action="bo/Sessao.php" name="logout" method="POST">
+						<input type="hidden" value="GSElogout" name="logout"> <a
+							class="btn btn-primary" onclick="document.logout.submit()">Sair</a>
+					</form>
 				</div>
 			</div>
 		</div>
-		<!-- Bootstrap core JavaScript-->
-		<script src="vendor/jquery/jquery.min.js"></script>
-		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-		<!-- Core plugin JavaScript-->
-		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+	</div>
+	<!-- Bootstrap core JavaScript-->
+	<script src="vendor/jquery/jquery.min.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<!-- Core plugin JavaScript-->
+	<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 
 	</div>
 </body>
 
 </html>
 
-<?php 
+<?php
 $db->close();
 ?>
