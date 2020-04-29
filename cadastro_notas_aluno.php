@@ -37,7 +37,7 @@ if (isset($_POST['cadastro_notas'])){
                     $count++;
                 }
             }
-            header("Location: /GSE/aluno_notas.php");
+            header("Location: /aluno_notas.php");
             if ($count == 1){
                 $_SESSION['mensagem_notas'] = "Nota cadastrada com sucesso!";
             } else if ($count > 1){

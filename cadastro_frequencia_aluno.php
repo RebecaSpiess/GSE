@@ -41,7 +41,7 @@ if (isset($_POST['cadastro_frequencia'])){
                 $db1->close();
                 $db1 = new db();
             }
-            header("Location: /GSE/frequencia_cadastro.php");
+            header("Location: /frequencia_cadastro.php");
             if ($count == 1){
                 $_SESSION['mensagem_frequencia'] = "Frequência cadastrada com sucesso!";
             } else if ($count > 1){

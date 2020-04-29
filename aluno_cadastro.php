@@ -1,73 +1,60 @@
 <?php
-    require 'bo/Sessao.php';
-    require 'bo/ControleAcesso.php';
-    require 'database/db.php';
-    
-    use bo\Sessao;
-    use bo\ControleAcesso;
-    use model\Pessoa;
+require 'bo/Sessao.php';
+require 'bo/ControleAcesso.php';
+require 'database/db.php';
 
-    Sessao::validar();
-    
-    $papeisPermitidos = array(2,4);
-    ControleAcesso::validar($papeisPermitidos);
-    
-    $db = new db();
-    
-    $showErrorMessage = null;
-    $showSuccessMessage = false;
-    
-    
-    if (isset($_POST['nome']) and
-        isset($_POST['sobrenome']) and
-        isset($_POST['email']) and
-        isset($_POST['data_nascimento']) and
-        isset($_POST['sexo'])){
-            
-            $nome = $_POST['nome'];
-            $sobrenome = $_POST['sobrenome'];
-            $email = $_POST['email'];
-            $data_nascimento = $_POST['data_nascimento'];
-            $sexo = $_POST['sexo'];
-            
-            if (!empty(trim($nome)) and
-                !empty(trim($sobrenome)) and
-                !empty(trim($email)) and
-                !empty(trim($data_nascimento))){
-                      $pessoa = new Pessoa();
-                      $pessoa->nome = $nome;
-                      $pessoa->sobrenome = $sobrenome;
-                      $pessoa->email = $email;
-                      $pessoa->data_nascimento = $data_nascimento;
-                      $pessoa->sexo = $sexo;
-                      $pessoa->senha = '123456'; //Senha padrão
-                      $enc_senha = hash('sha512',$pessoa->senha.'GSE');
-                      $pessoa->tipo_pessoa = 3; //Aluno
-                      try {
-                          $result = $db->query("INSERT INTO PESSOA (NOME, SOBRENOME, EMAIL, DATA_NASCIMENTO, TIPO_SEXO, TIPO_PESSOA, SENHA)
-                          VALUES (?,?,?,?,?,?,?) "
-                              , $pessoa->nome
-                              , $pessoa->sobrenome
-                              , $pessoa->email
-                              , $pessoa->data_nascimento
-                              , $pessoa->sexo
-                              , $pessoa->tipo_pessoa
-                              , $enc_senha
-                              )->query_count;
-                              if ($result == 1){
-                                  $showSuccessMessage = true;
-                              } 
-                      } catch (Exception $ex){
-                          $error_code = $ex->getMessage();
-                          if ($error_code == 1062){
-                              $showErrorMessage = "Já existe um registro com o e-mail informado!";
-                          } else {
-                              $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
-                          }
-                      }
+use bo\Sessao;
+use bo\ControleAcesso;
+use model\Pessoa;
+
+Sessao::validar();
+
+$papeisPermitidos = array(
+    2,
+    4
+);
+ControleAcesso::validar($papeisPermitidos);
+
+$db = new db();
+
+$showErrorMessage = null;
+$showSuccessMessage = false;
+
+if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email']) and isset($_POST['data_nascimento']) and isset($_POST['sexo'])) {
+
+    $nome = $_POST['nome'];
+    $sobrenome = $_POST['sobrenome'];
+    $email = $_POST['email'];
+    $data_nascimento = $_POST['data_nascimento'];
+    $sexo = $_POST['sexo'];
+
+    if (! empty(trim($nome)) and ! empty(trim($sobrenome)) and ! empty(trim($email)) and ! empty(trim($data_nascimento))) {
+        $pessoa = new Pessoa();
+        $pessoa->nome = $nome;
+        $pessoa->sobrenome = $sobrenome;
+        $pessoa->email = $email;
+        $pessoa->data_nascimento = $data_nascimento;
+        $pessoa->sexo = $sexo;
+        $pessoa->senha = '123456'; // Senha padrão
+        $enc_senha = hash('sha512', $pessoa->senha . 'GSE');
+        $pessoa->tipo_pessoa = 3; // Aluno
+        try {
+            $result = $db->query("INSERT INTO PESSOA (NOME, SOBRENOME, EMAIL, DATA_NASCIMENTO, TIPO_SEXO, TIPO_PESSOA, SENHA)
+                          VALUES (?,?,?,?,?,?,?) ", $pessoa->nome, $pessoa->sobrenome, $pessoa->email, $pessoa->data_nascimento, $pessoa->sexo, $pessoa->tipo_pessoa, $enc_senha)->query_count;
+            if ($result == 1) {
+                $showSuccessMessage = true;
             }
+        } catch (Exception $ex) {
+            $error_code = $ex->getMessage();
+            if ($error_code == 1062) {
+                $showErrorMessage = "Já existe um registro com o e-mail informado!";
+            } else {
+                $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
+            }
+        }
     }
-    
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -91,7 +78,7 @@
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
 
-  <script type="text/javascript">
+<script type="text/javascript">
 	function submit() {
 		document.forms[0].submit();
 	}
@@ -237,8 +224,8 @@
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages1" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Disciplinas</span>
+					href="#collapseExamplePages1" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Disciplinas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages1">
@@ -249,8 +236,8 @@
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages2" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
+					href="#collapseExamplePages2" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
@@ -261,8 +248,8 @@
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages3" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
+					href="#collapseExamplePages3" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
@@ -276,9 +263,9 @@
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages4" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Plano
-							de aula</span>
+					href="#collapseExamplePages4" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Plano de
+							aula</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages4">
@@ -289,8 +276,8 @@
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages5" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Ocorrências</span>
+					href="#collapseExamplePages5" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Ocorrências</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages5">
@@ -306,8 +293,8 @@
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages6" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Servidores</span>
+					href="#collapseExamplePages6" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Servidores</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages6">
@@ -317,8 +304,8 @@
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages7" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Turmas</span>
+					href="#collapseExamplePages7" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Turmas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages7">
@@ -355,58 +342,125 @@
 									<div class="col-md-6">
 										<label for="exampleInputName">Nome*</label> <input
 											class="form-control" id="nome" type="text"
-											aria-describedby="nameHelp" placeholder="Nome" name="nome" required maxlength="250">
-											<div id="name" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
+											aria-describedby="nameHelp" placeholder="Nome" name="nome"
+											required maxlength="250">
+										<div id="name"
+											style="display: none; font-size: 10pt; color: red">Campo
+											obrigatório!</div>
 									</div>
 									<div class="col-md-6">
 										<label for="exampleInputLastName">Sobrenome*</label> <input
 											class="form-control" id="sobreNome" type="text"
-											aria-describedby="nameHelp" placeholder="Sobrenome" name="sobrenome" required maxlength="250">
-											<div id="sobrenome" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
+											aria-describedby="nameHelp" placeholder="Sobrenome"
+											name="sobrenome" required maxlength="250">
+										<div id="sobrenome"
+											style="display: none; font-size: 10pt; color: red">Campo
+											obrigatório!</div>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="form-row">
+									<div class="col-md-6">
+										<label for="exampleInputName">Data de nascimento*</label> <input
+											class="form-control date-mask" id="nascimento"
+											name="data_nascimento" type="date"
+											aria-describedby="nameHelp" placeholder="Data de nascimento"
+											required>
+										<div id="data_nascimento"
+											style="display: none; font-size: 10pt; color: red">Campo
+											obrigatório!</div>
+									</div>
+									<div class="col-md-6">
+										<label for="typeSexo">Sexo*</label><br> <input type="radio"
+											name="sexo" id="sexo" value="1" checked required> Masculino<br>
+										<input type="radio" name="sexo" value="0" id="sexo" required>Feminino<br>
+										<div id="intputSexo"
+											style="display: none; font-size: 10pt; color: red">Campo
+											obrigatório!</div>
+									</div>
+								</div>
+							</div>
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item">Resposáveis</li>
+				<li class="breadcrumb-item active">Cadastro</li>
+			</ol>
+							<div class="form-group">
+								<div class="form-row">
+									<div class="col-md-6">
+										<label for="exampleInputLastName">Nome do responsável 1*</label>
+										<input class="form-control" id="nomeResponsavel1" type="text"
+											aria-describedby="nameHelp" placeholder="Nome responsável 1"
+											name="nomeResponsavel1" required maxlength="250">
+										<div id="nomeResponsavel1"
+											style="display: none; font-size: 10pt; color: red">Campo
+											obrigatório!</div>
+									</div>
+									<div class="col-md-6">
+										<label for="exampleInputLastName">Sobrenome do responsável 1*</label>
+										<input class="form-control" id="sobrenomeResponsavel1"
+											type="text" aria-describedby="nameHelp"
+											placeholder="Nome responsável 1" name="sobrenomeResponsavel1"
+											required maxlength="250">
+										<div id="sobrenomeResponsavel1"
+											style="display: none; font-size: 10pt; color: red">Campo
+											obrigatório!</div>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="form-row">
+									<div class="col-md-6">
+										<label for="exampleInputLastName">Nome do responsável 2</label>
+										<input class="form-control" id="nomeResponsavel2" type="text"
+											aria-describedby="nameHelp" placeholder="Nome responsável 2"
+											name="nomeResponsavel1" required maxlength="250">
+										<div id="nomeResponsavel2"
+											style="display: none; font-size: 10pt; color: red">
+										</div>
+									</div>
+									<div class="col-md-6">
+										<label for="exampleInputLastName">Sobrenome do responsável 2</label>
+										<input class="form-control" id="sobrenomeResponsavel2"
+											type="text" aria-describedby="nameHelp"
+											placeholder="Nome responsável 2" name="sobrenomeResponsavel1"
+											required maxlength="250">
+										<div id="sobrenomeResponsavel2"
+											style="display: none; font-size: 10pt; color: red">
+										</div>
 									</div>
 								</div>
 							</div>
 							<div class="form-group">
 								<label for="exampleInputEmail1">Endereço de E-Mail do
-									responsável*</label>
-									<input class="form-control"
-									id="email" type="email" name="email"
-									aria-describedby="emailHelp" placeholder="Endereço de E-Mail" required maxlength="250">
-									<div id="emailValidacao" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
+									responsável*</label> <input class="form-control" id="email"
+									type="email" name="email" aria-describedby="emailHelp"
+									placeholder="Endereço de E-Mail" required maxlength="250">
+								<div id="emailValidacao"
+									style="display: none; font-size: 10pt; color: red">Campo
+									obrigatório!</div>
 							</div>
-							<div class="form-group">
-								<div class="form-row">
-									<div class="col-md-6">
-										<label for="exampleInputName">Data de nascimento*</label> 
-										<input class="form-control date-mask" id="nascimento" name="data_nascimento" type="date"
-											aria-describedby="nameHelp" placeholder="Data de nascimento" required>
-											<div id="data_nascimento" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
-									</div>
-									<div class="col-md-6">
-										<label for="typeSexo">Sexo*</label><br> 
-										<input
-											type="radio" name="sexo" id="sexo"  value="1"
-											checked required> Masculino<br> 
-										<input type="radio"
-											name="sexo" value="0" id="sexo" required>Feminino<br>
-											<div id="intputSexo" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
-									</div>
-								</div>
-							</div>
-							<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>
+
+							<a class="btn btn-primary btn-block"
+								onclick="validateAndSubmitForm()">Cadastrar</a>
 						</form>
 					</div>
-					<?php 
-					if (isset($showErrorMessage)){ ?>
-						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </div>
-					<?php 
-					}
-					
-					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
-					    <div style="color:green;text-align: center;">Registro criado com sucesso!</div>
-					<?php }
-					
-					?>
+					<?php
+    if (isset($showErrorMessage)) {
+        ?>
+						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </div>
+					<?php
+    }
+
+    if ($showSuccessMessage and ! isset($showErrorMessage)) {
+        ?>
+					    <div style="color: green; text-align: center;">Registro criado
+						com sucesso!</div>
+					<?php
+
+}
+
+    ?>
 				</div>
 			</div>
 		</div>
@@ -453,6 +507,7 @@
 		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 		<!-- Core plugin JavaScript-->
 		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
 	</div>
 </body>
 
