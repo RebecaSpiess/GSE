@@ -300,6 +300,11 @@ if (isset($_POST['aluno']) and
 						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
 							<div class="form-group">
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+									<label for="turma">Turma*</label>
+									 <select
+										class="form-control"
+										aria-describedby="nameHelp" id="turma" name="turma">									
+									</select>
 									<label for="turma">Aluno*</label> 
 									<select
 										class="form-control"

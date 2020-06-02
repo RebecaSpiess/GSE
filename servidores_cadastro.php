@@ -380,7 +380,7 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 							<div class="form-group">
 								<label for="exampleInputEmail1">Endereço de E-Mail*</label> <input
 									class="form-control" id="exampleInputEmail1" type="email"
-									aria-describedby="emailHelp" placeholder="Endereço de E-Mail"
+									aria-describedby="emailHelp" placeholder="exemplo@exemplo.com"
 									maxlength="250"
 									name="email">
 							</div>
@@ -415,7 +415,7 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 										<label for="exampleInputLastName">CPF*</label>
 										 <input
 											class="form-control cpf-mask" id="cpf" type="text"
-											placeholder="CPF" name="cpf" maxlength="14" onkeydown="javascript: fMasc( this, mCPF );" >
+											placeholder="000.000.000-00" name="cpf" maxlength="14" onkeydown="javascript: fMasc( this, mCPF );" >
 									</div>
 									<div class="col-md-6">
 										<label for="exampleInputLastName">Tipo pessoa*</label> <select

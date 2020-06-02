@@ -415,9 +415,9 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 			</div>
 			<div class="form-group">
 				<label for="exampleInputEmail1"> CPF do responsável 1*</label>
-				<input class="form-control" id="CPF1" type="CPF1" name="CPF1"
-					aria-describedby="CPF1" placeholder="CPF do responsável 1"
-					required maxlength="250">
+				<input
+					class="form-control cpf-mask" id="cpf" type="text"
+					placeholder="000.000.000-00" name="cpf" maxlength="14" onkeydown="javascript: fMasc( this, mCPF );" >
 				<div id="cpfValidacao"
 					style="display: none; font-size: 10pt; color: red">Campo
 					obrigatório!</div>
@@ -425,7 +425,7 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 			<div class="form-group">
 				<label for="exampleInputEmail1">Endereço de E-Mail do responsável 1*</label>
 				<input class="form-control" id="email1" type="email1" name="email1"
-					aria-describedby="emailHelp" placeholder="Endereço de E-Mail do responsável 1"
+					aria-describedby="emailHelp" placeholder="exemplo@exemplo.com"
 					required maxlength="250">
 				<div id="emailValidacao"
 					style="display: none; font-size: 10pt; color: red">Campo
@@ -453,9 +453,9 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 			</div>
 			<div class="form-group">
 				<label for="exampleInputEmail1"> CPF do responsável 2*</label>
-				<input class="form-control" id="CPF2" type="CPF2" name="CPF2"
-					aria-describedby="CPF2" placeholder="CPF do responsável 2"
-					required maxlength="250">
+				<input
+					class="form-control cpf-mask" id="cpf" type="text"
+					placeholder="000.000.000-00" name="cpf" maxlength="14" onkeydown="javascript: fMasc( this, mCPF );" >
 				<div id="cpfValidacao"
 					style="display: none; font-size: 10pt; color: red">Campo
 					obrigatório!</div>
@@ -463,7 +463,7 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 			<div class="form-group">
 				<label for="exampleInputEmail1">Endereço de E-Mail do responsável 2*</label>
 				<input class="form-control" id="email2" type="email2" name="email2"
-					aria-describedby="emailHelp" placeholder="Endereço de E-Mail do responsável 2"
+					aria-describedby="emailHelp" placeholder="exemplo@exemplo.com"
 					required maxlength="250">
 				<div id="emailValidacao"
 					style="display: none; font-size: 10pt; color: red">Campo
