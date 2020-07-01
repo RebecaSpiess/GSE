@@ -255,6 +255,8 @@ if (isset($_POST['disciplina'])){
 										class="form-control" id="disciplina" type="text"
 										maxlength="255"  name="disciplina"
 										placeholder="Nome da disciplina">
+									<label for="exampleInputName">Proposta curricular*</label> 
+									<textarea rows="10" cols="30" style="width: 100%; max-width:100% " maxlength="250" id="propostaCurricular" name="propostaCurricular"></textarea>
 								</div>
 							</div>
 							<br> <a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>

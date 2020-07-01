@@ -110,7 +110,7 @@ if (isset($_POST['email']) and isset($_POST['senha'])){
             <input class="form-control" id="exampleInputPassword1" name="senha" type="password" placeholder="Senha">
             <div id="senhaValidacao" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
           </div>          
-          <a class="btn btn-primary btn-block" onclick="validateAndSubmitForm();">Login</a>
+          <input type="submit" class="btn btn-primary btn-block" onclick="validateAndSubmitForm();" value="Login" />
         </form>
         <div class="text-center">
          <div style="display: none">
