@@ -425,7 +425,7 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 			<div class="form-group">
 				<label for="exampleInputEmail1">Endereço de E-Mail do responsável 1*</label>
 				<input class="form-control" id="email1" type="email1" name="email1"
-					aria-describedby="emailHelp" placeholder="exemplo@exemplo.com"
+					aria-describedby="emailHelp" placeholder="E-Mail usado para encaminhamento de comunicados"
 					required maxlength="250">
 				<div id="emailValidacao"
 					style="display: none; font-size: 10pt; color: red">Campo
@@ -446,28 +446,14 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 						<input class="form-control" id="sobrenomeResponsavel2" type="text"
 							aria-describedby="nameHelp" placeholder="Nome responsável 2"
 							name="sobrenomeResponsavel1" required maxlength="250">
-						<div id="sobrenomeResponsavel2"
-							style="display: none; font-size: 10pt; color: red"></div>
 					</div>
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="exampleInputEmail1"> CPF do responsável 2*</label>
+				<label for="exampleInputEmail1"> CPF do responsável 2</label>
 				<input
 					class="form-control cpf-mask" id="cpf" type="text"
 					placeholder="000.000.000-00" name="cpf" maxlength="14" onkeydown="javascript: fMasc( this, mCPF );" >
-				<div id="cpfValidacao"
-					style="display: none; font-size: 10pt; color: red">Campo
-					obrigatório!</div>
-			</div>	
-			<div class="form-group">
-				<label for="exampleInputEmail1">Endereço de E-Mail do responsável 2*</label>
-				<input class="form-control" id="email2" type="email2" name="email2"
-					aria-describedby="emailHelp" placeholder="exemplo@exemplo.com"
-					required maxlength="250">
-				<div id="emailValidacao"
-					style="display: none; font-size: 10pt; color: red">Campo
-					obrigatório!</div>
 			</div>		
 				<a class="btn btn-primary btn-block"
 				onclick="validateAndSubmitForm()">Cadastrar</a>

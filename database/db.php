@@ -8,10 +8,10 @@ class db {
     
     public function __construct() {
        
-        $hostname="shcglobal.mysql.dbaas.com.br";
-        $username="shcglobal";
-        $password="MySQL#2019!";
-        $dbname="shcglobal";
+        $hostname="gestaose.mysql.dbaas.com.br";
+        $username="gestaose";
+        $password="Lubinho#150914";
+        $dbname="gestaose";
         $this->connection = new mysqli($hostname, $username, $password, $dbname);
         if ($this->connection->connect_error) {
             die('Failed to connect to MySQL - ' . $this->connection->connect_error);
