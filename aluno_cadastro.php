@@ -85,9 +85,15 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
   
 	function validateAndSubmitForm() {
 		var nome = document.getElementById("nome");
-		var sobreNome = document.getElementById("sobreNome");
-		var email = document.getElementById("email");
-		var dataNascimento = document.getElementById("nascimento");
+		var sobreNome = document.getElementById("sobrenome");
+		var data_nascimento = document.getElementById("nascimento");
+		var sexo = document.getElementById("sexo");
+		var nomeResponsavel1 = document.getElementById("nomeResponsavel1");
+		var sobrenomeResponsavel1 = document.getElementById("sobrenomeResponsavel1");
+		var cpf = document.getElementById("cpf");
+		var data_nascimentoResp1 = document.getElementById("nascimentoResp1");
+		var sexoResp1 = document.getElementById("sexoResp1");
+		var email1 = document.getElementById("email1");
 		var camposPreenchidos = true; 
 		if (!isNotBlank(nome.value)){
 			camposPreenchidos = false;
@@ -99,27 +105,78 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 
 		if (!isNotBlank(sobreNome.value)){
 			camposPreenchidos = false;
-			document.getElementById("sobrenome").style.display = "block";
-		} else {				
-			document.getElementById("sobrenome").style.display = "none";
+			document.getElementById("sobrenomeErro").style.display = "block";
+		} else {
+			camposPreenchidos = true;				
+			document.getElementById("sobrenomeErro").style.display = "none";
 		}	
 
-		if (!isNotBlank(email.value)){
+		if (!isNotBlank(data_nascimento.value)){
 			camposPreenchidos = false;
-			document.getElementById("emailValidacao").style.display = "block";
-		} else {				
-			document.getElementById("emailValidacao").style.display = "none";
+			document.getElementById("dataNascimentoErro").style.display = "block";
+		} else {		
+			camposPreenchidos = true;		
+			document.getElementById("dataNascimentoErro").style.display = "none";
 		}
 
-		if (!isNotBlank(dataNascimento.value)){
+		if (!isNotBlank(sexo.value)){
 			camposPreenchidos = false;
-			document.getElementById("data_nascimento").style.display = "block";
-		} else {				
-			document.getElementById("data_nascimento").style.display = "none";
+			document.getElementById("sexoErro").style.display = "block";
+		} else {	
+			camposPreenchidos = true;			
+			document.getElementById("sexoErro").style.display = "none";
+		}
+		
+		if (!isNotBlank(nomeResponsavel1.value)){
+			camposPreenchidos = false;
+			document.getElementById("nomeResponsavel1Erro").style.display = "block";
+		} else {
+			camposPreenchidos = true;
+			document.getElementById("nomeResponsavel1Erro").style.display = "none";
+		}	
+
+		if (!isNotBlank(sobrenomeResponsavel1.value)){
+			camposPreenchidos = false;
+			document.getElementById("sobrenomeResponsavel1Erro").style.display = "block";
+		} else {	
+			camposPreenchidos = true;			
+			document.getElementById("sobrenomeResponsavel1Erro").style.display = "none";
+		}	
+
+		if (!isNotBlank(data_nascimentoResp1.value)){
+			camposPreenchidos = false;
+			document.getElementById("dataNascimentoResp1Erro").style.display = "block";
+		} else {	
+			camposPreenchidos = true;			
+			document.getElementById("dataNascimentoResp1Erro").style.display = "none";
+		}
+
+		if (!isNotBlank(sexoResp1.value)){
+			camposPreenchidos = false;
+			document.getElementById("sexoRespErro").style.display = "block";
+		} else {	
+			camposPreenchidos = true;			
+			document.getElementById("sexoRespErro").style.display = "none";
+		}
+		
+		if (!isNotBlank(email1.value)){
+			camposPreenchidos = false;
+			document.getElementById("emailValidacaoErro").style.display = "block";
+		} else {	
+			camposPreenchidos = true;			
+			document.getElementById("emailValidacaoErro").style.display = "none";
+		}
+			
+		if (!isNotBlank(cpf.value)){
+			camposPreenchidos = false;
+			document.getElementById("cpfErro").style.display = "block";
+		} else {	
+			camposPreenchidos = true;			
+			document.getElementById("cpfErro").style.display = "none";
 		}
 
 		if (camposPreenchidos){
-			if (validateEmail(email.value)){
+			if (validateEmail(email1.value)){
 				submit();
 			} else {
 				alert('Você informou um endereço de e-mail inválido!');
@@ -350,10 +407,10 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 									</div>
 									<div class="col-md-6">
 										<label for="exampleInputLastName">Sobrenome*</label> <input
-											class="form-control" id="sobreNome" type="text"
+											class="form-control" id="sobrenome" type="text"
 											aria-describedby="nameHelp" placeholder="Sobrenome"
 											name="sobrenome" required maxlength="250">
-										<div id="sobrenome"
+										<div id="sobrenomeErro"
 											style="display: none; font-size: 10pt; color: red">Campo
 											obrigatório!</div>
 									</div>
@@ -367,7 +424,7 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 											name="data_nascimento" type="date"
 											aria-describedby="nameHelp" placeholder="Data de nascimento"
 											required>
-										<div id="data_nascimento"
+										<div id="dataNascimentoErro"
 											style="display: none; font-size: 10pt; color: red">Campo
 											obrigatório!</div>
 									</div>
@@ -375,12 +432,13 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 										<label for="typeSexo">Sexo*</label><br> <input type="radio"
 											name="sexo" id="sexo" value="1" checked required> Masculino<br>
 										<input type="radio" name="sexo" value="0" id="sexo" required>Feminino<br>
-										<div id="intputSexo"
+										<div id="sexoErro"
 											style="display: none; font-size: 10pt; color: red">Campo
 											obrigatório!</div>
 									</div>
 								</div>
 							</div>
+						</form>
 					</div>
 				</div>
 			</div>
@@ -391,76 +449,115 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 				<li class="breadcrumb-item active">Cadastro</li>
 			</ol>
 			<div class="container" style="padding-left: 30px;">
-			<div class="form-group">
-				<div class="form-row">
-					<div class="col-md-6">
-						<label for="exampleInputLastName">Nome do responsável 1*</label> <input
-							class="form-control" id="nomeResponsavel1" type="text"
-							aria-describedby="nameHelp" placeholder="Nome responsável 1"
-							name="nomeResponsavel1" required maxlength="250">
-						<div id="nomeResponsavel1"
-							style="display: none; font-size: 10pt; color: red">Campo
-							obrigatório!</div>
-					</div>
-					<div class="col-md-6">
-						<label for="exampleInputLastName">Sobrenome do responsável 1*</label>
-						<input class="form-control" id="sobrenomeResponsavel1" type="text"
-							aria-describedby="nameHelp" placeholder="Nome responsável 1"
-							name="sobrenomeResponsavel1" required maxlength="250">
-						<div id="sobrenomeResponsavel1"
-							style="display: none; font-size: 10pt; color: red">Campo
-							obrigatório!</div>
-					</div>
-				</div>
-			</div>
-			<div class="form-group">
-				<label for="exampleInputEmail1"> CPF do responsável 1*</label>
-				<input
-					class="form-control cpf-mask" id="cpf" type="text"
-					placeholder="000.000.000-00" name="cpf" maxlength="14" onkeydown="javascript: fMasc( this, mCPF );" >
-				<div id="cpfValidacao"
-					style="display: none; font-size: 10pt; color: red">Campo
-					obrigatório!</div>
-			</div>	
-			<div class="form-group">
-				<label for="exampleInputEmail1">Endereço de E-Mail do responsável 1*</label>
-				<input class="form-control" id="email1" type="email1" name="email1"
-					aria-describedby="emailHelp" placeholder="E-Mail usado para encaminhamento de comunicados"
-					required maxlength="250">
-				<div id="emailValidacao"
-					style="display: none; font-size: 10pt; color: red">Campo
-					obrigatório!</div>
-			</div>	
-			<div class="form-group">
-				<div class="form-row">
-					<div class="col-md-6">
-						<label for="exampleInputLastName">Nome do responsável 2</label> <input
-							class="form-control" id="nomeResponsavel2" type="text"
-							aria-describedby="nameHelp" placeholder="Nome responsável 2"
-							name="nomeResponsavel1" required maxlength="250">
-						<div id="nomeResponsavel2"
-							style="display: none; font-size: 10pt; color: red"></div>
-					</div>
-					<div class="col-md-6">
-						<label for="exampleInputLastName">Sobrenome do responsável 2</label>
-						<input class="form-control" id="sobrenomeResponsavel2" type="text"
-							aria-describedby="nameHelp" placeholder="Nome responsável 2"
-							name="sobrenomeResponsavel1" required maxlength="250">
+			<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
+				<div class="form-group">
+					<div class="form-row">
+						<div class="col-md-6">
+							<label for="exampleInputLastName">Nome do responsável 1*</label>
+							<input class="form-control" id="nomeResponsavel1" type="text"
+								aria-describedby="nameHelp" placeholder="Nome responsável 1"
+								name="nomeResponsavel1" required maxlength="250">
+							<div id="nomeResponsavel1Erro"
+								style="display: none; font-size: 10pt; color: red">Campo
+								obrigatório!</div>
+						</div>
+						<div class="col-md-6">
+							<label for="exampleInputLastName">Sobrenome do responsável 1*</label>
+							<input class="form-control" id="sobrenomeResponsavel1"
+								type="text" aria-describedby="nameHelp"
+								placeholder="Nome responsável 1" name="sobrenomeResponsavel1"
+								required maxlength="250">
+							<div id="sobrenomeResponsavel1Erro"
+								style="display: none; font-size: 10pt; color: red">Campo
+								obrigatório!</div>
+						</div>
 					</div>
 				</div>
-			</div>
-			<div class="form-group">
-				<label for="exampleInputEmail1"> CPF do responsável 2</label>
-				<input
-					class="form-control cpf-mask" id="cpf" type="text"
-					placeholder="000.000.000-00" name="cpf" maxlength="14" onkeydown="javascript: fMasc( this, mCPF );" >
-			</div>		
+				<div class="form-group">
+					<label for="exampleInputEmail1"> CPF do responsável 1*</label> <input
+						class="form-control cpf-mask" id="cpf" type="text"
+						placeholder="000.000.000-00" name="cpf" maxlength="14"
+						onkeydown="javascript: fMasc( this, mCPF );">
+					<div id="cpfErro"
+						style="display: none; font-size: 10pt; color: red">Campo
+						obrigatório!</div>
+				</div>
+				<div class="form-group">
+					<div class="form-row">
+						<div class="col-md-6">
+							<label for="exampleInputName">Data de nascimento*</label> <input
+								class="form-control date-mask" id="nascimentoResp1"
+								name="data_nascimentoResp1" type="date" aria-describedby="nameHelp"
+								placeholder="Data de nascimento" required>
+							<div id="dataNascimentoResp1Erro"
+								style="display: none; font-size: 10pt; color: red">Campo
+								obrigatório!</div>
+						</div>
+						<div class="col-md-6">
+							<label for="typeSexo">Sexo*</label><br> <input type="radio"
+								name="sexoResp1" id="sexoResp1" value="1" checked required> Masculino<br>
+							<input type="radio" name="sexoResp1" value="0" id="sexoResp1" required> Feminino<br>
+							<div id="sexoRespErro"
+								style="display: none; font-size: 10pt; color: red">Campo
+								obrigatório!</div>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="exampleInputEmail1">Endereço de E-Mail do responsável
+						1*</label> <input class="form-control" id="email1" type="text"
+						name="email1" aria-describedby="emailHelp"
+						placeholder="E-Mail usado para encaminhamento de comunicados"
+						required maxlength="250">
+					<div id="emailValidacaoErro"
+						style="display: none; font-size: 10pt; color: red">Campo
+						obrigatório!</div>
+				</div>
+				<div class="form-group">
+					<div class="form-row">
+						<div class="col-md-6">
+							<label for="exampleInputLastName">Nome do responsável 2</label> <input
+								class="form-control" id="nomeResponsavel2" type="text"
+								aria-describedby="nameHelp" placeholder="Nome responsável 2"
+								name="nomeResponsavel1" required maxlength="250">
+						</div>
+						<div class="col-md-6">
+							<label for="exampleInputLastName">Sobrenome do responsável 2</label>
+							<input class="form-control" id="sobrenomeResponsavel2"
+								type="text" aria-describedby="nameHelp"
+								placeholder="Nome responsável 2" name="sobrenomeResponsavel2"
+								required maxlength="250">
+						</div>
+						
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="exampleInputEmail1"> CPF do responsável 2</label> <input
+						class="form-control cpf-mask" id="cpf2" type="text"
+						placeholder="000.000.000-00" name="cpf2" maxlength="14"
+						onkeydown="javascript: fMasc( this, mCPF );">
+				</div>
+								<div class="form-group">
+					<div class="form-row">
+						<div class="col-md-6">
+							<label for="exampleInputName">Data de nascimento</label> <input
+								class="form-control date-mask" id="nascimentoResp2"
+								name="data_nascimentoResp2" type="date" aria-describedby="nameHelp"
+								placeholder="Data de nascimento" required>
+						</div>
+						<div class="col-md-6">
+							<label for="typeSexo">Sexo</label><br> <input type="radio"
+								name="sexoResp2" id="sexoResp2" value="1" checked required> Masculino<br>
+							<input type="radio" name="sexoResp2" value="0" id="sexoResp2" required> Feminino<br>
+						</div>
+					</div>
+				</div>
 				<a class="btn btn-primary btn-block"
-				onclick="validateAndSubmitForm()">Cadastrar</a>
-		
-		</form>
-	</div>
-	</div>
+					onclick="validateAndSubmitForm()">Cadastrar</a>
+
+				</form>
+			</div>
+		</div>
 	
 
 					<?php
@@ -473,7 +570,7 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
     if ($showSuccessMessage and ! isset($showErrorMessage)) {
         ?>
 					    <div style="color: green; text-align: center;">Registro criado
-		com sucesso!</div>
+			com sucesso!</div>
 					<?php
     }
 
