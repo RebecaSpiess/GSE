@@ -171,7 +171,7 @@
 	</nav>
 	<div class="content-wrapper">
 		<div class="container-fluid">
-		<div style=" margin: auto; width: 50%;  padding: 10px; padding: 15% 0; height=152px" >
+		<div style=" margin: auto; width: 50%;  padding: 10px; padding: 15% 0; height: 152px" >
 			<img src="imagens/GSE.png" height="152px" width="596px"  />
 		</div>
 		

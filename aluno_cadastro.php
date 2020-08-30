@@ -2,6 +2,7 @@
 require 'bo/Sessao.php';
 require 'bo/ControleAcesso.php';
 require 'database/db.php';
+require 'PessoaDao.php';
 
 use bo\Sessao;
 use bo\ControleAcesso;
@@ -20,30 +21,33 @@ $db = new db();
 $showErrorMessage = null;
 $showSuccessMessage = false;
 
-if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email']) and isset($_POST['data_nascimento']) and isset($_POST['sexo'])) {
+if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email1']) and isset($_POST['data_nascimento']) and isset($_POST['sexo'])) {
 
     $nome = $_POST['nome'];
     $sobrenome = $_POST['sobrenome'];
-    $email = $_POST['email'];
+    $email = $_POST['email1'];
     $data_nascimento = $_POST['data_nascimento'];
     $sexo = $_POST['sexo'];
 
     if (! empty(trim($nome)) and ! empty(trim($sobrenome)) and ! empty(trim($email)) and ! empty(trim($data_nascimento))) {
+        echo("E0");
         $pessoa = new Pessoa();
         $pessoa->nome = $nome;
         $pessoa->sobrenome = $sobrenome;
         $pessoa->email = $email;
         $pessoa->data_nascimento = $data_nascimento;
         $pessoa->sexo = $sexo;
-        $pessoa->senha = '123456'; // Senha padrão
+        $pessoa->senha = '123456'; // Senha padrão para se logar no sistema
         $enc_senha = hash('sha512', $pessoa->senha . 'GSE');
         $pessoa->tipo_pessoa = 3; // Aluno
         try {
-            $result = $db->query("INSERT INTO PESSOA (NOME, SOBRENOME, EMAIL, DATA_NASCIMENTO, TIPO_SEXO, TIPO_PESSOA, SENHA)
-                          VALUES (?,?,?,?,?,?,?) ", $pessoa->nome, $pessoa->sobrenome, $pessoa->email, $pessoa->data_nascimento, $pessoa->sexo, $pessoa->tipo_pessoa, $enc_senha)->query_count;
-            if ($result == 1) {
-                $showSuccessMessage = true;
-            }
+            //$result = $db->query("INSERT INTO PESSOA (NOME, SOBRENOME, EMAIL, DATA_NASCIMENTO, TIPO_SEXO, TIPO_PESSOA, SENHA)
+            //              VALUES (?,?,?,?,?,?,?) ", $pessoa->nome, $pessoa->sobrenome, $pessoa->email, $pessoa->data_nascimento, $pessoa->sexo, $pessoa->tipo_pessoa, $enc_senha)->query_count;
+            //if ($result == 1) {
+            //    $showSuccessMessage = true;
+            //}
+            $pessoaDao = new PessoaDao();
+            $pessoaDao->adicionar($pessoa);
         } catch (Exception $ex) {
             $error_code = $ex->getMessage();
             if ($error_code == 1062) {
@@ -431,14 +435,14 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 									<div class="col-md-6">
 										<label for="typeSexo">Sexo*</label><br> <input type="radio"
 											name="sexo" id="sexo" value="1" checked required> Masculino<br>
-										<input type="radio" name="sexo" value="0" id="sexo" required>Feminino<br>
+										<input type="radio" name="sexo" value="0" id="sexo" required> Feminino<br>
 										<div id="sexoErro"
 											style="display: none; font-size: 10pt; color: red">Campo
 											obrigatório!</div>
 									</div>
 								</div>
 							</div>
-						</form>
+						<!--  </form> -->
 					</div>
 				</div>
 			</div>
@@ -449,7 +453,7 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 				<li class="breadcrumb-item active">Cadastro</li>
 			</ol>
 			<div class="container" style="padding-left: 30px;">
-			<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
+			<!--   <form method="post" action="<?=$_SERVER['PHP_SELF'];?>"> -->
 				<div class="form-group">
 					<div class="form-row">
 						<div class="col-md-6">

@@ -75,6 +75,7 @@ if (isset($_POST['disciplina'])){
   
 	function validateAndSubmitForm() {
 		var disciplina = document.getElementById("disciplina");
+		var propostaCurricular = document.getElementById("propostaCurricular");
 		var camposPreenchidos = true;
 		 
 		if (!isNotBlank(disciplina.value)){
@@ -85,7 +86,26 @@ if (isset($_POST['disciplina'])){
 			submit();
 		} else {
 			alert('Preencha o campo obrigatório!');
-		}			
+		}	
+
+		if (!isNotBlank(propostaCurricular.value)){
+			camposPreenchidos = false;
+		}
+		
+		if (camposPreenchidos){
+			submit();
+		} else {
+			alert('Preencha o campo obrigatório!');
+		}
+
+		if (!isNotBlank(nome.value)){
+			camposPreenchidos = false;
+			document.getElementById("name").style.display = "block";
+		} else {
+			camposPreenchidos = true;
+			document.getElementById("name").style.display = "none";
+		}
+				
 	}
 
 	function isNotBlank(value){
