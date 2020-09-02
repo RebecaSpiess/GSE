@@ -371,7 +371,7 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 		<footer class="sticky-footer">
 			<div class="container">
 				<div class="text-center">
-					<small>Copyright © GSE 2019</small>
+					<small>Copyright © GSE 2020</small>
 				</div>
 			</div>
 		</footer>

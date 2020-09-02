@@ -436,6 +436,8 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 										<label for="typeSexo">Sexo*</label><br> <input type="radio"
 											name="sexo" id="sexo" value="1" checked required> Masculino<br>
 										<input type="radio" name="sexo" value="0" id="sexo" required> Feminino<br>
+										<input type="radio" name="sexo" value="2" id="sexo" required> Não deseja informar<br>
+										<input type="radio" name="sexo" value="3" id="sexo" required> Outro<br>
 										<div id="sexoErro"
 											style="display: none; font-size: 10pt; color: red">Campo
 											obrigatório!</div>
@@ -501,6 +503,8 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 							<label for="typeSexo">Sexo*</label><br> <input type="radio"
 								name="sexoResp1" id="sexoResp1" value="1" checked required> Masculino<br>
 							<input type="radio" name="sexoResp1" value="0" id="sexoResp1" required> Feminino<br>
+							<input type="radio" name="sexo" value="2" id="sexo" required> Não deseja informar<br>
+										<input type="radio" name="sexo" value="3" id="sexo" required> Outro<br>
 							<div id="sexoRespErro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
@@ -553,6 +557,8 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 							<label for="typeSexo">Sexo</label><br> <input type="radio"
 								name="sexoResp2" id="sexoResp2" value="1" checked required> Masculino<br>
 							<input type="radio" name="sexoResp2" value="0" id="sexoResp2" required> Feminino<br>
+							<input type="radio" name="sexo" value="2" id="sexo" required> Não deseja informar<br>
+										<input type="radio" name="sexo" value="3" id="sexo" required> Outro<br>
 						</div>
 					</div>
 				</div>
@@ -587,7 +593,7 @@ if (isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email
 	<footer class="sticky-footer">
 		<div class="container">
 			<div class="text-center">
-				<small>Copyright © GSE 2019</small>
+				<small>Copyright © GSE 2020</small>
 			</div>
 		</div>
 	</footer>
