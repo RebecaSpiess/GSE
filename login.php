@@ -8,6 +8,9 @@ require 'database/db.php';
 
 $mostrarMensagemSenhaErrada = false;
 
+$enc_senha_512 = hash('sha512','123456GSE');
+error_log($enc_senha_512);
+
 if (isset($_POST['email']) and isset($_POST['senha'])){
     $email = $_POST["email"];    
     $senha = $_POST["senha"];

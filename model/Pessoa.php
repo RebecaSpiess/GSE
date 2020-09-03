@@ -13,7 +13,8 @@ class Pessoa
     public $sexo;
     public $telefone;
     public $cpf;
-    
+    public $responsavel1;
+    public $responsavel2;
     
     function __construct()
     {

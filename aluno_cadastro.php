@@ -3,10 +3,12 @@ require 'bo/Sessao.php';
 require 'bo/ControleAcesso.php';
 require 'database/db.php';
 require 'PessoaDao.php';
+require 'TipoPessoaCons.php';
 
 use bo\Sessao;
 use bo\ControleAcesso;
 use model\Pessoa;
+use model\TipoPessoa;
 
 Sessao::validar();
 
@@ -15,6 +17,8 @@ $papeisPermitidos = array(
     4
 );
 ControleAcesso::validar($papeisPermitidos);
+
+$senha = '123456';
 
 $db = new db();
 
@@ -25,31 +29,67 @@ if (
     isset($_POST['nomeAluno']) 
     and isset($_POST['sobrenomeAluno'])
     and isset($_POST['dataNascimentoAluno'])
-    and isset($_POST['sexoAluno'])
     and isset($_POST['nomeResp1'])
     and isset($_POST['sobrenomeResp1'])
     and isset($_POST['cpfResp1'])
     and isset($_POST['dataNascimentoResp1'])
-    and isset($_POST['sexoResp1'])
     and isset($_POST['emailResp1'])
+    and isset($_POST['telefoneResp1'])
     ) {
-
+        
+        $nomeResp1 = $_POST['nomeResp1'];
+        $sobrenomeResp1 = $_POST['sobrenomeResp1'];
+        $dataNascimentoResp1 = $_POST['dataNascimentoResp1'];
+        $cpfResp1 = $_POST['cpfResp1'];
+        $sexoResp1 = $_POST['sexoResp1'];
+        $emailResp1 = $_POST['emailResp1'];
+        $telefoneResp1 = $_POST['telefoneResp1'];
+        
+        
         $nomeAluno = $_POST['nomeAluno'];
         $sobrenomeAluno = $_POST['sobrenomeAluno'];
         $dataNascimentoAluno = $_POST['dataNascimentoAluno'];
         $sexoAluno = $_POST['sexoAluno'];
-    
-        if (! empty(trim($nomeAluno)) and ! empty(trim($sobrenomeAluno)) and ! empty(trim($dataNascimentoAluno))) {
-            $pessoa = new Pessoa();
-            $pessoa->nome = $nomeAluno;
-            $pessoa->sobrenome = $sobrenomeAluno;
-            $pessoa->email = null;
-            $pessoa->data_nascimento = $dataNascimentoAluno;
-            $pessoa->sexo = $sexoAluno;
-            $pessoa->tipo_pessoa = 3; // Aluno
+        
+        if (!empty(trim($nomeAluno)) 
+            and !empty(trim($sobrenomeAluno)) 
+            and !empty(trim($dataNascimentoAluno))
+            and !empty(trim($nomeResp1))
+            and !empty(trim($sobrenomeResp1))
+            and !empty(trim($dataNascimentoResp1))
+            and !empty(trim($cpfResp1))
+            and !empty(trim($emailResp1))
+            and !empty(trim($telefoneResp1))
+            ) {
+            
+            $pessoaDao = new PessoaDao();
+                
+            $enc_senha = hash('sha512', $senha . 'GSE');
+                
+            $responsavel1Cadastro = new Pessoa();
+            $responsavel1Cadastro->nome = $nomeResp1;
+            $responsavel1Cadastro->sobrenome = $sobrenomeResp1;
+            $responsavel1Cadastro->data_nascimento = $dataNascimentoResp1;
+            $responsavel1Cadastro->cpf = $cpfResp1;
+            $responsavel1Cadastro->telefone = $telefoneResp1;
+            $responsavel1Cadastro->sexo = $sexoResp1;
+            $responsavel1Cadastro->senha = $enc_senha;
+            $responsavel1Cadastro->email = $emailResp1;
+            $responsavel1Cadastro->tipo_pessoa = TipoPessoaCons::RESPONSAVEL;
             try {
-                $pessoaDao = new PessoaDao();
-                $pessoaDao->adicionar($pessoa);
+                $pessoaDao->adicionar($responsavel1Cadastro);
+                
+                $alunoCadastro = new Pessoa();
+                
+                $alunoCadastro->nome = $nomeAluno;
+                $alunoCadastro->sobrenome = $sobrenomeAluno;
+                $alunoCadastro->data_nascimento = $dataNascimentoAluno;
+                $alunoCadastro->sexo = $sexoAluno;
+                $alunoCadastro->senha = $enc_senha;
+                $alunoCadastro->tipo_pessoa = TipoPessoaCons::ALUNO;
+                $alunoCadastro->responsavel1 = $responsavel1Cadastro->id;
+                
+                $pessoaDao->adicionar($alunoCadastro);
             } catch (Exception $ex) {
                 $error_code = $ex->getMessage();
                 error_log($ex);
@@ -586,7 +626,7 @@ if (
             				<div class="col-md-6">
             					<label for="inputTelefoneResp1"> Telefone do responsável 2*</label> <input
             						class="form-control" id="telefoneResp2" type="text"
-            						placeholder="(00) 0000-0000" name="telefoneResp1" maxlength="14"
+            						placeholder="(00) 0000-0000" name="telefoneResp2" maxlength="14"
             						onkeydown="javascript: fMasc( this, mTel );">
             					<div id="telefoneResp2Erro"
             						style="display: none; font-size: 10pt; color: red">Campo
