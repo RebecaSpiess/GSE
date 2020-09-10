@@ -133,18 +133,72 @@ if (
 	function submit() {
 		document.forms[0].submit();
 	}
-  
+
+	function fieldVazio(field){
+		return field != null && !isNotBlankWithoutTrim(field.value, false); 
+	}	
+		
+	
+	function existeAlgumCampoPreenchidoResp2(nomeResp2, sobrenomeResp2, cpfResp2, dataNascimentoResp2, 
+			emailResp2, telefoneResp2){
+		var work = null;
+
+		if (!fieldVazio(nomeResp2)){
+			return true;
+		}
+
+		if (!fieldVazio(sobrenomeResp2)){
+			return true;
+		}	
+
+		if (!fieldVazio(cpfResp2)){
+			return true;
+		}
+
+		if (!fieldVazio(dataNascimentoResp2)){
+			return true;
+		}
+
+		if (!fieldVazio(emailResp2)){
+			return true;
+		}
+
+		if (!fieldVazio(telefoneResp2)){
+			return true;
+		}
+		return false;
+	}	
+
+	
+	
 	function validateAndSubmitForm() {
+		//campos do aluno
 		var nomeAluno = document.getElementById("nomeAluno");
 		var sobreNomeAluno = document.getElementById("sobrenomeAluno");
 		var dataNascimentoAluno = document.getElementById("dataNascimentoAluno");
 		var sexoAluno = document.getElementById("sexoAluno");
+
+		//campos do responsável 1
 		var nomeResp1 = document.getElementById("nomeResp1");
 		var sobrenomeResp1 = document.getElementById("sobrenomeResp1");
 		var cpfResp1 = document.getElementById("cpfResp1");
 		var dataNascimentoResp1 = document.getElementById("dataNascimentoResp1");
 		var sexoResp1 = document.getElementById("sexoResp1");
 		var emailResp1 = document.getElementById("emailResp1");
+		var telefoneResp1 = document.getElementById("telefoneResp1");
+
+		//campos do responsável 2
+		var nomeResp2 = document.getElementById("nomeResp2");
+		var sobrenomeResp2 = document.getElementById("sobrenomeResp2");
+		var cpfResp2 = document.getElementById("cpfResp2");
+		var dataNascimentoResp2 = document.getElementById("dataNascimentoResp2");
+		var sexoResp2 = document.getElementById("sexoResp2");
+		var emailResp2 = document.getElementById("emailResp2");
+		var telefoneResp2 = document.getElementById("telefoneResp2");
+
+		var validarCamposResp2 = existeAlgumCampoPreenchidoResp2(nomeResp2, sobrenomeResp2, cpfResp2, dataNascimentoResp2, 
+				emailResp2, telefoneResp2);
+			
 		var camposPreenchidos = true; 
 		if (!isNotBlank(nomeAluno.value)){
 			camposPreenchidos = false;
@@ -228,6 +282,72 @@ if (
 			document.getElementById("cpfResp1Erro").style.display = "none";
 		}
 
+		if (!isNotBlank(telefoneResp1.value)){
+			camposPreenchidos = false;
+			document.getElementById("telefoneResp1Erro").style.display = "block";
+		} else {	
+			document.getElementById("telefoneResp1Erro").style.display = "none";
+		}
+
+		if (validarCamposResp2){
+			if (!isNotBlank(nomeResp2.value)){
+				camposPreenchidos = false;
+				document.getElementById("nomeResp2Erro").style.display = "block";
+			} else {
+				document.getElementById("nomeResp2Erro").style.display = "none";
+			}	
+
+			if (!isNotBlank(sobrenomeResp2.value)){
+				camposPreenchidos = false;
+				document.getElementById("sobrenomeResp2Erro").style.display = "block";
+			} else {	
+				document.getElementById("sobrenomeResp2Erro").style.display = "none";
+			}	
+
+			if (!isNotBlank(dataNascimentoResp2.value)){
+				camposPreenchidos = false;
+				document.getElementById("dataNascimentoResp2Erro").style.display = "block";
+			} else if (!validateInputDate(dataNascimentoResp2.value)) {
+				camposPreenchidos = false;
+				document.getElementById("dataNascimentoResp2Erro").innerHTML = "Data informada não pode estar no futuro!";
+				document.getElementById("dataNascimentoResp2Erro").style.display = "block";	
+			} else {	
+				document.getElementById("dataNascimentoResp2Erro").style.display = "none";
+			}
+
+			if (!isNotBlank(sexoResp2.value)){
+				camposPreenchidos = false;
+				document.getElementById("sexoResp2Erro").style.display = "block";
+			} else {	
+				document.getElementById("sexoResp2Erro").style.display = "none";
+			}
+			
+			if (!isNotBlank(emailResp2.value)){
+				camposPreenchidos = false;
+				document.getElementById("email2ValidacaoErro").style.display = "block";
+			} else if (!validateEmail(emailResp2.value)){
+				document.getElementById("email2ValidacaoErro").innerHTML = "Você informou um endereço de e-mail inválido!"; 
+				document.getElementById("email2ValidacaoErro").style.display = "block";
+				camposPreenchidos = false;
+		    } else {	
+				document.getElementById("email2ValidacaoErro").style.display = "none";
+			}
+				
+			if (!isNotBlank(cpfResp2.value)){
+				camposPreenchidos = false;
+				document.getElementById("cpfResp2Erro").style.display = "block";
+			} else {	
+				document.getElementById("cpfResp2Erro").style.display = "none";
+			}
+
+			if (!isNotBlank(telefoneResp2.value)){
+				camposPreenchidos = false;
+				document.getElementById("telefoneResp2Erro").style.display = "block";
+			} else {	
+				document.getElementById("telefoneResp2Erro").style.display = "none";
+			}
+		}	
+		
 		if (camposPreenchidos){
 			submit();
 		}		
@@ -240,12 +360,19 @@ if (
 		}	
 		campo.value = stringFinal;  
 	}	
+
+	function isNotBlankWithoutTrim(value){
+		if (value == null){
+			return false;
+		}
+		return value.length !== 0;	
+	}	
 	
 	function isNotBlank(value){
 		if (value == null){
 			return false;
 		}
-		return value.trim().length !== 0;
+		return value.trim().length !== 0;		
 	}	
 
 	function fMasc(objeto,mascara) {
@@ -439,7 +566,8 @@ if (
 			</ul>
 			<ul class="navbar-nav sidenav-toggler">
 				<li class="nav-item"><a class="nav-link text-center"
-					id="sidenavToggler"> <i class="fa fa-fw fa-angle-left"></i>
+					id="sidenavToggler"> <i class="fa fa-fw fa-angle-left">
+					</i>
 				</a></li>
 			</ul>
 			<ul class="navbar-nav ml-auto">
@@ -603,7 +731,10 @@ if (
 							<label for="exampleInputLastName">Nome do responsável 2</label> <input
 								class="form-control" id="nomeResp2" type="text"
 								aria-describedby="nameHelp" placeholder="Nome"
-								name="nomeResponsavel1" required maxlength="250">
+								name="nomeResp2" required maxlength="250">
+						<div id="nomeResp2Erro"
+								style="display: none; font-size: 10pt; color: red">Campo
+								obrigatório!</div>
 						</div>
 						<div class="col-md-6">
 							<label for="exampleInputLastName">Sobrenome do responsável 2</label>
@@ -611,8 +742,9 @@ if (
 								type="text" aria-describedby="nameHelp"
 								placeholder="Sobrenome" name="sobrenomeResp2"
 								required maxlength="250">
-						</div>
-						
+						<div id="sobrenomeResp2Erro"
+								style="display: none; font-size: 10pt; color: red">Campo
+								obrigatório!</div>
 					</div>
 				</div>
 				<div class="form-group">
@@ -622,6 +754,9 @@ if (
             						class="form-control cpf-mask" id="cpfResp2" type="text"
             						placeholder="000.000.000-00" name="cpfResp2" maxlength="14"
             						onkeydown="javascript: fMasc( this, mCPF );">
+            					<div id="cpfResp2Erro"
+        						style="display: none; font-size: 10pt; color: red">Campo
+        						obrigatório!</div>
             				</div>
             				<div class="col-md-6">
             					<label for="inputTelefoneResp1"> Telefone do responsável 2*</label> <input
@@ -648,9 +783,12 @@ if (
 					<div class="form-row">
 						<div class="col-md-6">
 							<label for="exampleInputName">Data de nascimento</label> <input
-								class="form-control date-mask" id="dataNascimentoResp2"
+								class="form-control date-mask" id="dataNascimentoResp2"	
 								name="dataNascimentoResp2" type="date" aria-describedby="nameHelp"
 								placeholder="Data de nascimento" required>
+							<div id="dataNascimentoResp2Erro"
+								style="display: none; font-size: 10pt; color: red">Campo
+								obrigatório!</div>
 						</div>
 						<div class="col-md-6">
 							<label for="typeSexo">Sexo</label><br> <input type="radio"
@@ -658,6 +796,9 @@ if (
 							<input type="radio" name="sexoResp2" value="0" id="sexoResp2" required> Feminino<br>
 							<input type="radio" name="sexo" value="2" id="sexo" required> Não deseja informar<br>
 										<input type="radio" name="sexo" value="3" id="sexo" required> Outro<br>
+							<div id="sexoResp2Erro"
+								style="display: none; font-size: 10pt; color: red">Campo
+								obrigatório!</div>
 						</div>
 					</div>
 				</div>
