@@ -24,24 +24,29 @@ ControleAcesso::validar($papeisPermitidos);
 
 $pessoa = unserialize($_SESSION['loggedGSEUser']);
 
+
 $showErrorMessage = null;
 $showSuccessMessage = false;
 
 $db0 = new db();
 $db1 = new db();
 $db2 = new db();
+$db3 = new db();
 
 $db_alunos_fetch = $db0->query("SELECT ID, NOME, SOBRENOME, EMAIL FROM PESSOA WHERE TIPO_PESSOA = 3 ORDER  BY NOME, SOBRENOME ")->fetchAll();
+$db_tipo_fetch = $db3->query("SELECT ID, NOME FROM TIPO_OCORRENCIA ORDER  BY NOME")->fetchAll();
+$db_turma_fetch = $db2->query("SELECT ID, NOME_TURMA FROM TURMA ORDER  BY NOME_TURMA")->fetchAll();
 
 if (isset($_POST['aluno']) and
-    isset($_POST['ocorrencia'])){
+    isset($_POST['ocorrencia']) and isset($_POST['tipoOcorrencia'])){
         $aluno = $_POST['aluno'];
+        $tipo_ocorrencia = $_POST['tipoOcorrencia'];
         $ocorrencia = $_POST['ocorrencia'];
         $autor = $pessoa->id;
         if (!empty(trim($aluno)) and
             !empty(trim($ocorrencia))){
                 try {
-                    $result = $db1->query("INSERT INTO OCORRENCIA (ID_PESSOA_ALUNO, ID_PESSOA_AUTOR,DESCRICAO)
+                    $result = $db1->query("INSERT INTO OCORRENCIA (ID_PESSOA_ALUNO, ID_PESSOA_AUTOR,DESCRICAO, ID_TIPO)
                           VALUES (?,?,?) "
                         , $aluno
                         , $autor
@@ -53,8 +58,8 @@ if (isset($_POST['aluno']) and
                             $mail->isSMTP();                                            // Send using SMTP
                             $mail->Host       = 'email-ssl.com.br';                    // Set the SMTP server to send through
                             $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-                            $mail->Username   = 'gse_aviso@smarthomecontrol.com.br';                     // SMTP username
-                            $mail->Password   = 'Gse#2019!MB';                               // SMTP password
+                            $mail->Username   = 'gse_aviso@gestaosocioeduca3.hospedagemdesites.ws';                     // SMTP username
+                            $mail->Password   = 'Lubinho#1509';                               // SMTP password
                             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
                             $mail->Port       = 587;                                    // TCP port to connect to
                             
@@ -73,7 +78,7 @@ if (isset($_POST['aluno']) and
                             $mail->Body    = '<div style="color: #363534; font-family: Calibri, Candara;font-size: 12pt;"> Olá, <br/><br/> você recebeu a seguinte ocorrência de <a href="mailto:'
                                 . $pessoa->email . '">' . $pessoa->nome . ' '
                                     . $pessoa->sobrenome  . '</a>: <br/> <br/>' . $ocorrencia .
-                                    '<br/><br/>Atenciosamente,<br/>GSE - Gestão Sócio Educacional.</div><span style="font-family: Calibri, Candara;font-size:10pt">http://smarthomecontrol.com.br</span>';
+                                    '<br/><br/>Atenciosamente,<br/>GSE - Gestão Sócio Educacional.</div><span style="font-family: Calibri, Candara;font-size:10pt">http://gestaosocioeducacional.com.br/</span>';
                                     $mail->send();
                             
                         }
@@ -303,7 +308,13 @@ if (isset($_POST['aluno']) and
 									<label for="turma">Turma*</label>
 									 <select
 										class="form-control"
-										aria-describedby="nameHelp" id="turma" name="turma">									
+										aria-describedby="nameHelp" id="turma" name="turma">
+										<?php
+										foreach ($db_turma_fetch as $single_row1) {
+                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME_TURMA'] . "</option>";
+                                            } 
+                                        ?>
+																			
 									</select>
 									<label for="turma">Aluno*</label> 
 									<select
@@ -316,6 +327,17 @@ if (isset($_POST['aluno']) and
                                             } 
                                         ?>
 										
+									</select>
+									<label for="turma">Tipo de ocorrência*</label> 
+									<select
+										class="form-control"
+										aria-describedby="nameHelp" id="tipoOcorrencia" name="tipoOcorr">
+										
+										<?php
+										foreach ($db_tipo_fetch as $single_row1) {
+                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME'] . "</option>";
+                                            } 
+                                        ?>
 									</select>
 								</div>
 								<br>
@@ -402,5 +424,6 @@ if (isset($_POST['aluno']) and
 $db0->close();
 $db1->close();
 $db2->close();
+$db3->close();
 ?>
 

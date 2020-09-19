@@ -18,6 +18,25 @@ $papeisPermitidos = array(
 );
 ControleAcesso::validar($papeisPermitidos);
 
+function verificaResp2() {
+    if (isset($_POST['nomeResp2'])
+        or isset($_POST['sobrenomeResp2'])
+        or isset($_POST['cpfResp2'])
+        or isset($_POST['dataNascimentoResp2'])
+        or isset($_POST['emailResp2'])
+        or isset($_POST['telefoneResp2'])){
+            return (error_log("true")
+            and isset($_POST['nomeResp2'])
+            and isset($_POST['sobrenomeResp2'])
+            and isset($_POST['cpfResp2'])
+            and isset($_POST['dataNascimentoResp2'])
+            and isset($_POST['emailResp2'])
+            and isset($_POST['telefoneResp2']));
+    } else {
+        return true;
+    }
+}
+
 $senha = '123456';
 
 $db = new db();
@@ -35,7 +54,8 @@ if (
     and isset($_POST['dataNascimentoResp1'])
     and isset($_POST['emailResp1'])
     and isset($_POST['telefoneResp1'])
-    ) {
+    and verificaResp2()) {
+        $semErros = false;
         
         $nomeResp1 = $_POST['nomeResp1'];
         $sobrenomeResp1 = $_POST['sobrenomeResp1'];
@@ -44,6 +64,14 @@ if (
         $sexoResp1 = $_POST['sexoResp1'];
         $emailResp1 = $_POST['emailResp1'];
         $telefoneResp1 = $_POST['telefoneResp1'];
+        
+        $nomeResp2 = $_POST['nomeResp2'];
+        $sobrenomeResp2 = $_POST['sobrenomeResp2'];
+        $dataNascimentoResp2 = $_POST['dataNascimentoResp2'];
+        $cpfResp2 = $_POST['cpfResp2'];
+        $sexoResp2 = $_POST['sexoResp2'];
+        $emailResp2 = $_POST['emailResp2'];
+        $telefoneResp2 = $_POST['telefoneResp2'];
         
         
         $nomeAluno = $_POST['nomeAluno'];
@@ -72,12 +100,29 @@ if (
             $responsavel1Cadastro->data_nascimento = $dataNascimentoResp1;
             $responsavel1Cadastro->cpf = $cpfResp1;
             $responsavel1Cadastro->telefone = $telefoneResp1;
-            $responsavel1Cadastro->sexo = $sexoResp1;
+            $responsavel1Cadastro->sexo = intval($sexoResp1);
             $responsavel1Cadastro->senha = $enc_senha;
             $responsavel1Cadastro->email = $emailResp1;
             $responsavel1Cadastro->tipo_pessoa = TipoPessoaCons::RESPONSAVEL;
+            $responsavel1Cadastro->responsavel1 = null;
+            $responsavel1Cadastro->responsavel2 = null;
+            
+            $responsavel2Cadastro = new Pessoa();
+            $responsavel2Cadastro->nome = $nomeResp2;
+            $responsavel2Cadastro->sobrenome = $sobrenomeResp2;
+            $responsavel2Cadastro->data_nascimento = $dataNascimentoResp2;
+            $responsavel2Cadastro->cpf = $cpfResp2;
+            $responsavel2Cadastro->telefone = $telefoneResp2;
+            $responsavel2Cadastro->sexo = intval($sexoResp2);
+            $responsavel2Cadastro->senha = $enc_senha;
+            $responsavel2Cadastro->email = $emailResp2; 
+            $responsavel2Cadastro->tipo_pessoa = TipoPessoaCons::RESPONSAVEL;
+            $responsavel2Cadastro->responsavel1 = null;
+            $responsavel2Cadastro->responsavel2 = null;
             try {
-                $pessoaDao->adicionar($responsavel1Cadastro);
+                $pessoaDao->adicionar($responsavel1Cadastro, true);
+                           
+                $pessoaDao->adicionar($responsavel2Cadastro, true);
                 
                 $alunoCadastro = new Pessoa();
                 
@@ -88,8 +133,11 @@ if (
                 $alunoCadastro->senha = $enc_senha;
                 $alunoCadastro->tipo_pessoa = TipoPessoaCons::ALUNO;
                 $alunoCadastro->responsavel1 = $responsavel1Cadastro->id;
-                
-                $pessoaDao->adicionar($alunoCadastro);
+                if (isset($responsavel2Cadastro)){
+                    $alunoCadastro->responsavel2 = $responsavel2Cadastro->id;
+                }
+                $pessoaDao->adicionar($alunoCadastro, false);
+                $semErros=true;
             } catch (Exception $ex) {
                 $error_code = $ex->getMessage();
                 error_log($ex);
@@ -347,7 +395,7 @@ if (
 				document.getElementById("telefoneResp2Erro").style.display = "none";
 			}
 		}	
-		
+
 		if (camposPreenchidos){
 			submit();
 		}		
@@ -794,8 +842,8 @@ if (
 							<label for="typeSexo">Sexo</label><br> <input type="radio"
 								name="sexoResp2" id="sexoResp2" value="1" checked required> Masculino<br>
 							<input type="radio" name="sexoResp2" value="0" id="sexoResp2" required> Feminino<br>
-							<input type="radio" name="sexo" value="2" id="sexo" required> Não deseja informar<br>
-										<input type="radio" name="sexo" value="3" id="sexo" required> Outro<br>
+							<input type="radio" name="sexoResp2" value="2" id="sexoResp2" required> Não deseja informar<br>
+										<input type="radio" name="sexoResp2" value="3" id="sexoResp2" required> Outro<br>
 							<div id="sexoResp2Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
@@ -862,6 +910,26 @@ if (
 						<input type="hidden" value="GSElogout" name="logout"> <a
 							class="btn btn-primary" onclick="document.logout.submit()">Sair</a>
 					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Sucesso Modal-->
+	<div class="modal fade show" id="exampleModal" tabindex="-1" role="dialog"
+		aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: block; padding-right: 17px;">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Cadastro</h5>
+					<button class="close" type="button" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">Cadastro realizado com sucesso!</div>
+				<div class="modal-footer">
+					<button class="btn btn-secondary" type="button"
+						data-dismiss="modal">OK</button>
 				</div>
 			</div>
 		</div>

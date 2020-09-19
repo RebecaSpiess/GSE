@@ -7,25 +7,43 @@ class PessoaDao
 
     
     
-    function adicionar($pessoa){
+    function adicionar($pessoa, $sobrescrita){
+        $db = new db();
+        $db1 = new db();
+        $db2 = new db();
+        $db3 = new db();
+        $inserir = true;
         try {
-        
-            $db = new db();
-            $db2 = new db();
-            $result = $db->query("INSERT INTO PESSOA (NOME, SOBRENOME, EMAIL, DATA_NASCIMENTO, TIPO_SEXO, TIPO_PESSOA, SENHA, CPF, TELEFONE, RESPONSAVEL_1, RESPONSAVEL_2)
-                          VALUES (?,?,?,?,?,?,?,?,?,?,?)", $pessoa->nome, $pessoa->sobrenome, $pessoa->email, $pessoa->data_nascimento, $pessoa->sexo, $pessoa->tipo_pessoa, $pessoa->senha, $pessoa->cpf, $pessoa->telefone, $pessoa->responsavel1, $pessoa->responsavel2)->query_count;
-            if ($result == 1) {
-                $selectId = $db2->query("SELECT p.ID FROM PESSOA p WHERE p.EMAIL = ?", $pessoa->email);
+            if ($sobrescrita){
+                $selectId = $db1->query("SELECT p.ID FROM PESSOA p WHERE p.EMAIL = ?", $pessoa->email);
                 $contador = $selectId->numRows();
                 $resultadoSelect = $selectId->fetchAll();
                 if ($contador > 0) {
+                    $db3->query("UPDATE PESSOA SET NOME=?, SOBRENOME=?, DATA_NASCIMENTO=?, TIPO_SEXO=?, SENHA=?, CPF=?, TELEFONE=?, RESPONSAVEL_1=?, RESPONSAVEL_2=? WHERE EMAIL = ?",
+                        $pessoa->nome, $pessoa->sobrenome, $pessoa->data_nascimento, $pessoa->sexo, $pessoa->senha, $pessoa->cpf, $pessoa->telefone, $pessoa->responsavel1, $pessoa->responsavel2, $pessoa->email)->query_count;
+                    $inserir = false;
                     $pessoa->id = $resultadoSelect[0]['ID'];
-                    error_log($pessoa->id);
+                    error_log("ID: " . $pessoa->id);
+                }
+            } 
+            if ($inserir){
+                $result = $db->query("INSERT INTO PESSOA (NOME, SOBRENOME, EMAIL, DATA_NASCIMENTO, TIPO_SEXO, TIPO_PESSOA, SENHA, CPF, TELEFONE, RESPONSAVEL_1, RESPONSAVEL_2)
+                              VALUES (?,?,?,?,?,?,?,?,?,?,?)", $pessoa->nome, $pessoa->sobrenome, $pessoa->email, $pessoa->data_nascimento, $pessoa->sexo, $pessoa->tipo_pessoa, $pessoa->senha, $pessoa->cpf, $pessoa->telefone, $pessoa->responsavel1, $pessoa->responsavel2)->query_count;
+                if ($result == 1) {
+                    $selectId = $db2->query("SELECT p.ID FROM PESSOA p WHERE p.EMAIL = ?", $pessoa->email);
+                    $contador = $selectId->numRows();
+                    $resultadoSelect = $selectId->fetchAll();
+                    if ($contador > 0) {
+                        $pessoa->id = $resultadoSelect[0]['ID'];
+                        error_log("ID: " . $pessoa->id);
+                    }
                 }
             }
         } finally {
             $db->close();
+            $db1->close();
             $db2->close();
+            $db3->close();
         }
         return false;
     }
