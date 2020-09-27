@@ -37,6 +37,9 @@ function verificaResp2() {
     }
 }
 
+$showMessage=isset($_GET["s"]) and $_GET["s"] == 1;
+
+
 $senha = '123456';
 
 $db = new db();
@@ -55,7 +58,7 @@ if (
     and isset($_POST['emailResp1'])
     and isset($_POST['telefoneResp1'])
     and verificaResp2()) {
-        $semErros = false;
+        
         
         $nomeResp1 = $_POST['nomeResp1'];
         $sobrenomeResp1 = $_POST['sobrenomeResp1'];
@@ -137,7 +140,7 @@ if (
                     $alunoCadastro->responsavel2 = $responsavel2Cadastro->id;
                 }
                 $pessoaDao->adicionar($alunoCadastro, false);
-                $semErros=true;
+                header("Location: aluno_cadastro.php?s=1");               
             } catch (Exception $ex) {
                 $error_code = $ex->getMessage();
                 error_log($ex);
@@ -850,9 +853,9 @@ if (
 						</div>
 					</div>
 				</div>
+				
 				<a class="btn btn-primary btn-block"
 					onclick="validateAndSubmitForm()">Cadastrar</a>
-
 				</form>
 			</div>
 		</div>
@@ -914,26 +917,7 @@ if (
 			</div>
 		</div>
 	</div>
-	<!-- Sucesso Modal-->
-	<div class="modal fade show" id="exampleModal" tabindex="-1" role="dialog"
-		aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: block; padding-right: 17px;">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Cadastro</h5>
-					<button class="close" type="button" data-dismiss="modal"
-						aria-label="Close">
-						<span aria-hidden="true">×</span>
-					</button>
-				</div>
-				<div class="modal-body">Cadastro realizado com sucesso!</div>
-				<div class="modal-footer">
-					<button class="btn btn-secondary" type="button"
-						data-dismiss="modal">OK</button>
-				</div>
-			</div>
-		</div>
-	</div>
+
 	<!-- Bootstrap core JavaScript-->
 	<script src="vendor/jquery/jquery.min.js"></script>
 	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>

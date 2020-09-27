@@ -32,9 +32,8 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
     $tipo_pessoa = $_POST['tipo_pessoa'];
     $cpf = $_POST['cpf'];
     $telefone = $_POST['telefone'];
-   
-    if (! empty(trim($nome)) and ! empty(trim($sobrenome)) and ! empty(trim($email)) and ! empty(trim($data_nascimento)) 
-        and ! empty(trim($sexo)) and ! empty(trim($cpf)) and ! empty(trim($telefone))) {
+
+    if (! empty(trim($nome)) and ! empty(trim($sobrenome)) and ! empty(trim($email)) and ! empty(trim($data_nascimento)) and ! empty(trim($sexo)) and ! empty(trim($cpf)) and ! empty(trim($telefone))) {
         $pessoa = new Pessoa();
         $pessoa->nome = $nome;
         $pessoa->sobrenome = $sobrenome;
@@ -42,7 +41,7 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
         $pessoa->data_nascimento = $data_nascimento;
         $pessoa->sexo = $sexo;
         $pessoa->senha = 'Start1234'; // Senha padrão
-        $enc_senha = hash('sha512',$pessoa->senha.'GSE');
+        $enc_senha = hash('sha512', $pessoa->senha . 'GSE');
         $pessoa->tipo_pessoa = $tipo_pessoa;
         $pessoa->cpf = $cpf;
         $pessoa->telefone = $telefone;
@@ -92,11 +91,11 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 	}
   
 	function validateAndSubmitForm() {
-		var nome = document.getElementById("exampleInputName");
-		var sobreNome = document.getElementById("exampleInputLastName");
-		var email = document.getElementById("exampleInputEmail1");
-		var dataNascimento = document.getElementById("exampleInputName");
-		var sexo = document.getElementById("sexo");
+		var nome = document.getElementById("nome");
+		var sobreNome = document.getElementById("sobrenome");
+		var email = document.getElementById("emailServidor");
+		var dataNascimento = document.getElementById("data_nascimento");
+		var sexo = document.getElementById("sexoServidor");
 		var telefone = document.getElementById("telefone");
 		var cpf = document.getElementById("cpf");
 		var tipoPessoa = document.getElementById("tipoPessoa");
@@ -105,30 +104,44 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 		var camposPreenchidos = true; 
 		if (!isNotBlank(nome.value)){
 			camposPreenchidos = false;
-		} 
-
+			document.getElementById("nomeErro").style.display = "block";
+		} else {
+			document.getElementById("nomeErro").style.display = "none";
+		}
+		
 		if (!isNotBlank(sobreNome.value)){
 			camposPreenchidos = false;
+			document.getElementById("sobrenomeErro").style.display = "block";
+		} else {
+			document.getElementById("sobrenomeErro").style.display = "none";
 		} 	
 
 		if (!isNotBlank(email.value)){
 			camposPreenchidos = false;
-		} 
+			document.getElementById("emailServidorErro").style.display = "block";
+		} else {
+			document.getElementById("emailServidorErro").style.display = "none";
+		} 	
 
 		if (!isNotBlank(dataNascimento.value)){
 			camposPreenchidos = false;
-		} 
-
-		if (!isNotBlank(sexo.value)){
-			camposPreenchidos = false;
+			document.getElementById("data_nascimentoErro").style.display = "block";
+		} else {
+			document.getElementById("data_nascimentoErro").style.display = "none";
 		} 
 
 		if (!isNotBlank(telefone.value)){
 			camposPreenchidos = false;
-		}
+			document.getElementById("telefoneErro").style.display = "block";
+		} else {
+			document.getElementById("telefoneErro").style.display = "none";
+		}  
 
 		if (!isNotBlank(cpf.value)){
 			camposPreenchidos = false;
+			document.getElementById("cpfErro").style.display = "block";
+		} else {
+			document.getElementById("cpfErro").style.display = "none";
 		}
 
 		if (!isNotBlank(tipoPessoa.value)){
@@ -248,8 +261,8 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages1" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Disciplinas</span>
+					href="#collapseExamplePages1" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Disciplinas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages1">
@@ -260,8 +273,8 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages2" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
+					href="#collapseExamplePages2" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
@@ -272,8 +285,8 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages3" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
+					href="#collapseExamplePages3" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
@@ -287,9 +300,9 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages4" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Plano
-							de aula</span>
+					href="#collapseExamplePages4" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Plano de
+							aula</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages4">
@@ -300,8 +313,8 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages5" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Ocorrências</span>
+					href="#collapseExamplePages5" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Ocorrências</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages5">
@@ -317,8 +330,8 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages6" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Servidores</span>
+					href="#collapseExamplePages6" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Servidores</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages6">
@@ -328,8 +341,8 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages7" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Turmas</span>
+					href="#collapseExamplePages7" data-parent="#exampleAccordion"> <i
+						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Turmas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages7">
@@ -365,82 +378,100 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 								<div class="form-row">
 									<div class="col-md-6">
 										<label for="exampleInputName">Nome*</label> <input
-											class="form-control" id="exampleInputName" type="text"
-											aria-describedby="nameHelp" placeholder="Nome" name="nome" maxlength="250">
-									</div>
-									<div class="col-md-6">
-										<label for="exampleInputLastName">Sobrenome*</label> <input
-											class="form-control" id="exampleInputLastName" type="text"
-											aria-describedby="nameHelp" placeholder="Sobrenome"
-											name="sobrenome"
+											class="form-control" id="nome" type="text"
+											aria-describedby="nameHelp" placeholder="Nome" name="nome"
 											maxlength="250">
+										<div id="nomeErro"
+											style="display: none; font-size: 10pt; color: red">Campo
+											obrigatório!</div>
 									</div>
+								<div class="col-md-6">
+									<label for="exampleInputLastName">Sobrenome*</label> <input
+										class="form-control" id="sobrenome" type="text"
+										aria-describedby="nameHelp" placeholder="Sobrenome"
+										name="sobrenome" maxlength="250">
+									<div id="sobrenomeErro"
+										style="display: none; font-size: 10pt; color: red">Campo
+										obrigatório!</div>
 								</div>
 							</div>
-							<div class="form-group">
-								<label for="exampleInputEmail1">Endereço de E-Mail*</label> <input
-									class="form-control" id="exampleInputEmail1" type="email"
-									aria-describedby="emailHelp" placeholder="exemplo@exemplo.com"
-									maxlength="250"
-									name="email">
+					</div>
+					<div class="form-group">
+						<label for="exampleInputEmail1">Endereço de E-Mail*</label> <input
+							class="form-control" id="emailServidor" type="email"
+							aria-describedby="emailHelp" placeholder="exemplo@exemplo.com"
+							maxlength="250" name="email">
+						<div id="emailServidorErro"
+							style="display: none; font-size: 10pt; color: red">Campo
+							obrigatório!</div>
+					</div>
+
+					<div class="form-group">
+						<div class="form-row">
+							<div class="col-md-6">
+								<label for="exampleInputName">Data de nascimento*</label> <input
+									class="form-control" id="data_nascimento" type="date"
+									aria-describedby="nameHelp" placeholder="Data de nascimento"
+									name="data_nascimento">
+								<div id="data_nascimentoErro"
+									style="display: none; font-size: 10pt; color: red">Campo
+									obrigatório!</div>
 							</div>
-							<div class="form-group">
-								<div class="form-row">
-									<div class="col-md-6">
-										<label for="exampleInputName">Data de nascimento*</label> <input
-											class="form-control" id="exampleInputName" type="date"
-											aria-describedby="nameHelp" placeholder="Data de nascimento"
-											name="data_nascimento">
-									</div>
-									<div class="col-md-6">
-										<label for="exampleInputLastName">Sexo*</label> 
-										<select
-											class="form-control" id="sexo"
-											aria-describedby="nameHelp" placeholder="Sexo" name="sexo">
-											<option value="1">Masculino</option>
-											<option value="0">Feminino</option>
-										</select>
-									</div>
-								</div>
+							<div class="col-md-6">
+								<label for="typeSexo">Sexo*</label><br> <input type="radio"
+									name="sexoResp1" id="sexoServidor" value="1" checked required>
+								Masculino<br> <input type="radio" name="sexoResp1" value="0"
+									id="sexoResp1" required> Feminino<br> <input type="radio"
+									name="sexo" value="2" id="sexo" required> Não deseja informar<br>
+								<input type="radio" name="sexo" value="3" id="sexo" required>
+								Outro<br>
+								<div id="sexoServidor"
+									style="display: none; font-size: 10pt; color: red">Campo
+									obrigatório!</div>
 							</div>
-							<div class="form-group">
-								<div class="form-row">
-									<div class="col-md-6">
-										<label for="exampleInputName">Telefone*</label> <input
-											class="form-control" id="telefone" type="text"
-											placeholder="Telefone" name="telefone" maxlength="13"
-											onkeydown="javascript: fMasc( this, mTel );">
-									</div>
-									<div class="col-md-6">
-										<label for="exampleInputLastName">CPF*</label>
-										 <input
-											class="form-control cpf-mask" id="cpf" type="text"
-											placeholder="000.000.000-00" name="cpf" maxlength="14" onkeydown="javascript: fMasc( this, mCPF );" >
-									</div>
-									<div class="col-md-6">
-										<label for="exampleInputLastName">Tipo pessoa*</label> <select
-											class="form-control" id="tipoPessoa"
-											aria-describedby="nameHelp"  name="tipo_pessoa">
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="form-row">
+							<div class="col-md-6">
+								<label for="exampleInputName">Telefone*</label> <input
+									class="form-control" id="telefone" type="text"
+									placeholder="Telefone" name="telefone" maxlength="13"
+									onkeydown="javascript: fMasc( this, mTel );">
+								<div id="telefoneErro"
+									style="display: none; font-size: 10pt; color: red">Campo
+									obrigatório!</div>
+							</div>
+							<div class="col-md-6">
+								<label for="exampleInputLastName">CPF*</label> <input
+									class="form-control cpf-mask" id="cpf" type="text"
+									placeholder="000.000.000-00" name="cpf" maxlength="14"
+									onkeydown="javascript: fMasc( this, mCPF );">
+								<div id="cpfErro"
+									style="display: none; font-size: 10pt; color: red">Campo
+									obrigatório!</div>
+							</div>
+						
+							<div class="col-md-6">
+								<br>
+								<label for="exampleInputLastName">Tipo pessoa*</label> <select
+									class="form-control" id="tipoPessoa"
+									aria-describedby="nameHelp" name="tipo_pessoa">
 											<?php
-											$tipo_pessoas_db_fetch = $tipo_pessoas_db->fetchAll();
-											foreach ($tipo_pessoas_db_fetch as $single_row) {
-											    echo "<option value=\"" 
-                                                . $single_row['ID']
-                                                . "\">"
-                                                .$single_row['NOME']
-                                                . "</option>";
-											    
-											}
-											?>
+        $tipo_pessoas_db_fetch = $tipo_pessoas_db->fetchAll();
+        foreach ($tipo_pessoas_db_fetch as $single_row) {
+            echo "<option value=\"" . $single_row['ID'] . "\">" . $single_row['NOME'] . "</option>";
+        }
+        ?>
 
 										</select>
-									</div>
-								</div>
 							</div>
-							<a class="btn btn-primary btn-block"
-								onclick="validateAndSubmitForm()">Cadastrar</a>
-						</form>
+						</div>
 					</div>
+					<a class="btn btn-primary btn-block"
+						onclick="validateAndSubmitForm()">Cadastrar</a>
+					</form>
+				</div>
 					<?php
     if (isset($showErrorMessage)) {
         ?>
@@ -451,73 +482,72 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
     if ($showSuccessMessage and ! isset($showErrorMessage)) {
         ?>
 					    <div style="color: green; text-align: center;">Registro criado
-						com sucesso!</div>
+					com sucesso!</div>
 					<?php
-
-}
+    }
 
     ?>
 				</div>
+		</div>
+	</div>
+	<!-- /.container-fluid-->
+	<!-- /.content-wrapper-->
+	<footer class="sticky-footer">
+		<div class="container">
+			<div class="text-center">
+				<small>Copyright © GSE 2020</small>
 			</div>
 		</div>
-		<!-- /.container-fluid-->
-		<!-- /.content-wrapper-->
-		<footer class="sticky-footer">
-			<div class="container">
-				<div class="text-center">
-					<small>Copyright © GSE 2020</small>
+	</footer>
+	<!-- Scroll to Top Button-->
+	<a class="scroll-to-top rounded" href="#page-top"> <i
+		class="fa fa-angle-up"></i>
+	</a>
+	<!-- Logout Modal-->
+	<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Deseja mesmo sair?</h5>
+					<button class="close" type="button" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
 				</div>
-			</div>
-		</footer>
-		<!-- Scroll to Top Button-->
-		<a class="scroll-to-top rounded" href="#page-top"> <i
-			class="fa fa-angle-up"></i>
-		</a>
-		<!-- Logout Modal-->
-		<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
-			aria-labelledby="exampleModalLabel" aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="exampleModalLabel">Deseja mesmo sair?</h5>
-						<button class="close" type="button" data-dismiss="modal"
-							aria-label="Close">
-							<span aria-hidden="true">×</span>
-						</button>
-					</div>
-					<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja
-						pornto para encerrar a seção atual.</div>
-					<div class="modal-footer">
-						<button class="btn btn-secondary" type="button"
-							data-dismiss="modal">Cancelar</button>
-						<form action="bo/Sessao.php" name="logout" method="POST">
-							<input type="hidden" value="GSElogout" name="logout"> <a
-								class="btn btn-primary" onclick="document.logout.submit()">Sair</a>
-						</form>
-					</div>
+				<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja
+					pornto para encerrar a seção atual.</div>
+				<div class="modal-footer">
+					<button class="btn btn-secondary" type="button"
+						data-dismiss="modal">Cancelar</button>
+					<form action="bo/Sessao.php" name="logout" method="POST">
+						<input type="hidden" value="GSElogout" name="logout"> <a
+							class="btn btn-primary" onclick="document.logout.submit()">Sair</a>
+					</form>
 				</div>
 			</div>
 		</div>
-		<!-- Bootstrap core JavaScript-->
-		<script src="vendor/jquery/jquery.min.js"></script>
-		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-		<!-- Core plugin JavaScript-->
-		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-		<!-- Page level plugin JavaScript-->
-		<script src="vendor/chart.js/Chart.min.js"></script>
-		<script src="vendor/datatables/jquery.dataTables.js"></script>
-		<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
-		<!-- Custom scripts for all pages-->
-		<script src="js/sb-admin.min.js"></script>
-		<!-- Custom scripts for this page-->
-		<script src="js/sb-admin-datatables.min.js"></script>
-		<script src="js/sb-admin-charts.min.js"></script>
+	</div>
+	<!-- Bootstrap core JavaScript-->
+	<script src="vendor/jquery/jquery.min.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<!-- Core plugin JavaScript-->
+	<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+	<!-- Page level plugin JavaScript-->
+	<script src="vendor/chart.js/Chart.min.js"></script>
+	<script src="vendor/datatables/jquery.dataTables.js"></script>
+	<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
+	<!-- Custom scripts for all pages-->
+	<script src="js/sb-admin.min.js"></script>
+	<!-- Custom scripts for this page-->
+	<script src="js/sb-admin-datatables.min.js"></script>
+	<script src="js/sb-admin-charts.min.js"></script>
 	</div>
 </body>
 
 </html>
 
-<?php 
+<?php
 $db->close();
 $db1->close();
 ?>
