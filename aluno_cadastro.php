@@ -140,7 +140,7 @@ if (
                     $alunoCadastro->responsavel2 = $responsavel2Cadastro->id;
                 }
                 $pessoaDao->adicionar($alunoCadastro, false);
-                header("Location: aluno_cadastro.php?s=1");               
+                $showSuccessMessage = true;
             } catch (Exception $ex) {
                 $error_code = $ex->getMessage();
                 error_log($ex);
@@ -629,6 +629,21 @@ if (
 		</div>
 	</nav>
 	<div class="content-wrapper">
+						<?php
+    if (isset($showErrorMessage)) {
+        ?>
+						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </br></br></div>
+					<?php
+    }
+
+    if ($showSuccessMessage and ! isset($showErrorMessage)) {
+        ?>
+					    <div style="color: green; text-align: center;">Registro criado
+				com sucesso!</br></br></div>
+					<?php
+    }
+
+    ?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
@@ -696,24 +711,23 @@ if (
 				<li class="breadcrumb-item active">Cadastro</li>
 			</ol>
 			<div class="container" style="padding-left: 30px;">
-			<!--   <form method="post" action="<?=$_SERVER['PHP_SELF'];?>"> -->
+				<!--   <form method="post" action="<?=$_SERVER['PHP_SELF'];?>"> -->
 				<div class="form-group">
 					<div class="form-row">
 						<div class="col-md-6">
 							<label for="exampleInputLastName">Nome do responsável 1*</label>
 							<input class="form-control" id="nomeResp1" type="text"
-								aria-describedby="nameHelp" placeholder="Nome"
-								name="nomeResp1" required maxlength="250">
+								aria-describedby="nameHelp" placeholder="Nome" name="nomeResp1"
+								required maxlength="250">
 							<div id="nomeResp1Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
 						</div>
 						<div class="col-md-6">
 							<label for="exampleInputLastName">Sobrenome do responsável 1*</label>
-							<input class="form-control" id="sobrenomeResp1"
-								type="text" aria-describedby="nameHelp"
-								placeholder="Sobrenome" name="sobrenomeResp1"
-								required maxlength="250">
+							<input class="form-control" id="sobrenomeResp1" type="text"
+								aria-describedby="nameHelp" placeholder="Sobrenome"
+								name="sobrenomeResp1" required maxlength="250">
 							<div id="sobrenomeResp1Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
@@ -723,24 +737,24 @@ if (
 				<div class="form-group">
 					<div class="form-row">
 						<div class="col-md-6">
-        					<label for="inputCpfResp1"> CPF do responsável 1*</label> <input
-        						class="form-control cpf-mask" id="cpfResp1" type="text"
-        						placeholder="000.000.000-00" name="cpfResp1" maxlength="14"
-        						onkeydown="javascript: fMasc( this, mCPF );">
-        					<div id="cpfResp1Erro"
-        						style="display: none; font-size: 10pt; color: red">Campo
-        						obrigatório!</div>
-        				</div>
-        				<div class="col-md-6">
-        					<label for="inputTelefoneResp1"> Telefone do responsável 1*</label> <input
-        						class="form-control" id="telefoneResp1" type="text"
-        						placeholder="(00) 0000-0000" name="telefoneResp1" maxlength="14"
-        						onkeydown="javascript: fMasc( this, mTel );">
-        					<div id="telefoneResp1Erro"
-        						style="display: none; font-size: 10pt; color: red">Campo
-        						obrigatório!</div>
-        				</div>		
-    				</div>		
+							<label for="inputCpfResp1"> CPF do responsável 1*</label> <input
+								class="form-control cpf-mask" id="cpfResp1" type="text"
+								placeholder="000.000.000-00" name="cpfResp1" maxlength="14"
+								onkeydown="javascript: fMasc( this, mCPF );">
+							<div id="cpfResp1Erro"
+								style="display: none; font-size: 10pt; color: red">Campo
+								obrigatório!</div>
+						</div>
+						<div class="col-md-6">
+							<label for="inputTelefoneResp1"> Telefone do responsável 1*</label>
+							<input class="form-control" id="telefoneResp1" type="text"
+								placeholder="(00) 0000-0000" name="telefoneResp1" maxlength="14"
+								onkeydown="javascript: fMasc( this, mTel );">
+							<div id="telefoneResp1Erro"
+								style="display: none; font-size: 10pt; color: red">Campo
+								obrigatório!</div>
+						</div>
+					</div>
 				</div>
 				<div class="form-group">
 					<label for="exampleInputEmail1">Endereço de e-mail do responsável
@@ -757,125 +771,114 @@ if (
 						<div class="col-md-6">
 							<label for="exampleInputName">Data de nascimento*</label> <input
 								class="form-control date-mask" id="dataNascimentoResp1"
-								name="dataNascimentoResp1" type="date" aria-describedby="nameHelp"
-								placeholder="Data de nascimento" required>
+								name="dataNascimentoResp1" type="date"
+								aria-describedby="nameHelp" placeholder="Data de nascimento"
+								required>
 							<div id="dataNascimentoResp1Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
 						</div>
 						<div class="col-md-6">
 							<label for="typeSexo">Sexo*</label><br> <input type="radio"
-								name="sexoResp1" id="sexoResp1" value="1" checked required> Masculino<br>
-							<input type="radio" name="sexoResp1" value="0" id="sexoResp1" required> Feminino<br>
-							<input type="radio" name="sexo" value="2" id="sexo" required> Não deseja informar<br>
-										<input type="radio" name="sexo" value="3" id="sexo" required> Outro<br>
+								name="sexoResp1" id="sexoResp1" value="1" checked required>
+							Masculino<br> <input type="radio" name="sexoResp1" value="0"
+								id="sexoResp1" required> Feminino<br> <input type="radio"
+								name="sexo" value="2" id="sexo" required> Não deseja informar<br>
+							<input type="radio" name="sexo" value="3" id="sexo" required>
+							Outro<br>
 							<div id="sexoResp1Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
 						</div>
 					</div>
 				</div>
-				<br><br>
+				<br>
+				<br>
 				<div class="form-group">
 					<div class="form-row">
 						<div class="col-md-6">
 							<label for="exampleInputLastName">Nome do responsável 2</label> <input
 								class="form-control" id="nomeResp2" type="text"
-								aria-describedby="nameHelp" placeholder="Nome"
-								name="nomeResp2" required maxlength="250">
-						<div id="nomeResp2Erro"
+								aria-describedby="nameHelp" placeholder="Nome" name="nomeResp2"
+								required maxlength="250">
+							<div id="nomeResp2Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
 						</div>
 						<div class="col-md-6">
 							<label for="exampleInputLastName">Sobrenome do responsável 2</label>
-							<input class="form-control" id="sobrenomeResp2"
-								type="text" aria-describedby="nameHelp"
-								placeholder="Sobrenome" name="sobrenomeResp2"
-								required maxlength="250">
-						<div id="sobrenomeResp2Erro"
+							<input class="form-control" id="sobrenomeResp2" type="text"
+								aria-describedby="nameHelp" placeholder="Sobrenome"
+								name="sobrenomeResp2" required maxlength="250">
+							<div id="sobrenomeResp2Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
+						</div>
 					</div>
-				</div>
-				<div class="form-group">
+					<div class="form-group">
 						<div class="form-row">
 							<div class="col-md-6">
-            					<label for="exampleInputEmail1"> CPF do responsável 2</label> <input
-            						class="form-control cpf-mask" id="cpfResp2" type="text"
-            						placeholder="000.000.000-00" name="cpfResp2" maxlength="14"
-            						onkeydown="javascript: fMasc( this, mCPF );">
-            					<div id="cpfResp2Erro"
-        						style="display: none; font-size: 10pt; color: red">Campo
-        						obrigatório!</div>
-            				</div>
-            				<div class="col-md-6">
-            					<label for="inputTelefoneResp1"> Telefone do responsável 2*</label> <input
-            						class="form-control" id="telefoneResp2" type="text"
-            						placeholder="(00) 0000-0000" name="telefoneResp2" maxlength="14"
-            						onkeydown="javascript: fMasc( this, mTel );">
-            					<div id="telefoneResp2Erro"
-            						style="display: none; font-size: 10pt; color: red">Campo
-            						obrigatório!</div>
-        					</div>		
-        				</div>
-				</div>
-				<div class="form-group">
-					<label for="exampleInputEmail1">Endereço de e-mail do responsável
-						2</label> <input class="form-control" id="emailResp2" type="text"
-						name="emailResp2" aria-describedby="emailHelp"
-						placeholder="E-mail usado para encaminhamento de comunicados"
-						required maxlength="250">
-					<div id="email2ValidacaoErro"
-						style="display: none; font-size: 10pt; color: red">Campo
-						obrigatório!</div>
-				</div>
-				<div class="form-group">
-					<div class="form-row">
-						<div class="col-md-6">
-							<label for="exampleInputName">Data de nascimento</label> <input
-								class="form-control date-mask" id="dataNascimentoResp2"	
-								name="dataNascimentoResp2" type="date" aria-describedby="nameHelp"
-								placeholder="Data de nascimento" required>
-							<div id="dataNascimentoResp2Erro"
-								style="display: none; font-size: 10pt; color: red">Campo
-								obrigatório!</div>
-						</div>
-						<div class="col-md-6">
-							<label for="typeSexo">Sexo</label><br> <input type="radio"
-								name="sexoResp2" id="sexoResp2" value="1" checked required> Masculino<br>
-							<input type="radio" name="sexoResp2" value="0" id="sexoResp2" required> Feminino<br>
-							<input type="radio" name="sexoResp2" value="2" id="sexoResp2" required> Não deseja informar<br>
-										<input type="radio" name="sexoResp2" value="3" id="sexoResp2" required> Outro<br>
-							<div id="sexoResp2Erro"
-								style="display: none; font-size: 10pt; color: red">Campo
-								obrigatório!</div>
+								<label for="exampleInputEmail1"> CPF do responsável 2</label> <input
+									class="form-control cpf-mask" id="cpfResp2" type="text"
+									placeholder="000.000.000-00" name="cpfResp2" maxlength="14"
+									onkeydown="javascript: fMasc( this, mCPF );">
+								<div id="cpfResp2Erro"
+									style="display: none; font-size: 10pt; color: red">Campo
+									obrigatório!</div>
+							</div>
+							<div class="col-md-6">
+								<label for="inputTelefoneResp1"> Telefone do responsável 2*</label>
+								<input class="form-control" id="telefoneResp2" type="text"
+									placeholder="(00) 0000-0000" name="telefoneResp2"
+									maxlength="14" onkeydown="javascript: fMasc( this, mTel );">
+								<div id="telefoneResp2Erro"
+									style="display: none; font-size: 10pt; color: red">Campo
+									obrigatório!</div>
+							</div>
 						</div>
 					</div>
+					<div class="form-group">
+						<label for="exampleInputEmail1">Endereço de e-mail do responsável
+							2</label> <input class="form-control" id="emailResp2" type="text"
+							name="emailResp2" aria-describedby="emailHelp"
+							placeholder="E-mail usado para encaminhamento de comunicados"
+							required maxlength="250">
+						<div id="email2ValidacaoErro"
+							style="display: none; font-size: 10pt; color: red">Campo
+							obrigatório!</div>
+					</div>
+					<div class="form-group">
+						<div class="form-row">
+							<div class="col-md-6">
+								<label for="exampleInputName">Data de nascimento</label> <input
+									class="form-control date-mask" id="dataNascimentoResp2"
+									name="dataNascimentoResp2" type="date"
+									aria-describedby="nameHelp" placeholder="Data de nascimento"
+									required>
+								<div id="dataNascimentoResp2Erro"
+									style="display: none; font-size: 10pt; color: red">Campo
+									obrigatório!</div>
+							</div>
+							<div class="col-md-6">
+								<label for="typeSexo">Sexo</label><br> <input type="radio"
+									name="sexoResp2" id="sexoResp2" value="1" checked required>
+								Masculino<br> <input type="radio" name="sexoResp2" value="0"
+									id="sexoResp2" required> Feminino<br> <input type="radio"
+									name="sexoResp2" value="2" id="sexoResp2" required> Não deseja
+								informar<br> <input type="radio" name="sexoResp2" value="3"
+									id="sexoResp2" required> Outro<br>
+								<div id="sexoResp2Erro"
+									style="display: none; font-size: 10pt; color: red">Campo
+									obrigatório!</div>
+							</div>
+						</div>
+					</div>
+
+					<a class="btn btn-primary btn-block"
+						onclick="validateAndSubmitForm()">Cadastrar</a>
+					</form>
 				</div>
-				
-				<a class="btn btn-primary btn-block"
-					onclick="validateAndSubmitForm()">Cadastrar</a>
-				</form>
 			</div>
-		</div>
-	
-
-					<?php
-    if (isset($showErrorMessage)) {
-        ?>
-						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </div>
-					<?php
-    }
-
-    if ($showSuccessMessage and ! isset($showErrorMessage)) {
-        ?>
-					    <div style="color: green; text-align: center;">Registro criado
-			com sucesso!</div>
-					<?php
-    }
-
-    ?>
 				</div>
 	</div>
 	</div>
