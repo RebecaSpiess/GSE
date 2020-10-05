@@ -286,7 +286,7 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 			<div class="container">
 				<div>
 					<div class="card-body" style="padding: 0px;">
-						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
+						<form method="post" action="php-script-to-process-form-upload.php" enctype="multipart/form-data">
 							<div class="form-group">
 								<div class="form-row">
 									<div class="col-md-6" style="width:100%; max-width: 100%; flex: none;">
@@ -330,14 +330,8 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 
 										<div class="form-group">
 											<label for="exampleInputEmail1">Alunos</label><br>
-																							<?php
-        $nameCheckBox = 0;
-        foreach ($aluno_db_fetch as $single_row1) {
-            echo "<input type=\"checkbox\" name=\"alunoCheck_" . $nameCheckBox . "\" value=\"" . $single_row1['ID'] . "\"> " . $single_row1['NOME'] . " " 
- . $single_row1['SOBRENOME'] . "</input> <br>";
-        $nameCheckBox++;
-        }
-        ?>
+											<input type="file" accept=".csv" name="csvfile" id="csvfile" /> <br><br> 
+																							
 										</div>
 									</div>
 								</div>

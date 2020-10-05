@@ -779,13 +779,11 @@ if (
 								obrigatório!</div>
 						</div>
 						<div class="col-md-6">
-							<label for="typeSexo">Sexo*</label><br> <input type="radio"
-								name="sexoResp1" id="sexoResp1" value="1" checked required>
-							Masculino<br> <input type="radio" name="sexoResp1" value="0"
-								id="sexoResp1" required> Feminino<br> <input type="radio"
-								name="sexo" value="2" id="sexo" required> Não deseja informar<br>
-							<input type="radio" name="sexo" value="3" id="sexo" required>
-							Outro<br>
+							<label for="typeSexo">Sexo*</label><br> 
+							<input type="radio" name="sexoResp1" id="sexoResp1" value="1" checked required> Masculino<br> 
+							<input type="radio" name="sexoResp1" value="0" id="sexoResp1" required> Feminino<br> 
+							<input type="radio" name="sexoResp1" value="2" id="sexo" required> Não deseja informar<br>
+							<input type="radio" name="sexoResp1" value="3" id="sexo" required> Outro<br>
 							<div id="sexoResp1Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>

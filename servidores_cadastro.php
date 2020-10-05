@@ -23,35 +23,46 @@ $tipo_pessoas_db = $db->query("SELECT * FROM TIPO_PESSOA WHERE ID <> 3 ORDER BY 
 $showErrorMessage = null;
 $showSuccessMessage = false;
 
-if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pessoa']) and isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email']) and isset($_POST['data_nascimento']) and isset($_POST['sexo'])) {
+
+if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pessoa']) and isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email']) and isset($_POST['data_nascimento'])) {
     $nome = $_POST['nome'];
     $sobrenome = $_POST['sobrenome'];
     $email = $_POST['email'];
     $data_nascimento = $_POST['data_nascimento'];
-    $sexo = $_POST['sexo'];
+    $sexo = $_POST['sexoServidor'];
     $tipo_pessoa = $_POST['tipo_pessoa'];
     $cpf = $_POST['cpf'];
     $telefone = $_POST['telefone'];
 
-    if (! empty(trim($nome)) and ! empty(trim($sobrenome)) and ! empty(trim($email)) and ! empty(trim($data_nascimento)) and ! empty(trim($sexo)) and ! empty(trim($cpf)) and ! empty(trim($telefone))) {
+    if (! empty(trim($nome)) and ! empty(trim($sobrenome)) and ! empty(trim($email))
+        and ! empty(trim($data_nascimento)) 
+        and ! empty(trim($cpf)) and ! empty(trim($telefone))) {
         $pessoa = new Pessoa();
         $pessoa->nome = $nome;
         $pessoa->sobrenome = $sobrenome;
         $pessoa->email = $email;
         $pessoa->data_nascimento = $data_nascimento;
-        $pessoa->sexo = $sexo;
+        $pessoa->sexo = intval($sexo);
         $pessoa->senha = 'Start1234'; // Senha padrão
         $enc_senha = hash('sha512', $pessoa->senha . 'GSE');
-        $pessoa->tipo_pessoa = $tipo_pessoa;
+        $pessoa->tipo_pessoa = intval($tipo_pessoa);
+        error_log("sexo");
+        error_log($pessoa->sexo);
+        
+        error_log("tipo_pessoa");
+        error_log($pessoa->tipo_pessoa);
         $pessoa->cpf = $cpf;
         $pessoa->telefone = $telefone;
+        $pessoa->responsavel1 = null;
+        $pessoa->responsavel2 = null;
         try {
-            $result = $db1->query("INSERT INTO PESSOA (NOME, SOBRENOME, EMAIL, DATA_NASCIMENTO, TIPO_SEXO, TIPO_PESSOA, SENHA, CPF, TELEFONE)
-                          VALUES (?,?,?,?,?,?,?,?,?)", $pessoa->nome, $pessoa->sobrenome, $pessoa->email, $pessoa->data_nascimento, $pessoa->sexo, $pessoa->tipo_pessoa, $enc_senha, $pessoa->cpf, $pessoa->telefone)->query_count;
+            $result = $db1->query("INSERT INTO PESSOA (NOME, SOBRENOME, EMAIL, DATA_NASCIMENTO, TIPO_SEXO, TIPO_PESSOA, SENHA, CPF, TELEFONE, RESPONSAVEL_1, RESPONSAVEL_2)
+                          VALUES (?,?,?,?,?,?,?,?,?,?,?)", $pessoa->nome, $pessoa->sobrenome, $pessoa->email, $pessoa->data_nascimento, $pessoa->sexo, $pessoa->tipo_pessoa, $enc_senha, $pessoa->cpf, $pessoa->telefone, $pessoa->responsavel1, $pessoa->responsavel2)->query_count;
             if ($result == 1) {
                 $showSuccessMessage = true;
             }
         } catch (Exception $ex) {
+            error_log($ex);
             $error_code = $ex->getMessage();
             if ($error_code == 1062) {
                 $showErrorMessage = "Já existe um registro com o e-mail informado!";
@@ -418,16 +429,12 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 									obrigatório!</div>
 							</div>
 							<div class="col-md-6">
-								<label for="typeSexo">Sexo*</label><br> <input type="radio"
-									name="sexoResp1" id="sexoServidor" value="1" checked required>
-								Masculino<br> <input type="radio" name="sexoResp1" value="0"
-									id="sexoResp1" required> Feminino<br> <input type="radio"
-									name="sexo" value="2" id="sexo" required> Não deseja informar<br>
-								<input type="radio" name="sexo" value="3" id="sexo" required>
-								Outro<br>
-								<div id="sexoServidor"
-									style="display: none; font-size: 10pt; color: red">Campo
-									obrigatório!</div>
+								<label for="typeSexo">Sexo*</label><br> <input type="radio" 
+								name="sexoServidor" id="sexoServidor" value="1" checked required> Masculino<br> 
+								<input type="radio" name="sexoServidor" value="0" id="sexoServidor" required> Feminino<br> 
+								<input type="radio" name="sexoServidor" value="2" id="sexoServidor" required> Não deseja informar<br>
+								<input type="radio" name="sexoServidor" value="3" id="sexoServidor" required> Outro<br>
+								<div id="sexoServidor" style="display: none; font-size: 10pt; color: red">Campo obrigatório!</div>
 							</div>
 						</div>
 					</div>

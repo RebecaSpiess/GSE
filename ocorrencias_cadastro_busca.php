@@ -61,7 +61,7 @@ if (isset($_POST['aluno'])
                             $mail->Host       = 'email-ssl.com.br';                    // Set the SMTP server to send through
                             $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
                             $mail->Username   = 'comunicados@gestaosocioeducacional.com.br'; // SMTP username
-                            $mail->Password   = 'Lubinho#1509';                               // SMTP password
+                            $mail->Password   = 'Comunicados#2020';                               // SMTP password
                             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
                             $mail->Port       = 587;                                    // TCP port to connect to
                             
