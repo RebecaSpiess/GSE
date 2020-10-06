@@ -2,6 +2,7 @@
 require 'bo/Sessao.php';
 require 'bo/ControleAcesso.php';
 require 'database/db.php';
+require 'PessoaDao.php';
 
 use bo\Sessao;
 use bo\ControleAcesso;
@@ -18,7 +19,7 @@ ControleAcesso::validar($papeisPermitidos);
 $db = new db();
 $db1 = new db();
 
-$tipo_pessoas_db = $db->query("SELECT * FROM TIPO_PESSOA WHERE ID <> 3 ORDER BY NOME");
+$tipo_pessoas_db = $db->query("SELECT * FROM TIPO_PESSOA WHERE ID <> 3 and ID <> 5 ORDER BY NOME");
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
@@ -37,28 +38,22 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
     if (! empty(trim($nome)) and ! empty(trim($sobrenome)) and ! empty(trim($email))
         and ! empty(trim($data_nascimento)) 
         and ! empty(trim($cpf)) and ! empty(trim($telefone))) {
+        $pessoaDao = new PessoaDao();
         $pessoa = new Pessoa();
         $pessoa->nome = $nome;
         $pessoa->sobrenome = $sobrenome;
         $pessoa->email = $email;
         $pessoa->data_nascimento = $data_nascimento;
         $pessoa->sexo = intval($sexo);
-        $pessoa->senha = 'Start1234'; // Senha padrão
-        $enc_senha = hash('sha512', $pessoa->senha . 'GSE');
+        $pessoa->senha = hash('sha512', 'Start1234' . 'GSE'); // Senha padrão
         $pessoa->tipo_pessoa = intval($tipo_pessoa);
-        error_log("sexo");
-        error_log($pessoa->sexo);
-        
-        error_log("tipo_pessoa");
-        error_log($pessoa->tipo_pessoa);
         $pessoa->cpf = $cpf;
         $pessoa->telefone = $telefone;
         $pessoa->responsavel1 = null;
         $pessoa->responsavel2 = null;
         try {
-            $result = $db1->query("INSERT INTO PESSOA (NOME, SOBRENOME, EMAIL, DATA_NASCIMENTO, TIPO_SEXO, TIPO_PESSOA, SENHA, CPF, TELEFONE, RESPONSAVEL_1, RESPONSAVEL_2)
-                          VALUES (?,?,?,?,?,?,?,?,?,?,?)", $pessoa->nome, $pessoa->sobrenome, $pessoa->email, $pessoa->data_nascimento, $pessoa->sexo, $pessoa->tipo_pessoa, $enc_senha, $pessoa->cpf, $pessoa->telefone, $pessoa->responsavel1, $pessoa->responsavel2)->query_count;
-            if ($result == 1) {
+            $resultado = $pessoaDao->adicionarServidor($pessoa);
+            if ($resultado) {
                 $showSuccessMessage = true;
             }
         } catch (Exception $ex) {
@@ -375,6 +370,21 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 		</div>
 	</nav>
 	<div class="content-wrapper">
+	<?php
+    if (isset($showErrorMessage)) {
+        ?>
+						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </br></br></div>
+					<?php
+    }
+
+    if ($showSuccessMessage and ! isset($showErrorMessage)) {
+        ?>
+					    <div style="color: green; text-align: center;">Registro criado
+					com sucesso!</br></br></div>
+					<?php
+    }
+
+    ?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
@@ -479,21 +489,7 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 						onclick="validateAndSubmitForm()">Cadastrar</a>
 					</form>
 				</div>
-					<?php
-    if (isset($showErrorMessage)) {
-        ?>
-						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </div>
-					<?php
-    }
-
-    if ($showSuccessMessage and ! isset($showErrorMessage)) {
-        ?>
-					    <div style="color: green; text-align: center;">Registro criado
-					com sucesso!</div>
-					<?php
-    }
-
-    ?>
+					
 				</div>
 		</div>
 	</div>
