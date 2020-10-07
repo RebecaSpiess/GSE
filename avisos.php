@@ -63,12 +63,12 @@ if (isset($_POST['servidor']) and
                             $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
                             
                             $mail->Username   = 'comunicados@gestaosocioeducacional.com.br'; // SMTP username
-                            $mail->Password   = 'Lubinho#1509';                               // SMTP password
+                            $mail->Password   = 'Comunicados#2020';                               // SMTP password
                             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
                             $mail->Port       = 587;
                             
                             //Recipients
-                            $mail->setFrom('gse_aviso@smarthomecontrol.com.br', 'GSE - ' . $pessoa->nome . ' ' . $pessoa->sobrenome);
+                            $mail->setFrom('comunicados@gestaosocioeducacional.com.br', 'GSE - ' . $pessoa->nome . ' ' . $pessoa->sobrenome);
                             $mail->addReplyTo($pessoa->email);
                             $mail->addAddress($destinatario_db[0]['EMAIL']); 
                             $mail->CharSet='UTF-8';
@@ -78,7 +78,7 @@ if (isset($_POST['servidor']) and
                             $mail->Body    = '<div style="color: #363534; font-family: Calibri, Candara;font-size: 12pt;"> Olá, <br/><br/> você recebeu a seguinte mensagem de <a href="mailto:' 
                                 . $pessoa->email . '">' . $pessoa->nome . ' '
                                 . $pessoa->sobrenome  . '</a>: <br/> <br/>' . $aviso . 
-                            '<br/><br/>Atenciosamente,<br/>GSE - Gestão Sócio Educacional.</div><span style="font-family: Calibri, Candara;font-size:10pt">http://smarthomecontrol.com.br</span>';
+                            '<br/><br/>Atenciosamente,<br/>GSE - Gestão Sócio Educacional.</div><span style="font-family: Calibri, Candara;font-size:10pt">http://gestaosocioeducacional.com.br</span>';
                             $mail->send();
                         }
                 } catch (Exception $ex){

@@ -22,14 +22,15 @@ $showSuccessMessage = false;
 
 $db0 = new db();
 
-if (isset($_POST['disciplina'])){
+if (isset($_POST['disciplina']) and isset($_POST['propostaCurricular'])){
     $disciplina = $_POST['disciplina'];
+    $propostaCurricular = $_POST['propostaCurricular'];
     
-    if (!empty(trim($disciplina))){
+    if (!empty(trim($disciplina)) and !empty(trim($propostaCurricular))){
         try {
-            $result = $db0->query("INSERT INTO MATERIA (NOME)
-                          VALUES (?) "
-                , $disciplina
+            $result = $db0->query("INSERT INTO MATERIA (NOME, PROPOSTA_CURRICULAR)
+                          VALUES (?, ?) "
+                , $disciplina, $propostaCurricular
                 )->query_count;
                 if ($result == 1){
                     $showSuccessMessage = true;
@@ -80,32 +81,21 @@ if (isset($_POST['disciplina'])){
 		 
 		if (!isNotBlank(disciplina.value)){
 			camposPreenchidos = false;
-		}
-		
-		if (camposPreenchidos){
-			submit();
+			document.getElementById("disciplinaErro").style.display = "block";
 		} else {
-			alert('Preencha o campo obrigatório!');
-		}	
+			document.getElementById("disciplinaErro").style.display = "none";
+		}
 
 		if (!isNotBlank(propostaCurricular.value)){
 			camposPreenchidos = false;
-		}
-		
+			document.getElementById("propostaCurricularErro").style.display = "block";
+		} else {
+			document.getElementById("propostaCurricularErro").style.display = "none";
+		}		
+
 		if (camposPreenchidos){
 			submit();
-		} else {
-			alert('Preencha o campo obrigatório!');
-		}
-
-		if (!isNotBlank(nome.value)){
-			camposPreenchidos = false;
-			document.getElementById("name").style.display = "block";
-		} else {
-			camposPreenchidos = true;
-			document.getElementById("name").style.display = "none";
-		}
-				
+		}			
 	}
 
 	function isNotBlank(value){
@@ -257,6 +247,17 @@ if (isset($_POST['disciplina'])){
 		</div>
 	</nav>
 	<div class="content-wrapper">
+	<?php 
+					if (isset($showErrorMessage)){ ?>
+						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </br></br></div>
+					<?php 
+					}
+					
+					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
+					    <div style="color:green;text-align: center;">Registro criado com sucesso!</br></br></div>
+					<?php }
+					
+					?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
@@ -275,24 +276,20 @@ if (isset($_POST['disciplina'])){
 										class="form-control" id="disciplina" type="text"
 										maxlength="255"  name="disciplina"
 										placeholder="Nome da disciplina">
+										<div id="disciplinaErro"
+							style="display: none; font-size: 10pt; color: red">Campo
+							obrigatório!</div>
 									<label for="exampleInputName">Proposta curricular*</label> 
 									<textarea rows="10" cols="30" style="width: 100%; max-width:100% " maxlength="250" id="propostaCurricular" name="propostaCurricular"></textarea>
+									<div id="propostaCurricularErro"
+							style="display: none; font-size: 10pt; color: red">Campo
+							obrigatório!</div>
 								</div>
 							</div>
 							<br> <a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>
 						</form>
 					</div>
-					<?php 
-					if (isset($showErrorMessage)){ ?>
-						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </div>
-					<?php 
-					}
 					
-					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
-					    <div style="color:green;text-align: center;">Registro criado com sucesso!</div>
-					<?php }
-					
-					?>
 				</div>
 			</div>
 		</div>

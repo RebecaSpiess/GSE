@@ -12,6 +12,8 @@ Sessao::validar();
 $papeisPermitidos = array(2,4,1);
 ControleAcesso::validar($papeisPermitidos);
 
+$pessoa = unserialize($_SESSION['loggedGSEUser']);
+
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
@@ -19,7 +21,15 @@ $showSuccessMessage = false;
 $db0 = new db();
 $db1 = new db();
 
-$db_turma_fetch = $db0->query("SELECT NOME_TURMA, ID FROM TURMA ORDER BY NOME_TURMA")->fetchAll();
+$sqlTurmas = "SELECT tu.NOME_TURMA, tu.ID FROM TURMA tu ";
+$tipoPessoaIdentificador = $pessoa->tipo_pessoa;
+if ($tipoPessoaIdentificador == 2){
+    $sqlTurmas .= " LEFT JOIN gestaose.PESSOA pe ON (pe.ID = tu.ID_PESSOA) where pe.ID = " . $pessoa->id;
+}
+$sqlTurmas .= " ORDER BY tu.NOME_TURMA";
+error_log($sqlTurmas);
+
+$db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
 
 if (isset($_POST['turma']) and
     isset($_POST['planoAula'])){
@@ -86,17 +96,22 @@ if (isset($_POST['turma']) and
 		 
 		if (!isNotBlank(turma.value)){
 			camposPreenchidos = false;
+			document.getElementById("turmaErro").style.display = "block";
+		} else {	
+			document.getElementById("turmaErro").style.display = "none";
 		}
+
 		
 		if (!isNotBlank(planoAula.value)){
 			camposPreenchidos = false;
-		}	
+			document.getElementById("planoAulaErro").style.display = "block";
+		} else {	
+			document.getElementById("planoAulaErro").style.display = "none";
+		}
 
 		if (camposPreenchidos){
 			submit();
-		} else {
-			alert('Preencha todos os campos obrigatórios!');
-		}			
+		} 		
 	}
 
 	function isNotBlank(value){
@@ -107,6 +122,11 @@ if (isset($_POST['turma']) and
 	}	
 
   </script>
+  <style type="text/css">
+    textarea:focus {
+        outline: none;
+    }
+  </style>
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -247,6 +267,17 @@ if (isset($_POST['turma']) and
 		</div>
 	</nav>
 	<div class="content-wrapper">
+	<?php 
+					if (isset($showErrorMessage)){ ?>
+						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </br></br></div>
+					<?php 
+					}
+					
+					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
+					    <div style="color:green;text-align: center;">Registro criado com sucesso!</br></br></div>
+					<?php }
+					
+					?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
@@ -271,11 +302,17 @@ if (isset($_POST['turma']) and
                                         ?>
 										
 									</select>
+									<div id="turmaErro"
+											style="display: none; font-size: 10pt; color: red">Campo
+											obrigatório!</div>
 								</div>
 								<br>
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
 								<label for="planoAula">Plano de aula*</label> 
-									<textarea rows="10" cols="30" style="width: 100%; max-width:100% " maxlength="250" id="planoAula" name="planoAula"></textarea>
+									<textarea rows="10" cols="30" style="width: 100%; max-width:100%;border: 1px solid #ced4da" maxlength="250" id="planoAula" name="planoAula"></textarea>
+									<div id="planoAulaErro"
+											style="display: none; font-size: 10pt; color: red">Campo
+											obrigatório!</div>
 								</div>
 							</div>
 					
@@ -283,17 +320,6 @@ if (isset($_POST['turma']) and
 					</form>
 					</div>
 				</div>
-				<?php 
-					if (isset($showErrorMessage)){ ?>
-						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </div>
-					<?php 
-					}
-					
-					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
-					    <div style="color:green;text-align: center;">Registro criado com sucesso!</div>
-					<?php }
-					
-					?>
 			</div>
 		</div>
 	</div>
