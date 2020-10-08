@@ -12,12 +12,20 @@ Sessao::validar();
 $papeisPermitidos = array(2,4,1);
 ControleAcesso::validar($papeisPermitidos);
 
+$pessoa = unserialize($_SESSION['loggedGSEUser']);
 $showSuccessMessage = false;
 
 $db0 = new db();
 
-$db_turma_fetch = $db0->query("SELECT NOME_TURMA, ID FROM TURMA ORDER BY NOME_TURMA")->fetchAll();
+$sqlTurmas = "SELECT tu.NOME_TURMA, tu.ID FROM TURMA tu ";
+$tipoPessoaIdentificador = $pessoa->tipo_pessoa;
+if ($tipoPessoaIdentificador == 2){
+    $sqlTurmas .= " LEFT JOIN gestaose.PESSOA pe ON (pe.ID = tu.ID_PESSOA) where pe.ID = " . $pessoa->id;
+}
+$sqlTurmas .= " ORDER BY tu.NOME_TURMA";
+error_log($sqlTurmas);
 
+$db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
 
 if (isset($_SESSION['mensagem_notas'])){
     $showSuccessMessage = true;
@@ -66,17 +74,21 @@ if (isset($_SESSION['mensagem_notas'])){
 		 
 		if (!isNotBlank(turma.value)){
 			camposPreenchidos = false;
-		}
+			document.getElementById("turmaErro").style.display = "block";
+		} else {
+			document.getElementById("turmaErro").style.display = "none";
+		}	
 
 		if (!isNotBlank(assunto.value)){
 			camposPreenchidos = false;
+			document.getElementById("assuntoErro").style.display = "block";
+		} else {
+			document.getElementById("assuntoErro").style.display = "none";
 		}
 		
 		if (camposPreenchidos){
 			submit();
-		} else {
-			alert('Preencha os campos obrigatórios!');
-		}			
+		} 		
 	}
 
 	function isNotBlank(value){
@@ -229,6 +241,12 @@ if (isset($_SESSION['mensagem_notas'])){
 		</div>
 	</nav>
 	<div class="content-wrapper">
+	<?php 
+					if ($showSuccessMessage){ ?>
+					    <div style="color:green;text-align: center;" id="mensagemSucesso"><?php echo $mensagem_sucesso;?></br></br></div>
+					<?php }
+					
+					?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
@@ -253,6 +271,9 @@ if (isset($_SESSION['mensagem_notas'])){
                                         ?>
 										
 									</select>
+									<div id="turmaErro"
+						style="display: none; font-size: 10pt; color: red">Campo
+						obrigatório!</div>
 								</div>
 								<br>
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
@@ -261,6 +282,9 @@ if (isset($_SESSION['mensagem_notas'])){
 										class="form-control" id="assunto" type="text"
 										maxlength="255"  name="assunto"
 										placeholder="Assunto">
+									<div id="assuntoErro"
+						style="display: none; font-size: 10pt; color: red">Campo
+						obrigatório!</div>
 								</div>
 							</div>
 					
@@ -268,12 +292,6 @@ if (isset($_SESSION['mensagem_notas'])){
 					</form>
 					</div>
 				</div>
-				<?php 
-					if ($showSuccessMessage){ ?>
-					    <div style="color:green;text-align: center;" id="mensagemSucesso"><?php echo $mensagem_sucesso;?></div>
-					<?php }
-					
-					?>
 			</div>
 		</div>
 		<!-- /.container-fluid-->

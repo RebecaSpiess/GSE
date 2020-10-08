@@ -12,6 +12,7 @@ Sessao::validar();
 $papeisPermitidos = array(2,4,1);
 ControleAcesso::validar($papeisPermitidos);
 
+
 $turma_id = $_POST['turma'];
 $assunto = $_POST['assunto'];
 
@@ -37,7 +38,7 @@ if (isset($_POST['cadastro_notas'])){
                     $count++;
                 }
             }
-            header("Location: /aluno_notas.php");
+            header("Location: aluno_notas.php");
             if ($count == 1){
                 $_SESSION['mensagem_notas'] = "Nota cadastrada com sucesso!";
             } else if ($count > 1){
@@ -45,7 +46,7 @@ if (isset($_POST['cadastro_notas'])){
             }
         }
         $db1->close();
-}
+} 
 ?>
 
 <!DOCTYPE html>
@@ -77,28 +78,34 @@ if (isset($_POST['cadastro_notas'])){
   
 	function validateAndSubmitForm() {
 		var camposPreenchidos = true;
-		var existeCampoPreenchido = false;
+		var existeCampoPreenchido = null;
 		<?php
         foreach ($db_turma_fetch as $single_row1) {
             echo "var aluno_" .  $single_row1['ID'] . " = document.getElementById(\"" . $single_row1['ID'] . "\");\n";
             
             echo "if (isNotBlank(aluno_" .$single_row1['ID'] . ".value)){\n";
             echo "    var value_aluno_" .$single_row1['ID'] . " =  aluno_" .$single_row1['ID'] . ".value;\n";
-            echo "    existeCampoPreenchido = true;\n";
+            echo "    if (existeCampoPreenchido == null){\n";
+            echo "        existeCampoPreenchido = true;\n";
+            echo "    }\n";
             echo "    if (value_aluno_" . $single_row1['ID'] . " < 0 || value_aluno_" . $single_row1['ID'] ."  > 10) {\n";
             echo "         camposPreenchidos = false;\n";
             echo "    }\n";
-            echo "}\n\n";
+            echo "} else {\n";
+            echo "   existeCampoPreenchido = false;\n";
+            echo "}\n";
         } 
        ?>
        	
 		if (!existeCampoPreenchido){
-			alert('Preencha ao menos um campo de nota!');
-		} else if (camposPreenchidos){
+			camposPreenchidos = false;
+			document.getElementById("cadastro_notasErro").style.display = "block";
+		} else if (camposPreenchidos){			
 			document.getElementById('cadastro_notas').value = 'true';
 			submit();
 		} else {
-			alert('Preencha os campos cujo os valores deverão estar entre o seguinte intervalo: 0 e 10!');
+			document.getElementById("cadastro_notasErro").innerHTML = "Preencha os campos cujo os valores deverão estar entre o seguinte intervalo: 0 e 10!";
+			document.getElementById("cadastro_notasErro").style.display = "block";
 		}			
 	}
 
@@ -252,6 +259,17 @@ if (isset($_POST['cadastro_notas'])){
 		</div>
 	</nav>
 	<div class="content-wrapper">
+	<?php 
+					if (isset($showErrorMessage)){ ?>
+						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </br></br></div>
+					<?php 
+					}
+					
+					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
+					    <div style="color:green;text-align: center;">Notas cadastradas com sucesso!</br></br></div>
+					<?php }
+					
+					?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
@@ -264,8 +282,12 @@ if (isset($_POST['cadastro_notas'])){
 						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
 							<div class="form-group">
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-								
-								<span style="font-weight: bold;">Turma:</span> <?php echo $db_turma_fetch[0]['NOME_TURMA'];?><br>
+								<?php 
+								if (!empty($db_turma_fetch)){ 
+								    echo "<span style=\"font-weight: bold;\">Turma:</span>" . $db_turma_fetch[0]['NOME_TURMA'] . "<br>";
+								} else {
+								    echo "<span>Essa turma não possui alunos cadastrados!<br><br>";
+								}?>
 								<span style="font-weight: bold;">Assunto:</span> <?php echo $assunto;?><br>
 								<input type="hidden" name="turma" value="<?php echo $turma_id;?>" />
 								<input type="hidden" name="assunto" value="<?php echo $assunto;?>" />
@@ -280,26 +302,22 @@ if (isset($_POST['cadastro_notas'])){
                                                 echo "</tr>";
                                             } 
                                         ?>
-								</table>		
+								</table>
+								<div id="cadastro_notasErro"
+											style="display: none; font-size: 10pt; color: red">Campo
+											obrigatório!</div>	
+						
 								</div>
 								<br>
 							</div>
-					
-        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar notas</a>
+							<?php
+							if (!empty($db_turma_fetch)){
+               					echo "<a class=\"btn btn-primary btn-block\" onclick=\"validateAndSubmitForm()\">Cadastrar notas</a>";
+							}
+        					?>
 					</form>
 					</div>
 				</div>
-				<?php 
-					if (isset($showErrorMessage)){ ?>
-						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </div>
-					<?php 
-					}
-					
-					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
-					    <div style="color:green;text-align: center;">Notas cadastradas com sucesso!</div>
-					<?php }
-					
-					?>
 			</div>
 		</div>
 		<!-- /.container-fluid-->
