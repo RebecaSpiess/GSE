@@ -41,7 +41,7 @@ if (isset($_POST['cadastro_frequencia'])){
                 $db1->close();
                 $db1 = new db();
             }
-            header("Location: /frequencia_cadastro.php");
+            header("Location: frequencia_cadastro.php");
             if ($count == 1){
                 $_SESSION['mensagem_frequencia'] = "Frequência cadastrada com sucesso!";
             } else if ($count > 1){
@@ -269,7 +269,13 @@ if (isset($_POST['cadastro_frequencia'])){
 							<div class="form-group">
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
 								
-								<span style="font-weight: bold;">Turma:</span> <?php echo $db_turma_fetch[0]['NOME_TURMA'];?><br>
+								<span style="font-weight: bold;">Turma:</span> 
+								<?php 
+								if (!empty($db_turma_fetch)){ 
+								    echo "<span style=\"font-weight: bold;\">Turma:</span>" . $db_turma_fetch[0]['NOME_TURMA'] . "<br>";
+								} else {
+								    echo "<span>Essa turma não possui alunos cadastrados!<br><br>";
+								}?>
 								<span style="font-weight: bold;">Data:</span> <?php echo $data;?><br>
 								<input type="hidden" name="turma" value="<?php echo $turma_id;?>" />
 								<input type="hidden" name="data" value="<?php echo $data;?>" />
@@ -289,7 +295,11 @@ if (isset($_POST['cadastro_frequencia'])){
 								<br>
 							</div>
 					
-        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar frequências</a>
+        					<?php
+							if (!empty($db_turma_fetch)){
+               					echo "<a class=\"btn btn-primary btn-block\" onclick=\"validateAndSubmitForm()\">Cadastrar notas</a>";
+							}
+        					?>
 					</form>
 					</div>
 				</div>

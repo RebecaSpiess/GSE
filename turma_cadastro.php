@@ -300,28 +300,35 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 								<br>
 								<div class="col-md-6" style="padding-left: 0px;padding-right: 0px;width:100%; max-width: 100%;">
 										<label for="exampleInputLastName">Professor responsável*</label>
-										<select class="form-control" id="professorResp"
-											aria-describedby="nameHelp"
-											name="professor_responsavel" required>
-          
+											<input type="hidden" name="professor_responsavel" id="professorResp" value="false" >
+								<br>
+          								<table cellpadding="3">	
                             		<?php
                                         $professor_db_fetch = $professor_db->fetchAll();
-                                        foreach ($professor_db_fetch as $single_row0) {
-                                            echo "<option value=\"" . $single_row0['ID'] . "\">" . $single_row0['NOME'] . "</option>";
+                                        foreach ($professor_db_fetch as $single_row0){
+                                            echo "<tr>";
+                                            echo "<td>" . $single_row0['NOME'] . ' ' . $single_row0['SOBRENOME'] . "</td>";
+                                            echo "<td>" . "<input type=\"checkbox\" name=\"". $single_row0['ID'] . "\" id=\"". $single_row0['ID'] . "\" /> </td>";
+                                            echo "</tr>";
                                         } 
                                     ?>
-										</select>
+										</table>
 								</div>
 								<br>
 								<div class="col-md-6" style="padding-left: 0px;padding-right: 0px;width:100%; max-width: 100%;">
 										<label>Matéria*</label>
-										<select class="form-control" id="materia" name="materia" required>
+										<input type="hidden" name="materia" id="materia" value="false" >
+								<br>
+          								<table cellpadding="3">
 										<?php
                                             foreach ($materia_db as $single_row1) {
-                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME'] . "</option>";
+                                                echo "<tr>";
+                                                echo "<td>" . $single_row1['NOME'] . "</td>";
+                                                echo "<td>" . "<input type=\"checkbox\" name=\"". $single_row1['ID'] . "\" /> </td>";
+                                                echo "</tr>";
                                             } 
                                         ?>
-										</select>
+										</table>
 								</div>
 								<br>		
 										

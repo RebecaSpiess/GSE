@@ -10,6 +10,7 @@ Sessao::validar();
 
 $papeisPermitidos = array(2,4,1);
 ControleAcesso::validar($papeisPermitidos);
+$pessoa = unserialize($_SESSION['loggedGSEUser']);
 
 
 $showSuccessMessage = false;
@@ -17,7 +18,15 @@ $mensagem_sucesso = null;
 
 $db0 = new db();
 
-$db_turma_fetch = $db0->query("SELECT NOME_TURMA, ID FROM TURMA ORDER BY NOME_TURMA")->fetchAll();
+$sqlTurmas = "SELECT tu.NOME_TURMA, tu.ID FROM TURMA tu ";
+$tipoPessoaIdentificador = $pessoa->tipo_pessoa;
+if ($tipoPessoaIdentificador == 2){
+    $sqlTurmas .= " LEFT JOIN gestaose.PESSOA pe ON (pe.ID = tu.ID_PESSOA) where pe.ID = " . $pessoa->id;
+}
+$sqlTurmas .= " ORDER BY tu.NOME_TURMA";
+error_log($sqlTurmas);
+
+$db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
 
 $db0->close();
 
@@ -75,13 +84,27 @@ if (isset($_SESSION['mensagem_frequencia'])){
 
 		if (!isNotBlank(data.value)){
 			camposPreenchidos = false;
-		}
+			document.getElementById("dataErro").style.display = "block";
+		} else if (!validateInputDate(data.value)) {
+			camposPreenchidos = false;
+			document.getElementById("dataErro").innerHTML = "Data informada não pode estar no futuro!";
+			document.getElementById("dataErro").style.display = "block";	
+		} else {	
+			document.getElementById("dataErro").style.display = "none";
+		}	
 		
 		if (camposPreenchidos){
 			submit();
-		} else {
-			alert('Preencha os campos obrigatórios!');
-		}			
+		} 	
+
+		function validateInputDate(inputDate){
+	        var agora = new Date();
+	        var diaInserido = new Date(inputDate);
+			if (diaInserido > agora) {
+				return false;
+			}	
+	        return true;
+	    } 	
 	}
 
 	function isNotBlank(value){
@@ -234,6 +257,12 @@ if (isset($_SESSION['mensagem_frequencia'])){
 		</div>
 	</nav>
 	<div class="content-wrapper">
+	<?php 
+					if ($showSuccessMessage){ ?>
+					    <div style="color:green;text-align: center;" id="mensagemSucesso"><?php echo $mensagem_sucesso;?></br></br></div>
+					<?php }
+					
+					?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
@@ -264,6 +293,7 @@ if (isset($_SESSION['mensagem_frequencia'])){
 								
 								<label for="data">Data*</label> 
 								<input class="form-control" name="data" type="date" id="data" placeholder="Data de nascimento" required>
+								<div id="dataErro" style="display: none; font-size: 10pt; color: red">Campo obrigatório!</div>
 								</div>
 							</div>
 					
@@ -271,12 +301,6 @@ if (isset($_SESSION['mensagem_frequencia'])){
 					</form>
 					</div>
 				</div>
-				<?php 
-					if ($showSuccessMessage){ ?>
-					    <div style="color:green;text-align: center;" id="mensagemSucesso"><?php echo $mensagem_sucesso;?></div>
-					<?php }
-					
-					?>
 			</div>
 		</div>
 		<!-- /.container-fluid-->
