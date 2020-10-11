@@ -2,11 +2,9 @@
 require 'bo/Sessao.php';
 require 'bo/ControleAcesso.php';
 require 'database/db.php';
-require 'model/Turma.php';
 
 use bo\Sessao;
 use bo\ControleAcesso;
-use model\Turma;
 
 Sessao::validar();
 
@@ -17,6 +15,7 @@ $papeisPermitidos = array(
 );
 ControleAcesso::validar($papeisPermitidos);
 
+
 $db = new db();
 $db1 = new db();
 $db2 = new db();
@@ -24,65 +23,26 @@ $db3 = new db();
 $db4 = new db();
 $db5 = new db();
 
-$aluno_db = $db->query("SELECT p.* FROM PESSOA p JOIN TIPO_PESSOA tp ON (p.TIPO_PESSOA = tp.ID and tp.ID = 3) ORDER BY p.nome, p.sobrenome");
-$professor_db = $db2->query("SELECT p.* FROM PESSOA p JOIN TIPO_PESSOA tp ON (p.TIPO_PESSOA = tp.ID and tp.ID = 1) ORDER BY p.nome, p.sobrenome");
+$professor_db = $db2->query("select p.ID, p.NOME, p.SOBRENOME, p.EMAIL from PESSOA p JOIN TIPO_PESSOA tp ON (tp.ID = p.ID and tp.NOME = 'Professor(a)') ORDER BY p.NOME, p.SOBRENOME");
 
 $materia_db = $db1->query("SELECT ID, NOME FROM MATERIA ORDER BY NOME")->fetchAll();
 
-$showErrorMessage = null;
-$showSuccessMessage = false;
-$aluno_db_fetch = $aluno_db->fetchAll();
-if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and isset($_POST['materia'])) {
-    $nome_turma = $_POST['nome_turma'];
-    $professor_responsavel = $_POST['professor_responsavel'];
-    $materia = $_POST['materia'];
-    
-    if (! empty(trim($nome_turma)) and !empty(trim($professor_responsavel)) and !empty(trim($materia))) {
-        $turma = new Turma();
-        $turma->id_pessoa = $professor_responsavel;
-        $turma->id_materia = $materia;
-        $turma->nome_turma = $nome_turma;
-        try {
-            $result = $db3->query("INSERT INTO TURMA (ID_PESSOA, ID_MATERIA, NOME_TURMA) VALUES (?,?,?) "
-                , $turma->id_pessoa, $turma->id_materia, $turma->nome_turma)->query_count;
-            if ($result == 1) {
-                $showSuccessMessage = true;
-            }
-        } catch (Exception $ex) {
-            $error_code = $ex->getMessage();
-            if ($error_code == 1062) {
-                $showErrorMessage = "Turma já existente!";
-            } else {
-                $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
-            }
+function listar_professores($id){
+    $db6 = new db();
+    try {
+        $professores = $db6->query("select p.ID, p.NOME, p.SOBRENOME, p.EMAIL from PESSOA p JOIN TIPO_PESSOA tp ON (tp.ID = p.ID and tp.NOME = 'Professor(a)') ORDER BY p.NOME, p.SOBRENOME")->fetchAll();
+        $listaProfessorCriada = "<select name=\"professor_disciplina_" . $id . "\">";
+        foreach ($professores as $professor){
+            $listaProfessorCriada .= "<option value=\"" . $professor['ID'] . "\"\>" . $professor['NOME'] . " " . $professor['SOBRENOME'] . " (" . $professor['EMAIL'] . ")</option>";
         }
-    } //primeiro if referente a turma
-    
-    if ($showSuccessMessage){
-        $nameCheckBox = 0;
-        $qtd_linhas = 0;
-        
-        $turma_fetch = $db5->query("SELECT ID FROM TURMA WHERE NOME_TURMA = '" . $nome_turma . "'")->fetchAll();
-        
-        $id_turma = $turma_fetch[0]['ID'];
-        $sql_insert = "INSERT INTO TURMA_PESSOA (ID_TURMA, ID_PESSOA) VALUES ";
-        foreach ($aluno_db_fetch as $single_row1) {
-            $campo_aluno = "alunoCheck_" . $nameCheckBox;
-            if (isset($_POST[$campo_aluno])){
-                $qtd_linhas++;
-                $id_aluno_check = $_POST[$campo_aluno];
-                $sql_insert.=  " (" . $id_turma . "," . $id_aluno_check . "),";
-            }
-            $nameCheckBox++;
-        }
-        $final_sql = substr($sql_insert,0,strlen($sql_insert)-1);
-        $result = $db4->query($final_sql)->query_count;
-        if ($result >= 1) {
-            $showSuccessMessage = true;
-        }
+        $listaProfessorCriada .= "</select>";
+    } finally {
+        $db6->close();
     }
-   
+    return $listaProfessorCriada;
 }
+
+
 ?>
 
 <!DOCTYPE html>
@@ -112,17 +72,44 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 	}
   
 	function validateAndSubmitForm() {
-		var nome_turma = document.getElementById("nomeTurma");
 		var professor_responsavel = document.getElementById("professorResp");
-		var camposPreenchidos = true; 
+		var camposPreenchidos = true;
+		 
+		var nome_turma = document.getElementById("nomeTurma");
 		if (!isNotBlank(nome_turma.value)){
 			camposPreenchidos = false;
-			document.getElementById("nome_turma").style.display = "block";
-		} else {
-			camposPreenchidos = true;
-			document.getElementById("nome_turma").style.display = "none";
+			document.getElementById("nome_turma_erro").style.display = "block";
+		} else {			
+			document.getElementById("nome_turma_erro").style.display = "none";
 		}
 
+		var haUmaMateriaSelecionada = false;
+	
+		<?php
+		echo "\n";
+		foreach ($materia_db as $single_row1) {
+		    echo "\t\tvar materia_" . $single_row1['ID'] . " = document.getElementById(\"materia_" . $single_row1['ID'] . "\");\n";
+		    echo "\t\tif (materia_" . $single_row1['ID'] . ".checked){\n";
+			echo "   \t\thaUmaMateriaSelecionada = true;\n";
+		    echo "\t\t}\n";
+		}
+		?>
+
+		if (!haUmaMateriaSelecionada){
+			camposPreenchidos = false;
+			document.getElementById("materia_erro").style.display = "block";
+		} else {
+			document.getElementById("materia_erro").style.display = "none";
+		}		 
+
+		var arquivoCsv = document.getElementById("csvfile");
+		if (arquivoCsv.files.length == 0){
+			camposPreenchidos = false;
+			document.getElementById("arquivo_csv_erro").style.display = "block";
+		} else {			
+			document.getElementById("arquivo_csv_erro").style.display = "none";
+		}
+		
 		if (camposPreenchidos){
 			submit();
 		}		
@@ -277,6 +264,28 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 		</div>
 	</nav>
 	<div class="content-wrapper">
+		<?php 
+		if (isset($_SESSION['errosCadastroTurma'])){
+		    $errosIdentificados = $_SESSION['errosCadastroTurma'];
+		    echo "<div style=\"color: red; text-align: left; padding: 15px\">";
+		    $textoFinal = "";
+		    foreach ($errosIdentificados as $erroIndentificado) {
+		        $textoFinal .= $erroIndentificado;
+		    }
+		    $textoFinal = trim($textoFinal);
+		    $textoFinalUltimoCaracter= substr($textoFinal, -1);
+		    if ($textoFinalUltimoCaracter == ","){
+		        echo substr($textoFinal, 0, (strlen($textoFinal)-1));
+		    } else {
+		        echo $textoFinal;
+		    }
+		    echo "<br></div>";
+		    $_SESSION['errosCadastroTurma'] = null;		    
+		} else if (isset($_SESSION['sucessoCadastroTurma']) and $_SESSION['sucessoCadastroTurma']){
+		    echo "<div style=\"color: green; text-align: center;\">Turma cadastrada com sucesso!<br><br></div>";
+		}
+		
+		?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
@@ -294,37 +303,39 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 											class="form-control" id="nomeTurma" type="text"
 											aria-describedby="nameHelp" placeholder="Nome da turma"
 											name="nome_turma" required maxlength="255">
-											<div id="nome_turma" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
+											<div id="nome_turma_erro" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
           							</div>
 								</div>
 								<br>
 								<div class="col-md-6" style="padding-left: 0px;padding-right: 0px;width:100%; max-width: 100%;">
-										<label for="exampleInputLastName">Professor responsável*</label>
+										<label for="exampleInputLastName">Professor regente*</label>
 											<input type="hidden" name="professor_responsavel" id="professorResp" value="false" >
 								<br>
           								<table cellpadding="3">	
                             		<?php
                                         $professor_db_fetch = $professor_db->fetchAll();
+                                        echo "<select name=\"professor_regente\">";
                                         foreach ($professor_db_fetch as $single_row0){
-                                            echo "<tr>";
-                                            echo "<td>" . $single_row0['NOME'] . ' ' . $single_row0['SOBRENOME'] . "</td>";
-                                            echo "<td>" . "<input type=\"checkbox\" name=\"". $single_row0['ID'] . "\" id=\"". $single_row0['ID'] . "\" /> </td>";
-                                            echo "</tr>";
-                                        } 
+                                            echo "<option value=\"" . $single_row0['ID'] . "\"\>" . $single_row0['NOME'] . " " . $single_row0['SOBRENOME'] 
+                                            . " (" . $single_row0['EMAIL'] . ")" . "</option>";
+                                        }
+                                        echo "</select>";
                                     ?>
 										</table>
 								</div>
 								<br>
 								<div class="col-md-6" style="padding-left: 0px;padding-right: 0px;width:100%; max-width: 100%;">
 										<label>Matéria*</label>
+										<div id="materia_erro" style="display: none;font-size: 10pt; color:red">Selecione ao menos uma matéria!</div>
 										<input type="hidden" name="materia" id="materia" value="false" >
 								<br>
           								<table cellpadding="3">
 										<?php
                                             foreach ($materia_db as $single_row1) {
                                                 echo "<tr>";
+                                                echo "<td>" . "<input type=\"checkbox\" id=\"materia_" . $single_row1['ID'] . "\" name=\"". $single_row1['ID'] . "\" /> </td>";
                                                 echo "<td>" . $single_row1['NOME'] . "</td>";
-                                                echo "<td>" . "<input type=\"checkbox\" name=\"". $single_row1['ID'] . "\" /> </td>";
+                                                echo "<td>" . listar_professores($single_row1['ID']) . "</td>";
                                                 echo "</tr>";
                                             } 
                                         ?>
@@ -337,6 +348,7 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 
 										<div class="form-group">
 											<label for="exampleInputEmail1">Alunos</label><br>
+											<div id="arquivo_csv_erro" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
 											<input type="file" accept=".csv" name="csvfile" id="csvfile" /> <br><br> 
 																							
 										</div>
@@ -348,21 +360,6 @@ if (isset($_POST['nome_turma']) and isset($_POST['professor_responsavel']) and i
 						</form>
 					</div>
 					<br>
-										<?php
-        if (isset($showErrorMessage)) {
-            ?>
-						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </div>
-					<?php
-        }
-
-        if ($showSuccessMessage and ! isset($showErrorMessage)) {
-            ?>
-					    <div style="color: green; text-align: center;">Registro criado
-						com sucesso!</div>
-					<?php
-        }
-
-        ?>
         <br>
 				</div>
 			</div>

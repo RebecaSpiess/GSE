@@ -1,55 +1,139 @@
-<?php 
-error_log("Entrou");
-$csv_mimetypes = array('text/csv', 'text/plain', 'application/csv', 'text/comma-separated-values', 'application/excel', 'application/vnd.ms-excel', 'application/vnd.msexcel', 'text/anytext', 'application/octet-stream', 'application/txt');
-if (in_array($_FILES['csvfile']['type'], $csv_mimetypes)) {
-    /* Grab the location of this PHP script and change the path to a different location where we can save the data */
-    $filePathRaw = dirname(__FILE__);
-    $filePathSegments = explode("/", $filePathRaw);
-    $filePath = "C:\Users\spies\Documents\arquivos_CSV";
-    /* Generate a filename for the CSV file */
-    $token = date("YmdHis");
-    /* Save the CSV data */
-    $rawCSV = file_get_contents($_FILES['csvfile']['tmp_name']);
-    $fileCSV = fopen($filePath . "/" . $token . ".csv", "w");
-    fwrite($fileCSV, $rawCSV);
-    fclose($fileCSV);
-    //chmod($filePath . "/" . $token . ".txt", 0644);
-    
-    $rawCSV = fopen($filePath . "/" . $token . ".csv", "r");
-    /*while(!feof($fileCSV)) {
-        $linearr = fgetcsv($fileCSV, 1, ';', '"');
-        error_log($linearr);
-        $column1 = trim($linearr[0]);
-        if (!isset($column1)){
-            break;    
-        }*/
-    if ($rawCSV) {
-        while (($buffer = fgets($rawCSV, 4096)) !== false) {
-            //echo $buffer;
-            error_log($buffer);
-        }
-        if (!feof($rawCSV)) {
-            echo "Erro: falha inexperada de fgets()\n";
-        }
-        
-        fclose($rawCSV);
-    }
-       // error_log($column1);
+<?php
 
-    
-    /* Get the content of the CSV file 
-    $fCSV = $filePath . "/" . $token . ".txt";
-    if (file_exists($fCSV)) {
-        $fcnt = fopen($fCSV, "r");
-        $fsize = filesize($fCSV);
-        $csvresults = fread($fcnt, $fsize);
-        fclose($fcnt);
-        header("Content-Transfer-Encoding: UTF-8");
-        header("Cache-Control: public");
-        header("Pragma: no-cache");
-        header("Expires: 0");
-        header("Content-Type: text/plain");
-        header("Location: turma_cadastro.php");
-    } */
+require 'database/db.php';
+
+$erros=array();
+$registroExistente = false;
+$nome_turma=$_POST['nome_turma'];
+$id_professor_regente=$_POST['professor_regente'];
+
+$db00 = new db();
+try {
+    $materias = $db00->query("SELECT ID FROM MATERIA ORDER BY ID")->fetchAll();
+} finally {
+    $db00->close();
+}
+
+$materiaProfessorArray = array();
+foreach ($materias as $materia){
+    $materiaId = $materia['ID'];
+    $nomeOption = "professor_disciplina_" . $materiaId;
+    if (isset($_POST[$materiaId]) and isset($_POST[$nomeOption])){
+        $idProfessorSelecionado = $_POST[$nomeOption];
+        $materiaProfessorArray[$materiaId] = $idProfessorSelecionado;
+    }
+}
+
+
+
+if (isset($nome_turma)){
+    $db = new db();
+    try {
+        $result = $db->query("SELECT ID FROM TURMA WHERE NOME_TURMA = ?",$nome_turma)->numRows();
+        if ($result == 1) {
+            array_push($erros, "O nome de turma <b>" . $nome_turma . "</b> já existe!");
+            $registroExistente = true;
+        }
+    } finally {
+        $db->close();
+    }
+} else {
+    array_push($erros, "Nome da turma não foi preenchido!");
+}
+
+if (!$registroExistente){
+    $csv_mimetypes = array('text/csv', 'text/plain', 'application/csv', 'text/comma-separated-values', 'application/excel', 'application/vnd.ms-excel', 'application/vnd.msexcel', 'text/anytext', 'application/octet-stream', 'application/txt');
+    if (in_array($_FILES['csvfile']['type'], $csv_mimetypes)) {
+        $filePath = "C:\Users\spies\Documents\arquivos_CSV";
+        $token = date("YmdHis");
+        $rawCSV = file_get_contents($_FILES['csvfile']['tmp_name']);
+        $fileCSV = fopen($filePath . "/" . $token . ".csv", "w");
+        fwrite($fileCSV, $rawCSV);
+        fclose($fileCSV);
+        $rawCSV = fopen($filePath . "/" . $token . ".csv", "r");
+        $alunosCadastroExcel = array();
+        $alunosCadastradosNoBanco = array();
+        if ($rawCSV) {
+            while (($buffer = fgetcsv($rawCSV, 4096,";")) !== false) {
+                $valorPrimeiraColuna = $buffer[0];
+                if (strtoupper(trim($valorPrimeiraColuna)) != "ALUNO"){
+                    array_push($alunosCadastroExcel,$valorPrimeiraColuna);
+                }
+            }
+            if (!feof($rawCSV)) {
+                echo "Erro: falha inexperada de fgets()\n";
+            }
+            fclose($rawCSV);
+        }
+        $informacaoListaDeclarada = false;
+        
+        for ($i = 0; $i < sizeof($alunosCadastroExcel); $i++) {
+            $alunoCadastro = $alunosCadastroExcel[$i];
+            if (alunoCadastrado($alunoCadastro)){
+                array_push($alunosCadastradosNoBanco, $alunoCadastro);
+            } else {
+                if (!$informacaoListaDeclarada){
+                    array_push($erros, "Os seguintes IDs de alunos não estão cadastrados no sistema:<br>");
+                    array_push($erros, $alunoCadastro . ", ");
+                    $informacaoListaDeclarada = true;
+                } else {
+                    array_push($erros, $alunoCadastro . ", ");
+                }
+            }
+        }
+            
+        
+        try{
+            $db2 = new db();
+            $db3 = new db();
+            $db4 = new db();
+            
+            if (sizeof($alunosCadastradosNoBanco) > 0){
+                $result = $db2->query("INSERT INTO TURMA (ID_PESSOA_PROFESSOR_REGENTE, NOME_TURMA)
+                                  VALUES (?,?)", $id_professor_regente, $nome_turma)->query_count;
+                if ($result == 1) {
+                    $selectId = $db2->query("SELECT t.ID FROM TURMA t WHERE t.NOME_TURMA = ?", $nome_turma);
+                    $contador = $selectId->numRows();
+                    $resultadoSelect = $selectId->fetchAll();
+                    if ($contador > 0) {
+                        $id_turma = $resultadoSelect[0]['ID'];
+                        foreach ($alunosCadastradosNoBanco as $alunosValidadosNoBanco){
+                            $db3->query("INSERT INTO TURMA_PESSOA (ID_TURMA, ID_PESSOA)
+                                  VALUES (?,?)", $id_turma, $alunosValidadosNoBanco);
+                        }
+                        foreach ($materiaProfessorArray as $key => $value) {
+                            $db4->query("INSERT INTO TURMA_MATERIA (ID_TURMA, ID_MATERIA, ID_PROFESSOR)
+                                  VALUES (?,?,?)", $id_turma, $key, $value);
+                        }
+                    }
+                }
+            }
+        } finally {
+            $db2->close();
+            $db3->close();
+            $db4->close();
+        }
+    }
+}
+
+session_start();
+if (!empty($erros)){
+    $_SESSION['errosCadastroTurma'] = $erros;
+} else {
+    $_SESSION['sucessoCadastroTurma'] = true;
+}
+header("Location: turma_cadastro.php");
+
+function alunoCadastrado($idAluno){
+    $db = new db();
+    try {
+        $result = $db->query("SELECT p.ID FROM PESSOA p WHERE p.ID = ?",$idAluno)->numRows();
+        if ($result == 1) {
+            return true;
+        }
+    } finally {
+        $db->close();
+    }
+    return false;
 }
 ?>

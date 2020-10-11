@@ -34,7 +34,7 @@ class relatorio_alunos {
             
             $aluno_id_count = 1;
             for($i = 0; $i < sizeof($alunosResult); $i++){
-                $sheet->setCellValue('A'.($i + 2), $aluno_id_count);
+                $sheet->setCellValue('A'.($i + 2), $alunosResult[$i]["ID"]);
                 $sheet->setCellValue('B'.($i + 2), $alunosResult[$i]["NOME"]);
                 $sheet->setCellValue('C'.($i + 2), $alunosResult[$i]["SOBRENOME"]);
                 $sheet->setCellValue('D'.($i + 2), $alunosResult[$i]["EMAIL"]);
