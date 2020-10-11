@@ -21,12 +21,19 @@ $showSuccessMessage = false;
 $db0 = new db();
 $db1 = new db();
 
-$sqlTurmas = "SELECT tu.NOME_TURMA, tu.ID FROM TURMA tu ";
-$tipoPessoaIdentificador = $pessoa->tipo_pessoa;
-if ($tipoPessoaIdentificador == 2){
-    $sqlTurmas .= " LEFT JOIN gestaose.PESSOA pe ON (pe.ID = tu.ID_PESSOA) where pe.ID = " . $pessoa->id;
+$tipoPessoaId = $pessoa->tipo_pessoa;
+$sqlTurmas = "";
+if ($tipoPessoaId == 2 ){
+    $sqlTurmas = "SELECT ID, NOME_TURMA FROM TURMA ORDER BY NOME_TURMA";
+    
+} else {
+    $sqlTurmas = "SELECT t.ID, t.NOME_TURMA FROM PESSOA p JOIN TURMA_MATERIA tm ON (tm.ID_PROFESSOR = p.ID)
+    JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and (tp.NOME = 'Professor(a)' OR tp.NOME = 'Diretor(a)'))
+    JOIN TURMA t ON (t.ID = tm.ID_TURMA) ";
+    $sqlTurmas .= " where p.ID = " . $pessoa->id;
+    $sqlTurmas .= " ORDER BY t.NOME_TURMA";
 }
-$sqlTurmas .= " ORDER BY tu.NOME_TURMA";
+
 error_log($sqlTurmas);
 
 $db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
@@ -349,7 +356,7 @@ if (isset($_POST['turma']) and
 					</button>
 				</div>
 				<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja
-					pornto para encerrar a seção atual.</div>
+					pronto para encerrar a seção atual.</div>
 				<div class="modal-footer">
 					<button class="btn btn-secondary" type="button"
 						data-dismiss="modal">Cancelar</button>

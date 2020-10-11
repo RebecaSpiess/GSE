@@ -311,17 +311,20 @@ function listar_professores($id){
 										<label for="exampleInputLastName">Professor regente*</label>
 											<input type="hidden" name="professor_responsavel" id="professorResp" value="false" >
 								<br>
-          								<table cellpadding="3">	
-                            		<?php
-                                        $professor_db_fetch = $professor_db->fetchAll();
-                                        echo "<select name=\"professor_regente\">";
-                                        foreach ($professor_db_fetch as $single_row0){
-                                            echo "<option value=\"" . $single_row0['ID'] . "\"\>" . $single_row0['NOME'] . " " . $single_row0['SOBRENOME'] 
-                                            . " (" . $single_row0['EMAIL'] . ")" . "</option>";
-                                        }
-                                        echo "</select>";
-                                    ?>
-										</table>
+          								
+										
+										<select
+									class="form-control" id="professorResp"
+									aria-describedby="nameHelp" name="professor_responsavel">
+											<?php
+											$professor_db_fetch = $professor_db->fetchAll();
+											 foreach ($professor_db_fetch as $single_row0) {
+											    echo "<option value=\"" . $single_row0['ID'] . "\"\>" . $single_row0['NOME'] . " " . $single_row0['SOBRENOME']
+											    . " (" . $single_row0['EMAIL'] . ")" . "</option>";
+                                                }
+                                            ?>
+
+										</select>
 								</div>
 								<br>
 								<div class="col-md-6" style="padding-left: 0px;padding-right: 0px;width:100%; max-width: 100%;">
@@ -342,10 +345,6 @@ function listar_professores($id){
 										</table>
 								</div>
 								<br>		
-										
-										
-										
-
 										<div class="form-group">
 											<label for="exampleInputEmail1">Alunos</label><br>
 											<div id="arquivo_csv_erro" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
@@ -390,7 +389,7 @@ function listar_professores($id){
 						</button>
 					</div>
 					<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja
-						pornto para encerrar a seção atual.</div>
+						pronto para encerrar a seção atual.</div>
 					<div class="modal-footer">
 						<button class="btn btn-secondary" type="button"
 							data-dismiss="modal">Cancelar</button>

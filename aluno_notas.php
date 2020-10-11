@@ -320,7 +320,7 @@ if (isset($_SESSION['mensagem_notas'])){
 						</button>
 					</div>
 					<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja
-						pornto para encerrar a seção atual.</div>
+						pronto para encerrar a seção atual.</div>
 					<div class="modal-footer">
 						<button class="btn btn-secondary" type="button"
 							data-dismiss="modal">Cancelar</button>
