@@ -26,17 +26,9 @@ ControleAcesso::validar($papeisPermitidos);
 
 $pessoa = unserialize($_SESSION['loggedGSEUser']);
 
-$db = new db();
-$db1 = new db();
-$db2 = new db();
-$db3 = new db();
-
-$servidores_db = $db->query("SELECT p.ID, p.NOME, p.EMAIL, tp.NOME as PROFISSAO FROM PESSOA p JOIN TIPO_PESSOA tp ON
- (p.TIPO_PESSOA = tp.ID) ORDER BY p.nome, p.sobrenome");
 
 $id = $pessoa->id;
-$mensagens_recebidas = $db1->query("SELECT m.AVISO, DATE_FORMAT(m.DATA_HORA_AVISO, '%d/%m/%Y %H:%i:%s') as DATA_HORA_AVISO , p.NOME, 
-p.SOBRENOME, p.EMAIL FROM MENSAGEM m JOIN PESSOA p ON (m.REMETENTE = p.ID) WHERE m.DESTINATARIO = ? ORDER BY m.DATA_HORA_AVISO DESC", $id)->fetchAll();
+
 
 if (isset($_POST['servidor']) and
     isset($_POST['aviso'])){
@@ -46,8 +38,36 @@ if (isset($_POST['servidor']) and
          
         if (!empty(trim($servidor)) and
             !empty(trim($aviso))){
-                $destinatario_db =  $db3->query("SELECT * FROM PESSOA WHERE ID = '" . $servidor . "'")->fetchAll();
                 
+                $sqlEmail = "";
+                if ($servidor=="todosResponsaveis"){
+                    $servidor = "Todos os responsáveis";
+                    $sqlEmail = "SELECT resp.EMAIL FROM PESSOA resp WHERE (resp.ID)  IN ";
+                    $sqlEmail .= "(SELECT p.RESPONSAVEL_1 FROM PESSOA p JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and tp.NOME = 'Aluno(a)') ";
+                    $sqlEmail .= " UNION ";
+                    $sqlEmail .= " SELECT p.RESPONSAVEL_2 FROM PESSOA p JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and tp.NOME = 'Aluno(a)'))";
+                } else if ($servidor=="todosProfessores"){
+                    $sqlEmail = "SELECT EMAIL FROM PESSOA p JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and tp.NOME = 'Professor(a)')";
+                    $servidor = "Todos os professores";
+                } else {
+                    $sqlEmail = "SELECT resp.EMAIL FROM PESSOA resp WHERE (resp.ID)  IN ";
+                    $sqlEmail .= " (SELECT p.RESPONSAVEL_1 FROM PESSOA p JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and tp.NOME = 'Aluno(a)') ";
+                    $sqlEmail .= " JOIN TURMA_PESSOA turmaPessoa ON (turmaPessoa.ID_TURMA = '$servidor' and turmaPessoa.ID_PESSOA = p.ID) ";
+                    $sqlEmail .= " UNION ";
+                    $sqlEmail .= " SELECT p.RESPONSAVEL_2 FROM PESSOA p JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and tp.NOME = 'Aluno(a)') ";
+                    $sqlEmail .= " JOIN TURMA_PESSOA turmaPessoa ON (turmaPessoa.ID_TURMA = '$servidor' and turmaPessoa.ID_PESSOA = p.ID)) ";
+                    
+                    $db4 = new db();
+                    try {
+                        $nome_turma_db =  $db4->query("SELECT NOME_TURMA FROM TURMA WHERE ID = '" . $servidor . "'")->fetchAll();
+                        $servidor = "Todos os responsáveis da turma: " . $nome_turma_db[0]['NOME_TURMA'];
+                    } finally {
+                        $db4->close();
+                    }
+                    
+                }
+                $db2 = new db();
+                $db3 = new db();
                 try {
                     $result = $db2->query("INSERT INTO MENSAGEM (REMETENTE, DESTINATARIO, AVISO)
                           VALUES (?,?,?) "
@@ -55,50 +75,68 @@ if (isset($_POST['servidor']) and
                         , $servidor
                         , substr($aviso,0,249)
                         )->query_count;
+                    
                         if ($result == 1){
-                            //Server settings
-                            #$mail->SMTPDebug = SMTP::                      // Enable verbose debug output
-                            $mail->isSMTP();                                            // Send using SMTP
-                            $mail->Host       = 'email-ssl.com.br';                    // Set the SMTP server to send through
-                            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-                            
-                            $mail->Username   = 'comunicados@gestaosocioeducacional.com.br'; // SMTP username
-                            $mail->Password   = 'Comunicados#2020';                               // SMTP password
-                            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
-                            $mail->Port       = 587;
-                            
-                            //Recipients
-                            $mail->setFrom('comunicados@gestaosocioeducacional.com.br', 'GSE - ' . $pessoa->nome . ' ' . $pessoa->sobrenome);
-                            $mail->addReplyTo($pessoa->email);
-                            $mail->addAddress($destinatario_db[0]['EMAIL']); 
-                            $mail->CharSet='UTF-8';
-                            // Content
-                            $mail->isHTML(true);                                  // Set email format to HTML
-                            $mail->Subject = 'GSE - Aviso';
-                            $mail->Body    = '<div style="color: #363534; font-family: Calibri, Candara;font-size: 12pt;"> Olá, <br/><br/> você recebeu a seguinte mensagem de <a href="mailto:' 
-                                . $pessoa->email . '">' . $pessoa->nome . ' '
-                                . $pessoa->sobrenome  . '</a>: <br/> <br/>' . $aviso . 
-                            '<br/><br/>Atenciosamente,<br/>GSE - Gestão Sócio Educacional.</div><span style="font-family: Calibri, Candara;font-size:10pt">http://gestaosocioeducacional.com.br</span>';
-                            $mail->send();
+                            $destinatario_db =  $db3->query($sqlEmail)->fetchAll();
+                            foreach ($destinatario_db as $destinatario_db_registro){
+                                try {
+                                    //Server settings
+                                    #$mail->SMTPDebug = SMTP::                      // Enable verbose debug output
+                                    $mail->isSMTP();                                            // Send using SMTP
+                                    $mail->Host       = 'email-ssl.com.br';                    // Set the SMTP server to send through
+                                    $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+                                    
+                                    $mail->Username   = 'comunicados@gestaosocioeducacional.com.br'; // SMTP username
+                                    $mail->Password   = 'Comunicados#20201';                               // SMTP password
+                                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
+                                    $mail->Port       = 587;
+                                    
+                                    //Recipients
+                                    $mail->setFrom('comunicados@gestaosocioeducacional.com.br', 'GSE - ' . $pessoa->nome . ' ' . $pessoa->sobrenome);
+                                    $mail->addReplyTo($pessoa->email);
+                                    
+                                    $mail->addAddress($destinatario_db_registro['EMAIL']); 
+                                    $mail->CharSet='UTF-8';
+                                    // Content
+                                    $mail->isHTML(true);                                  // Set email format to HTML
+                                    $mail->Subject = 'GSE - Aviso';
+                                    $mail->Body    = '<div style="color: #363534; font-family: Calibri, Candara;font-size: 12pt;"> Olá, <br/><br/> você recebeu a seguinte mensagem de <a href="mailto:' 
+                                        . $pessoa->email . '">' . $pessoa->nome . ' '
+                                        . $pessoa->sobrenome  . '</a>: <br/> <br/>' . $aviso . 
+                                    '<br/><br/>Atenciosamente,<br/>GSE - Gestão Sócio Educacional.</div><span style="font-family: Calibri, Candara;font-size:10pt">http://gestaosocioeducacional.com.br</span>';
+                                     
+                                } catch (Exception $ex){
+                                    $error_code = $ex->getMessage();
+                                    echo $error_code;
+                                    error_log($ex);
+                                }
+                            }
                         }
                 } catch (Exception $ex){
                     $error_code = $ex->getMessage();
                     echo $error_code;
+                } finally {
+                    $db2->close();
+                    $db3->close();
                 }
         }
 }
-
+$db1 = new db();
 $msg = null;
 $msg_temp = null;
-foreach ($mensagens_recebidas as $single_row0) {
-    $horarioRecebimento = $single_row0['DATA_HORA_AVISO'];
-    $avisoRecebimento = $single_row0['AVISO'];
-    $nomeRecebimento = $single_row0['NOME'] . ' ' . $single_row0['SOBRENOME'];
-    $email = $single_row0['EMAIL'];
-    $msg_temp = $horarioRecebimento . '&#13;&#10;'. $nomeRecebimento . ' (' . $email . '): ' . $avisoRecebimento . '&#13;&#10;&#13;&#10;';
-    $msg .= trim($msg_temp);
+try {
+    $mensagens_recebidas = $db1->query("SELECT m.AVISO, DATE_FORMAT(m.DATA_HORA_AVISO, '%d/%m/%Y %H:%i:%s') as DATA_HORA_AVISO , p.NOME, p.SOBRENOME, p.EMAIL FROM MENSAGEM m JOIN PESSOA p ON (m.REMETENTE = p.ID) WHERE (m.DESTINATARIO = 'Todos os professores' OR m.REMETENTE=?) ORDER BY m.DATA_HORA_AVISO DESC", $id)->fetchAll();
+    foreach ($mensagens_recebidas as $single_row0) {
+        $horarioRecebimento = $single_row0['DATA_HORA_AVISO'];
+        $avisoRecebimento = $single_row0['AVISO'];
+        $nomeRecebimento = $single_row0['NOME'] . ' ' . $single_row0['SOBRENOME'];
+        $email = $single_row0['EMAIL'];
+        $msg_temp = $horarioRecebimento . '&#13;&#10;'. $nomeRecebimento . ' (' . $email . '): ' . $avisoRecebimento . '&#13;&#10;&#13;&#10;';
+        $msg .= trim($msg_temp);
+    }
+} finally {
+    $db1->close(); 
 }
-
 
 
 ?>
@@ -315,15 +353,28 @@ foreach ($mensagens_recebidas as $single_row0) {
 				<div class="card-body" style="margin-left: -5px; width: 100%">
 					<label for="exampleInputName" style="margin-left: 16px;">Destinatário*</label>
 				<select class="form-control" id="servidor" name="servidor" required style="marging: 50px">
-					<div id="servidor" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
-          </div>
-																							<?php
-        $servidores_db_fetch = $servidores_db->fetchAll();
-        foreach ($servidores_db_fetch as $single_row0) {
-            echo "<option value=\"" . $single_row0['ID'] . "\">" . $single_row0['NOME'] . " (" . $single_row0['EMAIL'] . ") - " . $single_row0['PROFISSAO'] . "</option>";
-        } 
+				<optgroup label="Responsáveis">
+					<option value="todosResponsaveis">Todos responsáveis</option>
+				</optgroup>
+				<optgroup label="Servidores">
+					<option value="todosProfessores">Todos professores</option>
+				</optgroup>
+				<optgroup label="Turmas">
+					<?php
+					try {
+					    $db = new db();
+					    $turmas_db = $db->query("SELECT ID, NOME_TURMA FROM gestaose.TURMA ORDER BY NOME_TURMA");
+					 
+                        $turmas_db_fetch = $turmas_db->fetchAll();
+                        foreach ($turmas_db_fetch as $single_row0) {
+                            echo "<option value=\"" . $single_row0['ID'] . "\">" . $single_row0['NOME_TURMA'] . "</option>";
+                        } 
+                    } finally {
+                        $db->close();
+                    }
         ?>
-										</select> <br>
+				</optgroup>
+										</select>  </div> <div id="servidor" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div><br>
 					<textarea class="form-control" id="aviso" rows="3"
 						name="aviso" placeholder="descreva o aviso" maxlength="250"> </textarea>
 				</div>
@@ -334,7 +385,7 @@ foreach ($mensagens_recebidas as $single_row0) {
 				<div class="card mb-3"
 					style="width: 100%; margin-left: 17px; margin-right: 17px">
 					<div class="card-header">
-						Avisos recebidos
+						Avisos enviados
 					</div>
 					<div class="card-body">
 					<textarea class="form-control" id="mensagensRecebidas" rows="3" style="text-align: left;" disabled>	<?php echo $msg;?></textarea>
@@ -395,11 +446,3 @@ foreach ($mensagens_recebidas as $single_row0) {
 </body>
 
 </html>
-
-<?php 
-$db->close();
-$db1->close();
-$db2->close();
-$db3->close();
-
-?>

@@ -111,21 +111,27 @@ if (
             $responsavel1Cadastro->responsavel2 = null;
             
             $responsavel2Cadastro = new Pessoa();
-            $responsavel2Cadastro->nome = $nomeResp2;
-            $responsavel2Cadastro->sobrenome = $sobrenomeResp2;
-            $responsavel2Cadastro->data_nascimento = $dataNascimentoResp2;
-            $responsavel2Cadastro->cpf = $cpfResp2;
-            $responsavel2Cadastro->telefone = $telefoneResp2;
-            $responsavel2Cadastro->sexo = intval($sexoResp2);
-            $responsavel2Cadastro->senha = $enc_senha;
-            $responsavel2Cadastro->email = $emailResp2; 
-            $responsavel2Cadastro->tipo_pessoa = TipoPessoaCons::RESPONSAVEL;
-            $responsavel2Cadastro->responsavel1 = null;
-            $responsavel2Cadastro->responsavel2 = null;
+            if (isset($emailResp2) and !empty($emailResp2)){
+                
+                $responsavel2Cadastro->nome = $nomeResp2;
+                $responsavel2Cadastro->sobrenome = $sobrenomeResp2;
+                $responsavel2Cadastro->data_nascimento = $dataNascimentoResp2;
+                $responsavel2Cadastro->cpf = $cpfResp2;
+                $responsavel2Cadastro->telefone = $telefoneResp2;
+                $responsavel2Cadastro->sexo = intval($sexoResp2);
+                $responsavel2Cadastro->senha = $enc_senha;
+                $responsavel2Cadastro->email = $emailResp2;
+                $responsavel2Cadastro->tipo_pessoa = TipoPessoaCons::RESPONSAVEL;
+                $responsavel2Cadastro->responsavel1 = null;
+                $responsavel2Cadastro->responsavel2 = null;
+            }
+            
             try {
                 $pessoaDao->adicionar($responsavel1Cadastro, true);
-                           
-                $pessoaDao->adicionar($responsavel2Cadastro, true);
+                
+                if (isset($emailResp2) and !empty($emailResp2)){
+                    $pessoaDao->adicionar($responsavel2Cadastro, true);
+                }
                 
                 $alunoCadastro = new Pessoa();
                 
@@ -136,7 +142,7 @@ if (
                 $alunoCadastro->senha = $enc_senha;
                 $alunoCadastro->tipo_pessoa = TipoPessoaCons::ALUNO;
                 $alunoCadastro->responsavel1 = $responsavel1Cadastro->id;
-                if (isset($responsavel2Cadastro)){
+                if (!empty($emailResp2)){
                     $alunoCadastro->responsavel2 = $responsavel2Cadastro->id;
                 }
                 $pessoaDao->adicionar($alunoCadastro, false);

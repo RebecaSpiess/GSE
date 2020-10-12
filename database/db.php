@@ -10,7 +10,7 @@ class db {
        
         $hostname="gestaose.mysql.dbaas.com.br";
         $username="gestaose";
-        $password="Lubinho#150914";
+        $password="Teste1234";        
         $dbname="gestaose";
         $this->connection = new mysqli($hostname, $username, $password, $dbname);
         if ($this->connection->connect_error) {

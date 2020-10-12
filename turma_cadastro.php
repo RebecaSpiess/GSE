@@ -23,14 +23,14 @@ $db3 = new db();
 $db4 = new db();
 $db5 = new db();
 
-$professor_db = $db2->query("select p.ID, p.NOME, p.SOBRENOME, p.EMAIL from PESSOA p JOIN TIPO_PESSOA tp ON (tp.ID = p.ID and tp.NOME = 'Professor(a)') ORDER BY p.NOME, p.SOBRENOME");
+$professor_db = $db2->query("select p.ID, p.NOME, p.SOBRENOME, p.EMAIL from PESSOA p JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and tp.NOME = 'Professor(a)') ORDER BY p.NOME, p.SOBRENOME");
 
 $materia_db = $db1->query("SELECT ID, NOME FROM MATERIA ORDER BY NOME")->fetchAll();
 
 function listar_professores($id){
     $db6 = new db();
     try {
-        $professores = $db6->query("select p.ID, p.NOME, p.SOBRENOME, p.EMAIL from PESSOA p JOIN TIPO_PESSOA tp ON (tp.ID = p.ID and tp.NOME = 'Professor(a)') ORDER BY p.NOME, p.SOBRENOME")->fetchAll();
+        $professores = $db6->query("select p.ID, p.NOME, p.SOBRENOME, p.EMAIL from PESSOA p JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and tp.NOME = 'Professor(a)') ORDER BY p.NOME, p.SOBRENOME")->fetchAll();
         $listaProfessorCriada = "<select name=\"professor_disciplina_" . $id . "\">";
         foreach ($professores as $professor){
             $listaProfessorCriada .= "<option value=\"" . $professor['ID'] . "\"\>" . $professor['NOME'] . " " . $professor['SOBRENOME'] . " (" . $professor['EMAIL'] . ")</option>";
