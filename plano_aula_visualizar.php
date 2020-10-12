@@ -1,18 +1,76 @@
-<?php 
+<?php
 
-    require 'bo/Sessao.php';
-    require 'bo/ControleAcesso.php';
+require 'bo/Sessao.php';
+require  'bo/ControleAcesso.php';
+require 'database/db.php';
+
+use bo\Sessao;
+use bo\ControleAcesso;
+use model\Pessoa;
+Sessao::validar();
+
+$papeisPermitidos = array(2,4,1);
+ControleAcesso::validar($papeisPermitidos);
+
+$pessoa = unserialize($_SESSION['loggedGSEUser']);
+
+
+$showErrorMessage = null;
+$showSuccessMessage = false;
+
+$db0 = new db();
+$db1 = new db();
+
+$tipoPessoaId = $pessoa->tipo_pessoa;
+$sqlTurmas = "";
+if ($tipoPessoaId == 2 ){
+    $sqlTurmas = "SELECT ID, NOME_TURMA FROM TURMA ORDER BY NOME_TURMA";
     
-    use bo\Sessao;
-    use bo\ControleAcesso;
+} else {
+    $sqlTurmas = "SELECT t.ID, t.NOME_TURMA FROM PESSOA p JOIN TURMA_MATERIA tm ON (tm.ID_PROFESSOR = p.ID)
+    JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and (tp.NOME = 'Professor(a)' OR tp.NOME = 'Diretor(a)'))
+    JOIN TURMA t ON (t.ID = tm.ID_TURMA) ";
+    $sqlTurmas .= " where p.ID = " . $pessoa->id;
+    $sqlTurmas .= " ORDER BY t.NOME_TURMA";
+}
 
-    Sessao::validar();
+error_log($sqlTurmas);
+
+$db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
+
+if (isset($_POST['turma']) and
+    isset($_POST['planoAula'])){
+        $turma = $_POST['turma'];
+        $planoAula = $_POST['planoAula'];
+        
+        if (!empty(trim($turma)) and
+            !empty(trim($planoAula))){
+                try {
+                    $result = $db1->query("INSERT INTO PLANO_AULA (ID_TURMA, DESCRICAO)
+                          VALUES (?,?) "
+                        , $turma
+                        , $planoAula                        
+                        )->query_count;
+                        if ($result == 1){
+                            $showSuccessMessage = true;
+                        }
+                } catch (Exception $ex){
+                    $error_code = $ex->getMessage();
+                    if ($error_code == 1062){
+                        $showErrorMessage = "Já existe um registro com ID informado!";
+                    } else {
+                        $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
+                    }
+                }
+        }
+    }
 
 ?>
 
+
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -20,7 +78,7 @@
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Página inicial</title>
+<title>GSE - Visualizar de Plano de aula</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -31,13 +89,59 @@
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+
+
+  <script type="text/javascript">
+	function submit() {
+		document.forms[0].submit();
+	}
+  
+	function validateAndSubmitForm() {
+		var turma = document.getElementById("turma");
+		var planoAula = document.getElementById("planoAula");
+		var camposPreenchidos = true;
+		 
+		if (!isNotBlank(turma.value)){
+			camposPreenchidos = false;
+			document.getElementById("turmaErro").style.display = "block";
+		} else {	
+			document.getElementById("turmaErro").style.display = "none";
+		}
+
+		
+		if (!isNotBlank(planoAula.value)){
+			camposPreenchidos = false;
+			document.getElementById("planoAulaErro").style.display = "block";
+		} else {	
+			document.getElementById("planoAulaErro").style.display = "none";
+		}
+
+		if (camposPreenchidos){
+			submit();
+		} 		
+	}
+
+	function isNotBlank(value){
+		if (value == null){
+			return false;
+		}
+		return value.trim().length !== 0;
+	}	
+
+  </script>
+  <style type="text/css">
+    textarea:focus {
+        outline: none;
+    }
+  </style>
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
 	<!-- Navigation-->
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"
 		id="mainNav">
-		<a class="navbar-brand" href="index.php">GSE - Gestão sócio educacional</a>
+		<a class="navbar-brand" href="index.php">GSE - Gestão sócio
+			educacional</a>
 		<button class="navbar-toggler navbar-toggler-right" type="button"
 			data-toggle="collapse" data-target="#navbarResponsive"
 			aria-controls="navbarResponsive" aria-expanded="false"
@@ -115,9 +219,6 @@
 						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1))) { ?>
 						<li><a href="plano_aula_cadastro.php">Cadastro</a></li>
 						<?php } ?>
-						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1))) { ?>
-						<li><a href="plano_aula_visualizar.php">Visualizar</a></li>
-						<?php } ?>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
@@ -173,12 +274,60 @@
 		</div>
 	</nav>
 	<div class="content-wrapper">
+	<?php 
+					if (isset($showErrorMessage)){ ?>
+						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </br></br></div>
+					<?php 
+					}
+					
+					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
+					    <div style="color:green;text-align: center;">Registro criado com sucesso!</br></br></div>
+					<?php }
+					
+					?>
 		<div class="container-fluid">
-		<div style=" margin: auto; width: 50%;  padding: 10px; padding: 15% 0; height: 152px" >
-			<img src="imagens/GSE.png" height="152px" width="596px"  />
-		</div>
-		
-		
+			<!-- Breadcrumbs-->
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item">Plano de aula</li>
+				<li class="breadcrumb-item active">Visualizar</li>
+			</ol>
+			<div class="container">
+				<div>
+					<div class="card-body">
+						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
+							<div class="form-group">
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+									<label for="turma">Turma*</label> 
+									<select
+										class="form-control"
+										aria-describedby="nameHelp" placeholder="Turma" id="turma" name="turma">
+									
+									<?php
+                                            foreach ($db_turma_fetch as $single_row1) {
+                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME_TURMA'] . "</option>";
+                                            } 
+                                        ?>
+										
+									</select>
+									<div id="turmaErro"
+											style="display: none; font-size: 10pt; color: red">Campo
+											obrigatório!</div>
+								</div>
+								<br>
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+								<label for="planoAula">Plano de aula*</label> 
+									<textarea rows="10" cols="30" style="width: 100%; max-width:100%;border: 1px solid #ced4da" maxlength="250" id="planoAula" name="planoAula"></textarea>
+									<div id="planoAulaErro"
+											style="display: none; font-size: 10pt; color: red">Campo
+											obrigatório!</div>
+								</div>
+							</div>
+					
+        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>
+					</form>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 	<!-- /.container-fluid-->
@@ -206,14 +355,14 @@
 						<span aria-hidden="true">×</span>
 					</button>
 				</div>
-				<div class="modal-body">Selecione "Sair" abaixo, caso você esteja 
+				<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja
 					pronto para encerrar a seção atual.</div>
 				<div class="modal-footer">
 					<button class="btn btn-secondary" type="button"
 						data-dismiss="modal">Cancelar</button>
 					<form action="bo/Sessao.php" name="logout" method="POST">
-					    <input type="hidden" value="GSElogout" name="logout">
-						<a class="btn btn-primary" onclick="document.logout.submit()">Sair</a>
+						<input type="hidden" value="GSElogout" name="logout"> <a
+							class="btn btn-primary" onclick="document.logout.submit()">Sair</a>
 					</form>
 				</div>
 			</div>
@@ -237,3 +386,9 @@
 </body>
 
 </html>
+
+<?php 
+$db0->close();
+$db1->close();
+
+?>

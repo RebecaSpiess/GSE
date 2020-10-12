@@ -96,6 +96,7 @@ if (isset($_POST['servidor']) and
                                     $mail->addReplyTo($pessoa->email);
                                     
                                     $mail->addAddress($destinatario_db_registro['EMAIL']); 
+                                    error_log($destinatario_db_registro['EMAIL']);
                                     $mail->CharSet='UTF-8';
                                     // Content
                                     $mail->isHTML(true);                                  // Set email format to HTML
@@ -104,7 +105,7 @@ if (isset($_POST['servidor']) and
                                         . $pessoa->email . '">' . $pessoa->nome . ' '
                                         . $pessoa->sobrenome  . '</a>: <br/> <br/>' . $aviso . 
                                     '<br/><br/>Atenciosamente,<br/>GSE - Gestão Sócio Educacional.</div><span style="font-family: Calibri, Candara;font-size:10pt">http://gestaosocioeducacional.com.br</span>';
-                                     
+                                     $mail->send();
                                 } catch (Exception $ex){
                                     $error_code = $ex->getMessage();
                                     echo $error_code;
@@ -177,21 +178,22 @@ try {
 		var camposPreenchidos = true; 
 		if (!isNotBlank(servidor.value)){
 			camposPreenchidos = false;
+			document.getElementById("servidorErro").style.display = "block";
 		} else {
-			camposPreenchidos = true;
-		}	
+			document.getElementById("servidorErro").style.display = "none";
+		}
 
 		if (!isNotBlank(aviso.value)){
 			camposPreenchidos = false;
+			document.getElementById("avisoErro").style.display = "block";
 		} else {
-			camposPreenchidos = true;				
-		}	
+			document.getElementById("avisoErro").style.display = "none";
+		}
+	
 
 		if (camposPreenchidos){
 			submit();
-		} else {
-			alert('Por favor preencha todos os campos!');
-		}			
+		} 		
 	}
 
 	function isNotBlank(value){
@@ -374,13 +376,20 @@ try {
                     }
         ?>
 				</optgroup>
-										</select>  </div> <div id="servidor" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div><br>
+										</select>
+										<div id="servidorErro" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div><br>  
+				</div> 
+				<div class="card-body" style="margin-left: -5px; width: 100%">
+					<label for="exampleInputName" style="margin-left: 16px;">Mensagem*</label>
 					<textarea class="form-control" id="aviso" rows="3"
 						name="aviso" placeholder="descreva o aviso" maxlength="250"> </textarea>
+					<div id="avisoErro" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div><br>
+				</div>
 				</div>
 				<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Enviar</a>
 				</form>
 			</div>
+			<br>
 			<div class="row">
 				<div class="card mb-3"
 					style="width: 100%; margin-left: 17px; margin-right: 17px">
