@@ -144,7 +144,12 @@
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages6">
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1))) { ?>
 						<li><a href="servidores_cadastro.php">Cadastro</a></li>
+						<?php } ?>
+						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1))) { ?>
+						<li><a href="servidores_visualizar.php">Visualizar</a></li>
+						<?php } ?>
 					</ul></li>
 						<?php } ?>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"

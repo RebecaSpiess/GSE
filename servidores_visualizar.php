@@ -2,70 +2,79 @@
 require 'bo/Sessao.php';
 require 'bo/ControleAcesso.php';
 require 'database/db.php';
+require 'PessoaDao.php';
 
 use bo\Sessao;
 use bo\ControleAcesso;
 use model\Pessoa;
+
 Sessao::validar();
 
 $papeisPermitidos = array(
     2,
-    4,
-    1
+    4
 );
 ControleAcesso::validar($papeisPermitidos);
 
-$pessoa = unserialize($_SESSION['loggedGSEUser']);
+$db = new db();
+$db0 = new db();
+$db1 = new db();
+
+$pessoas_db = "select pe.ID, CONCAT(CONCAT(pe.NOME, ' '),pe.SOBRENOME) AS 'NOME', pe.EMAIL, pe.DATA_NASCIMENTO, sex.SEXO, pe.TELEFONE, pe.CPF, tp.NOME AS 'TIPO_PESSOA' from PESSOA pe 
+			JOIN TIPO_PESSOA tp ON (pe.TIPO_PESSOA = tp.ID)
+            JOIN SEXO sex ON (sex.ID = pe.TIPO_SEXO)
+            where pe.TIPO_PESSOA <> 3 and pe.TIPO_PESSOA <> 5 ORDER BY NOME";
+
+$db_servidores_fetch = $db0->query($pessoas_db)->fetchAll();
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
 
-$db0 = new db();
-$db1 = new db();
 
-$tipoPessoaId = $pessoa->tipo_pessoa;
-$sqlTurmas = "";
-if ($tipoPessoaId == 2) {
-    $sqlTurmas = "SELECT distinct pa.ID as 'PLANO_AULA_ID', t.ID, t.NOME_TURMA, CASE WHEN LENGTH(pa.DESCRICAO) >= 10 THEN CONCAT(SUBSTR(pa.DESCRICAO,1,10),'...') ELSE pa.DESCRICAO END as 'DESCRICAO', CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME) as 'AUTOR', pa.DATA_HORA_CADASTRO, mat.NOME FROM PESSOA p JOIN TURMA_MATERIA tm ON (tm.ID_PROFESSOR = p.ID)
-    JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and (tp.NOME = 'Professor(a)' OR tp.NOME = 'Diretor(a)'))
-    JOIN TURMA t ON (t.ID = tm.ID_TURMA)
-    JOIN PLANO_AULA pa ON (t.ID = pa.ID_TURMA)
-    JOIN MATERIA mat ON (tm.ID_MATERIA = mat.ID) ";
-} else {
-    $sqlTurmas = "SELECT distinct pa.ID as 'PLANO_AULA_ID', t.ID, t.NOME_TURMA, CASE WHEN LENGTH(pa.DESCRICAO) >= 10 THEN CONCAT(SUBSTR(pa.DESCRICAO,1,10),'...') ELSE pa.DESCRICAO END as 'DESCRICAO', CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME) as 'AUTOR', pa.DATA_HORA_CADASTRO, mat.NOME FROM PESSOA p JOIN TURMA_MATERIA tm ON (tm.ID_PROFESSOR = p.ID)
-    JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and (tp.NOME = 'Professor(a)' OR tp.NOME = 'Diretor(a)'))
-    JOIN TURMA t ON (t.ID = tm.ID_TURMA)
-    JOIN PLANO_AULA pa ON (t.ID = pa.ID_TURMA)
-    JOIN MATERIA mat ON (tm.ID_MATERIA = mat.ID) ";
-    $sqlTurmas .= " where p.ID = " . $pessoa->id;
-    $sqlTurmas .= " ORDER BY t.NOME_TURMA";
-}
+if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pessoa']) and isset($_POST['nome']) and isset($_POST['sobrenome']) and isset($_POST['email']) and isset($_POST['data_nascimento'])) {
+    $nome = $_POST['nome'];
+    $sobrenome = $_POST['sobrenome'];
+    $email = $_POST['email'];
+    $data_nascimento = $_POST['data_nascimento'];
+    $sexo = $_POST['sexoServidor'];
+    $tipo_pessoa = $_POST['tipo_pessoa'];
+    $cpf = $_POST['cpf'];
+    $telefone = $_POST['telefone'];
 
-$db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
-
-if (isset($_POST['turma']) and isset($_POST['planoAula'])) {
-    $turma = $_POST['turma'];
-    $planoAula = $_POST['planoAula'];
-
-    if (! empty(trim($turma)) and ! empty(trim($planoAula))) {
+    if (! empty(trim($nome)) and ! empty(trim($sobrenome)) and ! empty(trim($email))
+        and ! empty(trim($data_nascimento)) 
+        and ! empty(trim($cpf)) and ! empty(trim($telefone))) {
+        $pessoaDao = new PessoaDao();
+        $pessoa = new Pessoa();
+        $pessoa->nome = $nome;
+        $pessoa->sobrenome = $sobrenome;
+        $pessoa->email = $email;
+        $pessoa->data_nascimento = $data_nascimento;
+        $pessoa->sexo = intval($sexo);
+        $pessoa->senha = hash('sha512', 'Start1234' . 'GSE'); // Senha padrão
+        $pessoa->tipo_pessoa = intval($tipo_pessoa);
+        $pessoa->cpf = $cpf;
+        $pessoa->telefone = $telefone;
+        $pessoa->responsavel1 = null;
+        $pessoa->responsavel2 = null;
         try {
-            $result = $db1->query("INSERT INTO PLANO_AULA (ID_TURMA, DESCRICAO)
-                          VALUES (?,?) ", $turma, $planoAula)->query_count;
-            if ($result == 1) {
+            $resultado = $pessoaDao->adicionarServidor($pessoa);
+            if ($resultado) {
                 $showSuccessMessage = true;
             }
         } catch (Exception $ex) {
+            error_log($ex);
             $error_code = $ex->getMessage();
             if ($error_code == 1062) {
-                $showErrorMessage = "Já existe um registro com ID informado!";
+                $showErrorMessage = "Já existe um registro com o e-mail informado!";
             } else {
                 $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
             }
         }
     }
 }
-
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -75,7 +84,7 @@ if (isset($_POST['turma']) and isset($_POST['planoAula'])) {
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Visualizar de Plano de aula</title>
+<title>GSE - Visualizar servidor</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -84,32 +93,33 @@ if (isset($_POST['turma']) and isset($_POST['planoAula'])) {
 <!-- Page level plugin CSS-->
 <link href="vendor/datatables/dataTables.bootstrap4.css"
 	rel="stylesheet">
-<!-- Custom styles for this template 
-<link rel="stylesheet" href="./styles-sortable.css"> -->
+<!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
 <script src="vendor/jquery/jquery.min.js"></script>
 
 
 <script type="text/javascript">
 
-function abrirDetalhe(turmaId, planoAulaId){
-	document.forms[0].turmaId.value = turmaId;
-	document.forms[0].planoAulaId.value = planoAulaId;
+
+function abrirDetalhe(pessoaID){
+	document.forms[0].pessoaID.value = pessoaID;
 	document.forms[0].submit();
 }
 
 var data = [
 	<?php
-foreach ($db_turma_fetch as $single_row1) {
-    $data = "\t{\n";
-    $data .= "\t\tdetail: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\"><center>&#9998;</center></a>',\n";
-    $data .= "\t\tformTurma: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['NOME_TURMA'] . "</a>',\n";
-    $data .= "\t\tdescricacao: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['DESCRICAO'] . "</a>',\n";
-    $data .= "\t\tmateria: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['NOME'] . "</a>',\n";
-    $data .= "\t\tdataInsercao: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['DATA_HORA_CADASTRO'] . "</a>',\n";
-    $data .= "\t\tautor: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['AUTOR'] . "</a>',\n";
-    $data .= "\t},\n";
-    echo $data;
+	foreach ($db_servidores_fetch as $single_row1) {
+        $data = "\t{\n";
+        $data .= "\t\tdetail: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\"><center>&#9998;</center></a>',\n";
+        $data .= "\t\tnome: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME'] . "</a>',\n";
+        $data .= "\t\temail: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['EMAIL'] . "</a>',\n";
+        $data .= "\t\tdataNascimento: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DATA_NASCIMENTO'] . "</a>',\n";
+        $data .= "\t\tsexo: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['SEXO'] . "</a>',\n";
+        $data .= "\t\ttelefone: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TELEFONE'] . "</a>',\n";
+        $data .= "\t\tcpf: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['CPF'] . "</a>',\n";
+        $data .= "\t\ttipoPessoa: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TIPO_PESSOA'] . "</a>',\n";
+        $data .= "\t},\n";
+        echo $data;
 }
 ?>    
 ]
@@ -118,24 +128,27 @@ foreach ($db_turma_fetch as $single_row1) {
 
 var columns = {
 	detail: '<center>Alterar</center>',
-    formTurma: 'Turma',
-    descricacao: 'Descrição',
-    materia: 'Matéria',
-    dataInsercao: 'Data de inserção',
-    autor: 'Autor',
+    nome: 'Nome',
+    email: 'E-Mail',
+    dataNascimento: 'Data de nascimento',
+    sexo: 'Sexo',
+    telefone: 'Telefone',
+    cpf: 'CPF',
+    tipoPessoa: 'Cargo'
 }
 
 	function submit() {
 		document.forms[0].submit();
 	}
 
-    function atualizarPagina(){
-    	document.forms[0].action = window.location.href;
-    	return false;
-    }	
+	function atualizarPagina(){
+		document.forms[0].action = window.location.href;
+		return false;
+	}
+	
+  </script>
   
- </script>
-<style type="text/css">
+ <style type="text/css">
 
 .active_pagina_atual {
     background-color: #e9ecef;
@@ -155,7 +168,8 @@ var columns = {
 textarea:focus {
 	outline: none;
 }
-</style>
+</style> 
+  
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -297,35 +311,31 @@ textarea:focus {
 	</nav>
 	<div class="content-wrapper">
 	<?php
-if (isset($showErrorMessage)) {
-    ?>
-						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </br>
-			</br>
-		</div>
+    if (isset($showErrorMessage)) {
+        ?>
+						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </br></br></div>
 					<?php
-}
+    }
 
-if ($showSuccessMessage and ! isset($showErrorMessage)) {
-    ?>
-					    <div style="color: green; text-align: center;">
-			Registro criado com sucesso!</br> </br>
-		</div>
+    if ($showSuccessMessage and ! isset($showErrorMessage)) {
+        ?>
+					    <div style="color: green; text-align: center;">Registro criado
+					com sucesso!</br></br></div>
 					<?php
-}
+    }
 
-?>
+    ?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
-				<li class="breadcrumb-item">Plano de aula</li>
+				<li class="breadcrumb-item">Servidores</li>
 				<li class="breadcrumb-item active">Visualizar</li>
 			</ol>
 			<div class="container">
 				<div>
-					<div class="card-body" style="padding: 0px;">
-						<form method="post" action="plano_aula_alteracao.php">
-							<input type="hidden" id="planoAulaId" name="planoAulaId" />
-							<input type="hidden" id="turmaId" name="turmaId" />
+					<div class="card-body">
+						<form method="post" action="servidores_alterar.php">
+							<input type="hidden" id="pessoaID" name="pessoaID" />
 							<div class="page-container" style="padding: 0px;">
 								<div class="container">
 									<div class="row mt-5 mb-3 align-items-center">
@@ -333,8 +343,7 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
 											<!--<button class="btn btn-primary btn-sm" id="rerender">Re-Render</button> 
                                             <button class="btn btn-primary btn-sm" id="distory">Distory</button> -->
 											<button class="btn btn-primary btn-sm" id="refresh"
-												style="background: #e9ecef; border-color: #ced4da; color: #212529;"
-												onclick="atualizarPagina()">Atualizar</button>
+												style="background: #e9ecef; border-color: #ced4da; color: #212529;" onclick="atualizarPagina();">Atualizar</button>
 										</div>
 										<div class="col-md-3">
 											<input type="text" class="form-control"
@@ -357,8 +366,9 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
 									</div>
 									<div id="root"></div>
 								</div>
-							</div>							
-							<script src="./table-sortable.js"></script>
+							</div>	
+							
+						<script src="./table-sortable.js"></script>
 							<script>
         var table = $('#root').tableSortable({
             data,
@@ -409,11 +419,9 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
             table.setPage(1);
         })
     </script>
-
-						</form>
-					</div>
+    </form>
+					
 				</div>
-			</div>
 		</div>
 	</div>
 	<!-- /.container-fluid-->
@@ -455,7 +463,6 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
 		</div>
 	</div>
 	<!-- Bootstrap core JavaScript-->
-
 	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 	<!-- Core plugin JavaScript-->
 	<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
@@ -474,7 +481,7 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
 </html>
 
 <?php
+$db->close();
 $db0->close();
 $db1->close();
-
 ?>
