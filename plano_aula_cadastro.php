@@ -46,10 +46,11 @@ if (isset($_POST['turma']) and
         if (!empty(trim($turma)) and
             !empty(trim($planoAula))){
                 try {
-                    $result = $db1->query("INSERT INTO PLANO_AULA (ID_TURMA, DESCRICAO)
-                          VALUES (?,?) "
+                    $result = $db1->query("INSERT INTO PLANO_AULA (ID_TURMA, DESCRICAO, ID_AUTOR)
+                          VALUES (?,?, ?) "
                         , $turma
-                        , $planoAula                        
+                        , $planoAula 
+                        , $pessoa->id
                         )->query_count;
                         if ($result == 1){
                             $showSuccessMessage = true;

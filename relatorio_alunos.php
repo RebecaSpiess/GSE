@@ -58,7 +58,7 @@ class relatorio_alunos {
             $id = 1;
             for($i = 0; $i < sizeof($alunosResult); $i++){
                 $columnNotas = 1;
-                $sheet_novo = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet,'Aluno ' . $id);
+                $sheet_novo = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet,'Aluno ' . $alunosResult[$i]['ID']);
                 $spreadsheet->addSheet($sheet_novo, $i + 1);
                 $spreadsheet->setActiveSheetIndex($id);
                 $alunoId = $alunosResult[$i]['ID'];

@@ -22,35 +22,21 @@ $showSuccessMessage = false;
 
 $db0 = new db();
 $db1 = new db();
+$db2 = new db();
 
-$tipoPessoaId = $pessoa->tipo_pessoa;
-$sqlTurmas = "";
-if ($tipoPessoaId == 2) {
-    $sqlTurmas = "SELECT distinct pa.ID as 'PLANO_AULA_ID', t.ID, t.NOME_TURMA, CASE WHEN LENGTH(pa.DESCRICAO) >= 10 THEN CONCAT(SUBSTR(pa.DESCRICAO,1,10),'...') ELSE pa.DESCRICAO END as 'DESCRICAO', CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME) as 'AUTOR', pa.DATA_HORA_CADASTRO, mat.NOME FROM PESSOA p JOIN TURMA_MATERIA tm ON (tm.ID_PROFESSOR = p.ID)
-    JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and (tp.NOME = 'Professor(a)' OR tp.NOME = 'Diretor(a)'))
-    JOIN TURMA t ON (t.ID = tm.ID_TURMA)
-    JOIN PLANO_AULA pa ON (t.ID = pa.ID_TURMA)
-    JOIN MATERIA mat ON (tm.ID_MATERIA = mat.ID) ";
-} else {
-    $sqlTurmas = "SELECT distinct pa.ID as 'PLANO_AULA_ID', t.ID, t.NOME_TURMA, CASE WHEN LENGTH(pa.DESCRICAO) >= 10 THEN CONCAT(SUBSTR(pa.DESCRICAO,1,10),'...') ELSE pa.DESCRICAO END as 'DESCRICAO', CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME) as 'AUTOR', pa.DATA_HORA_CADASTRO, mat.NOME FROM PESSOA p JOIN TURMA_MATERIA tm ON (tm.ID_PROFESSOR = p.ID)
-    JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and (tp.NOME = 'Professor(a)' OR tp.NOME = 'Diretor(a)'))
-    JOIN TURMA t ON (t.ID = tm.ID_TURMA)
-    JOIN PLANO_AULA pa ON (t.ID = pa.ID_TURMA)
-    JOIN MATERIA mat ON (tm.ID_MATERIA = mat.ID) ";
-    $sqlTurmas .= " where p.ID = " . $pessoa->id;
-    $sqlTurmas .= " ORDER BY t.NOME_TURMA";
-}
+$turmaId = $_POST['turmaId'];
+$sqlTurmas = "SELECT NOME_TURMA FROM TURMA WHERE ID = ?";
+$db_turma_fetch = $db0->query($sqlTurmas, $turmaId)->fetchAll();
 
-$db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
+$planoAulaId = $_POST['planoAulaId'];
 
-if (isset($_POST['turma']) and isset($_POST['planoAula'])) {
-    $turma = $_POST['turma'];
+if (isset($_POST['planoAula'])) {
     $planoAula = $_POST['planoAula'];
 
-    if (! empty(trim($turma)) and ! empty(trim($planoAula))) {
+    if (! empty(trim($planoAula))) {
+        $planoAula = substr($planoAula, 0, 10000);
         try {
-            $result = $db1->query("INSERT INTO PLANO_AULA (ID_TURMA, DESCRICAO)
-                          VALUES (?,?) ", $turma, $planoAula)->query_count;
+            $result = $db1->query("UPDATE PLANO_AULA SET DESCRICAO = ? WHERE ID=? AND ID_TURMA = ?", $planoAula, $planoAulaId, $turmaId)->query_count;
             if ($result == 1) {
                 $showSuccessMessage = true;
             }
@@ -66,6 +52,9 @@ if (isset($_POST['turma']) and isset($_POST['planoAula'])) {
 }
 
 ?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -75,7 +64,7 @@ if (isset($_POST['turma']) and isset($_POST['planoAula'])) {
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Visualizar de Plano de aula</title>
+<title>GSE - Cadastro de Plano de aula</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -84,69 +73,41 @@ if (isset($_POST['turma']) and isset($_POST['planoAula'])) {
 <!-- Page level plugin CSS-->
 <link href="vendor/datatables/dataTables.bootstrap4.css"
 	rel="stylesheet">
-<!-- Custom styles for this template 
-<link rel="stylesheet" href="./styles-sortable.css"> -->
+<!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
-<script src="vendor/jquery/jquery.min.js"></script>
 
 
 <script type="text/javascript">
-
-function abrirDetalhe(turmaId, planoAulaId){
-	document.forms[0].turmaId.value = turmaId;
-	document.forms[0].planoAulaId.value = planoAulaId;
-	document.forms[0].submit();
-}
-
-var data = [
-	<?php
-foreach ($db_turma_fetch as $single_row1) {
-    $data = "\t{\n";
-    $data .= "\t\tdetail: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\"><center>&#9998;</center></a>',\n";
-    $data .= "\t\tformTurma: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['NOME_TURMA'] . "</a>',\n";
-    $data .= "\t\tdescricacao: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['DESCRICAO'] . "</a>',\n";
-    $data .= "\t\tmateria: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['NOME'] . "</a>',\n";
-    $data .= "\t\tdataInsercao: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['DATA_HORA_CADASTRO'] . "</a>',\n";
-    $data .= "\t\tautor: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['AUTOR'] . "</a>',\n";
-    $data .= "\t},\n";
-    echo $data;
-}
-?>    
-]
-
-
-
-var columns = {
-	detail: '<center>Alterar</center>',
-    formTurma: 'Turma',
-    descricacao: 'Descrição',
-    materia: 'Matéria',
-    dataInsercao: 'Data de inserção',
-    autor: 'Autor',
-}
-
 	function submit() {
 		document.forms[0].submit();
 	}
   
- </script>
+	function validateAndSubmitForm() {
+		var turma = document.getElementById("turma");
+		var planoAula = document.getElementById("planoAula");
+		var camposPreenchidos = true;
+		 
+		if (!isNotBlank(planoAula.value)){
+			camposPreenchidos = false;
+			document.getElementById("planoAulaErro").style.display = "block";
+		} else {	
+			document.getElementById("planoAulaErro").style.display = "none";
+		}
+
+		if (camposPreenchidos){
+			submit();
+		} 		
+	}
+
+	function isNotBlank(value){
+		if (value == null){
+			return false;
+		}
+		return value.trim().length !== 0;
+	}	
+
+  </script>
 <style type="text/css">
-
-.active_pagina_atual {
-    background-color: #e9ecef;
-    border-color: #ced4da;
-    color: #212529;
-}
-
-.active_pagina_atual:hover {
-     background-color: #212529;
-    border-color: #212529;
-    color: white;
-}
-
-.mt-5, .my-5 {
-    margin-top: 0px!important;
-}
 textarea:focus {
 	outline: none;
 }
@@ -303,9 +264,11 @@ if (isset($showErrorMessage)) {
 if ($showSuccessMessage and ! isset($showErrorMessage)) {
     ?>
 					    <div style="color: green; text-align: center;">
-			Registro criado com sucesso!</br> </br>
+			Registro atualizado com sucesso!</br>
+			</br>
 		</div>
 					<?php
+
 }
 
 ?>
@@ -313,97 +276,44 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item">Plano de aula</li>
-				<li class="breadcrumb-item active">Visualizar</li>
+				<li class="breadcrumb-item active">Cadastro</li>
 			</ol>
 			<div class="container">
 				<div>
-					<div class="card-body" style="padding: 0px;">
-						<form method="post" action="plano_aula_alteracao.php">
-							<input type="hidden" id="planoAulaId" name="planoAulaId" />
-							<input type="hidden" id="turmaId" name="turmaId" />
-							<div class="page-container" style="padding: 0px;">
-								<div class="container">
-									<div class="row mt-5 mb-3 align-items-center">
-										<div class="col-md-5">
-											<!--<button class="btn btn-primary btn-sm" id="rerender">Re-Render</button> 
-                                            <button class="btn btn-primary btn-sm" id="distory">Distory</button> -->
-											<button class="btn btn-primary btn-sm" id="refresh"
-												style="background: #e9ecef; border-color: #ced4da; color: #212529;">Atualizar</button>
-										</div>
-										<div class="col-md-3">
-											<input type="text" class="form-control"
-												placeholder="Procure..." id="searchField">
-										</div>
-										<div class="col-md-2 text-right">
-											<span class="pr-3">Registros por página:</span>
-										</div>
-										<div class="col-md-2">
-											<div class="d-flex justify-content-end">
-												<select class="custom-select" name="rowsPerPage"
-													id="changeRows">
-													<option value="1">1</option>
-													<option value="5" selected>5</option>
-													<option value="10">10</option>
-													<option value="15">15</option>
-												</select>
-											</div>
-										</div>
-									</div>
-									<div id="root"></div>
+					<div class="card-body">
+						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
+							<input type="hidden" name="turmaId"
+								value="<?php echo $_POST['turmaId']; ?>" /> <input type="hidden"
+								name="planoAulaId" value="<?php echo $_POST['planoAulaId']; ?>" />
+							<div class="form-group">
+								<div class="col-md-6"
+									style="flex: none; max-width: 100%; padding: 0px;">
+									<label for="turma">Turma</label> <input type="text"
+										class="form-control" aria-describedby="nameHelp"
+										disabled="disabled" placeholder="Turma" id="turma"
+										name="turma"
+										value="<?php echo $db_turma_fetch[0]['NOME_TURMA'];?>">
+
 								</div>
-							</div>							
-							<script src="./table-sortable.js"></script>
-							<script>
-        var table = $('#root').tableSortable({
-            data,
-            columns,
-            searchField: '#searchField',
-            responsive: {
-                1100: {
-                    columns: {
-                        formTurma: 'Turma',
-                        descricacao: 'Descrição',
-                    },
-                },
-            },
-            rowsPerPage: 5,
-            pagination: true,
-            tableWillMount: () => {
-                console.log('table will mount')
-            },
-            tableDidMount: () => {
-                console.log('table did mount')
-            },
-            tableWillUpdate: () => console.log('table will update'),
-            tableDidUpdate: () => console.log('table did update'),
-            tableWillUnmount: () => console.log('table will unmount'),
-            tableDidUnmount: () => console.log('table did unmount'),
-            onPaginationChange: function(nextPage, setPage) {
-                setPage(nextPage);
-            }
-        });
+								<br>
+								<div class="col-md-6"
+									style="flex: none; max-width: 100%; padding: 0px;">
+									<label for="planoAula">Plano de aula*</label>
+								<?php
+        $sqlplanoAula = "SELECT DESCRICAO FROM PLANO_AULA WHERE ID = ?";
+        $db_plano_aula_fetch = $db2->query($sqlplanoAula, $planoAulaId)->fetchAll();
+        ?> 
+									<textarea rows="10" cols="30"
+										style="align: left; width: 100%; max-width: 100%; border: 1px solid #ced4da; padding: 0px !important; margin: 0px !important; text-align: left;"
+										maxlength="9000" id="planoAula" name="planoAula"><?php echo trim($db_plano_aula_fetch[0]['DESCRICAO']);$db2->close();?></textarea>
+									<div id="planoAulaErro"
+										style="display: none; font-size: 10pt; color: red">Campo
+										obrigatório!</div>
+								</div>
+							</div>
 
-        $('#changeRows').on('change', function() {
-            table.updateRowsPerPage(parseInt($(this).val(), 10));
-        })
-
-        $('#rerender').click(function() {
-            table.refresh(true);
-        })
-
-        $('#distory').click(function() {
-            table.distroy();
-        })
-
-        $('#refresh').click(function() {
-            table.refresh();
-        })
-
-        $('#setPage2').click(function() {
-            table.setPage(1);
-        })
-    </script>
-
+							<a class="btn btn-primary btn-block"
+								onclick="validateAndSubmitForm()">Atualizar</a>
 						</form>
 					</div>
 				</div>
@@ -449,7 +359,7 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
 		</div>
 	</div>
 	<!-- Bootstrap core JavaScript-->
-
+	<script src="vendor/jquery/jquery.min.js"></script>
 	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 	<!-- Core plugin JavaScript-->
 	<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
@@ -467,8 +377,7 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
 
 </html>
 
-<?php
+<?php 
 $db0->close();
 $db1->close();
-
 ?>

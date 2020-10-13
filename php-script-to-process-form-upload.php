@@ -5,7 +5,7 @@ require 'database/db.php';
 $erros=array();
 $registroExistente = false;
 $nome_turma=$_POST['nome_turma'];
-$id_professor_regente=$_POST['professor_regente'];
+$id_professor_regente=$_POST['professor_responsavel'];
 
 $db00 = new db();
 try {
