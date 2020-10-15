@@ -3,10 +3,12 @@ require 'bo/Sessao.php';
 require 'bo/ControleAcesso.php';
 require 'database/db.php';
 require 'PessoaDao.php';
+require 'TipoPessoaCons.php';
 
 use bo\Sessao;
 use bo\ControleAcesso;
 use model\Pessoa;
+use model\TipoPessoa;
 
 Sessao::validar();
 
@@ -16,19 +18,29 @@ $papeisPermitidos = array(
 );
 ControleAcesso::validar($papeisPermitidos);
 
+$showMessage=isset($_GET["s"]) and $_GET["s"] == 1;
 
+
+$senha = '123456';
+
+$db = new db();
 $db0 = new db();
-$db1 = new db();
 
-$pessoas_db = "select pe.ID, CONCAT(CONCAT(pe.NOME, ' '),pe.SOBRENOME) AS 'NOME', pe.EMAIL, pe.DATA_NASCIMENTO, sex.SEXO, pe.TELEFONE, pe.CPF, tp.NOME AS 'TIPO_PESSOA' from PESSOA pe 
-			JOIN TIPO_PESSOA tp ON (pe.TIPO_PESSOA = tp.ID)
+$showErrorMessage = null;
+$showSuccessMessage = (isset($_SESSION3['servidorAtualizadoComSucesso']) and $_SESSION3['servidorAtualizadoComSucesso']);
+$_SESSION3['servidorAtualizadoComSucesso']= null;
+
+$pessoa_db = "select pe.ID, CONCAT(CONCAT(pe.NOME, ' '),pe.SOBRENOME) AS 'NOME', pe.DATA_NASCIMENTO, sex.SEXO, pe.RESPONSAVEL_1, pe.RESPONSAVEL_2,
+	   CONCAT(CONCAT(resp1.NOME, ' '),resp1.SOBRENOME) AS 'NOME_RESP1', resp1.CPF AS 'CPF_RESP1', resp1.TELEFONE AS 'TELEFONE_RESP1', resp1.EMAIL AS 'EMAIL_RESP1', resp1.DATA_NASCIMENTO AS 'DATA_NASCIMENTO_RESP1', resp1.TIPO_SEXO AS 'TIPO_SEXO_RESP1',
+	   CONCAT(CONCAT(resp2.NOME, ' '),resp2.SOBRENOME) AS 'NOME_RESP2', resp2.CPF AS 'CPF_RESP2', resp2.TELEFONE AS 'TELEFONE_RESP2', resp2.EMAIL AS 'EMAIL_RESP2', resp2.DATA_NASCIMENTO AS 'DATA_NASCIMENTO_RESP2', resp2.TIPO_SEXO AS 'TIPO_SEXO_RESP2' from PESSOA pe
+			JOIN PESSOA resp1 ON (pe.RESPONSAVEL_1 = resp1.ID)
+            left JOIN PESSOA resp2 ON (pe.RESPONSAVEL_2 = resp2.ID)
             JOIN SEXO sex ON (sex.ID = pe.TIPO_SEXO)
-            where pe.TIPO_PESSOA <> 3 and pe.TIPO_PESSOA <> 5 ORDER BY NOME";
+            ORDER BY NOME";
 
-$db_servidores_fetch = $db0->query($pessoas_db)->fetchAll();
+$db_pessoa_fetch = $db0->query($pessoa_db)->fetchAll();
 
-$showSuccessMessage = (isset($_SESSION['servidorAtualizadoComSucesso']) and $_SESSION['servidorAtualizadoComSucesso']);
-$_SESSION['servidorAtualizadoComSucesso']= null;
+
 
 ?>
 
@@ -41,7 +53,7 @@ $_SESSION['servidorAtualizadoComSucesso']= null;
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Visualizar servidor</title>
+<title>GSE - Cadastro de aluno</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -56,8 +68,6 @@ $_SESSION['servidorAtualizadoComSucesso']= null;
 
 
 <script type="text/javascript">
-
-
 function abrirDetalhe(pessoaID){
 	document.forms[0].pessoaID.value = pessoaID;
 	document.forms[0].submit();
@@ -65,16 +75,26 @@ function abrirDetalhe(pessoaID){
 
 var data = [
 	<?php
-	foreach ($db_servidores_fetch as $single_row1) {
+	foreach ($db_pessoa_fetch as $single_row1) {
         $data = "\t{\n";
         $data .= "\t\tdetail: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\"><center>&#9998;</center></a>',\n";
-        $data .= "\t\tnome: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME'] . "</a>',\n";
-        $data .= "\t\temail: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['EMAIL'] . "</a>',\n";
-        $data .= "\t\tdataNascimento: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DATA_NASCIMENTO'] . "</a>',\n";
-        $data .= "\t\tsexo: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['SEXO'] . "</a>',\n";
-        $data .= "\t\ttelefone: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TELEFONE'] . "</a>',\n";
-        $data .= "\t\tcpf: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['CPF'] . "</a>',\n";
-        $data .= "\t\ttipoPessoa: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TIPO_PESSOA'] . "</a>',\n";
+        $data .= "\t\tnomeAluno: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME'] . "</a>',\n";
+        $data .= "\t\tdataNascimentoAluno: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DATA_NASCIMENTO'] . "</a>',\n";
+        $data .= "\t\tsexoAluno: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['SEXO'] . "</a>',\n";
+        
+        $data .= "\t\tnomeResp1: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME_RESP1'] . "</a>',\n";
+        $data .= "\t\tcpfResp1: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['CPF_RESP1'] . "</a>',\n";
+        $data .= "\t\ttelefoneResp1: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TELEFONE_RESP1'] . "</a>',\n";
+        $data .= "\t\temailResp1: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['EMAIL_RESP1'] . "</a>',\n";
+        $data .= "\t\tdataNascimentoResp1: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DATA_NASCIMENTO_RESP1'] . "</a>',\n";
+        $data .= "\t\tsexoResp1: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TIPO_SEXO_RESP1'] . "</a>',\n";
+        
+        $data .= "\t\tnomeResp2: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME_RESP2'] . "</a>',\n";
+        $data .= "\t\tcpfResp2: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['CPF_RESP2'] . "</a>',\n";
+        $data .= "\t\ttelefoneResp2: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TELEFONE_RESP2'] . "</a>',\n";
+        $data .= "\t\temailResp2: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['EMAIL_RESP2'] . "</a>',\n";
+        $data .= "\t\tdataNascimentoResp2: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DATA_NASCIMENTO_RESP2'] . "</a>',\n";
+        $data .= "\t\tsexoResp2: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TIPO_SEXO_RESP2'] . "</a>',\n";
         $data .= "\t},\n";
         echo $data;
 }
@@ -85,13 +105,21 @@ var data = [
 
 var columns = {
 	detail: '<center>Alterar</center>',
-    nome: 'Nome',
-    email: 'E-Mail',
-    dataNascimento: 'Data de nascimento',
-    sexo: 'Sexo',
-    telefone: 'Telefone',
-    cpf: 'CPF',
-    tipoPessoa: 'Cargo'
+    nomeAluno: 'Nome Aluno',
+    dataNascimentoAluno: 'Data de nascimento Aluno',
+    sexoAluno: 'Sexo Aluno',
+    nomeResp1: 'Nome Responsavel 1',
+    cpfResp1: 'CPF Responsavel 1',
+    telefoneResp1: 'Telefone Responsavel 1',
+    emailResp1: 'E-Mail Responsavel 1',
+    dataNascimentoResp1: 'Data de nascimento Responsavel 1',
+    sexoResp1: 'Sexo Responsavel 1',
+    nomeResp2: 'Nome Responsavel 2',
+    cpfResp2: 'CPF Responsavel 2',
+    telefoneResp2: 'Telefone Responsavel 2',
+    emailResp2: 'E-Mail Responsavel 2',
+    dataNascimentoResp2: 'Data de nascimento Responsavel 2',
+    sexoResp2: 'Sexo Responsavel 2'
 }
 
 	function submit() {
@@ -101,40 +129,17 @@ var columns = {
 	function atualizarPagina(){
 		document.forms[0].action = window.location.href;
 		return false;
-	}
+	} 
 	
   </script>
-  
- <style type="text/css">
 
-.active_pagina_atual {
-    background-color: #e9ecef;
-    border-color: #ced4da;
-    color: #212529;
-}
-
-.active_pagina_atual:hover {
-     background-color: #212529;
-    border-color: #212529;
-    color: white;
-}
-
-.mt-5, .my-5 {
-    margin-top: 0px!important;
-}
-textarea:focus {
-	outline: none;
-}
-</style> 
-  
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
 	<!-- Navigation-->
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"
 		id="mainNav">
-		<a class="navbar-brand" href="index.php">GSE - Gestão sócio
-			educacional</a>
+		<a class="navbar-brand" href="index.php">GSE - Gestão sócio educacional</a>
 		<button class="navbar-toggler navbar-toggler-right" type="button"
 			data-toggle="collapse" data-target="#navbarResponsive"
 			aria-controls="navbarResponsive" aria-expanded="false"
@@ -164,8 +169,8 @@ textarea:focus {
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages1" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Disciplinas</span>
+					href="#collapseExamplePages1" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Disciplinas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages1">
@@ -176,8 +181,8 @@ textarea:focus {
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages2" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
+					href="#collapseExamplePages2" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
@@ -188,8 +193,8 @@ textarea:focus {
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages3" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
+					href="#collapseExamplePages3" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
@@ -203,9 +208,9 @@ textarea:focus {
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages4" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Plano de
-							aula</span>
+					href="#collapseExamplePages4" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Plano
+							de aula</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages4">
@@ -216,8 +221,8 @@ textarea:focus {
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages5" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Ocorrências</span>
+					href="#collapseExamplePages5" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Ocorrências</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages5">
@@ -233,8 +238,8 @@ textarea:focus {
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages6" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Servidores</span>
+					href="#collapseExamplePages6" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Servidores</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages6">
@@ -244,8 +249,8 @@ textarea:focus {
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages"><a
 					class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages7" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Turmas</span>
+					href="#collapseExamplePages7" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Turmas</span>
 				</a>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages7">
@@ -267,11 +272,17 @@ textarea:focus {
 		</div>
 	</nav>
 	<div class="content-wrapper">
-	<?php
-        if ($showSuccessMessage) {
-            ?>
+						<?php
+    if (isset($showErrorMessage)) {
+        ?>
+						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </br></br></div>
+					<?php
+    }
+
+    if ($showSuccessMessage and ! isset($showErrorMessage)) {
+        ?>
 					    <div style="color: green; text-align: center;">Registro criado
-					com sucesso!</br></br></div>
+				com sucesso!</br></br></div>
 					<?php
     }
 
@@ -279,7 +290,7 @@ textarea:focus {
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
-				<li class="breadcrumb-item">Servidores</li>
+				<li class="breadcrumb-item">Alunos</li>
 				<li class="breadcrumb-item active">Visualizar</li>
 			</ol>
 			<div class="container">
@@ -328,8 +339,21 @@ textarea:focus {
             responsive: {
                 1100: {
                     columns: {
-                        formTurma: 'Turma',
-                        descricacao: 'Descrição',
+                    	nomeAluno: 'Nome Aluno',
+                        dataNascimentoAluno: 'Data de nascimento Aluno',
+                        sexoAluno: 'Sexo Aluno',
+                        nomeResp1: 'Nome Responsavel 1',
+                        cpfResp1: 'CPF Responsavel 1',
+                        telefoneResp1: 'Telefone Responsavel 1',
+                        emailResp1: 'E-Mail Responsavel 1',
+                        dataNascimentoResp1: 'Data de nascimento Responsavel 1',
+                        sexoResp1: 'Sexo Responsavel 1',
+                        nomeResp2: 'Nome Responsavel 2',
+                        cpfResp2: 'CPF Responsavel 2',
+                        telefoneResp2: 'Telefone Responsavel 2',
+                        emailResp2: 'E-Mail Responsavel 2',
+                        dataNascimentoResp2: 'Data de nascimento Responsavel 2',
+                        sexoResp2: 'Sexo Responsavel 2'
                     },
                 },
             },
@@ -371,9 +395,10 @@ textarea:focus {
         })
     </script>
     </form>
-					
 				</div>
+			</div>
 		</div>
+	</div>
 	</div>
 	<!-- /.container-fluid-->
 	<!-- /.content-wrapper-->
@@ -413,25 +438,27 @@ textarea:focus {
 			</div>
 		</div>
 	</div>
+
 	<!-- Bootstrap core JavaScript-->
 	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 	<!-- Core plugin JavaScript-->
 	<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 	<!-- Page level plugin JavaScript-->
-	<script src="vendor/chart.js/Chart.min.js"></script>
+	<!-- <script src="vendor/chart.js/Chart.min.js"></script> -->
 	<script src="vendor/datatables/jquery.dataTables.js"></script>
 	<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 	<!-- Custom scripts for all pages-->
 	<script src="js/sb-admin.min.js"></script>
 	<!-- Custom scripts for this page-->
 	<script src="js/sb-admin-datatables.min.js"></script>
-	<script src="js/sb-admin-charts.min.js"></script>
+	<!--<script src="js/sb-admin-charts.min.js"></script>-->
+
 	</div>
 </body>
 
 </html>
 
 <?php
+$db->close();
 $db0->close();
-$db1->close();
 ?>

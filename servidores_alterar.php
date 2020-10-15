@@ -27,6 +27,7 @@ $tipo_sexo_db = $db2->query("SELECT ID, SEXO FROM SEXO");
 $sqlPessoa = "select pe.ID, pe.NOME, pe.SOBRENOME, pe.EMAIL, pe.DATA_NASCIMENTO, pe.TIPO_SEXO, pe.TELEFONE, pe.CPF, pe.TIPO_PESSOA from PESSOA pe WHERE ID = ?";
 $db_pessoa_fetch = $db0->query($sqlPessoa, $pessoaID)->fetchAll();
 
+error_log("BEZZIIIIIIIIIIIIIII" . $db_pessoa_fetch[0]['NOME']);
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
@@ -61,7 +62,8 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
         try {
             $resultado = $pessoaDao->adicionarServidor($pessoa);
             if ($resultado) {
-                $showSuccessMessage = true;
+                $_SESSION['servidorAtualizadoComSucesso'] = true;
+                header("Location: servidores_visualizar.php");
             }
         } catch (Exception $ex) {
             error_log($ex);
@@ -385,21 +387,6 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 		</div>
 	</nav>
 	<div class="content-wrapper">
-	<?php
-    if (isset($showErrorMessage)) {
-        ?>
-						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </br></br></div>
-					<?php
-    }
-
-    if ($showSuccessMessage and ! isset($showErrorMessage)) {
-        ?>
-					    <div style="color: green; text-align: center;">Registro criado
-					com sucesso!</br></br></div>
-					<?php
-    }
-
-    ?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
@@ -410,13 +397,14 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 				<div>
 					<div class="card-body">
 						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
+							<input type="hidden" name="pessoaID" value="<?php echo $pessoaID;?>"/>
 							<div class="form-group">
 								<div class="form-row">
 									<div class="col-md-6">
 										<label for="exampleInputName">Nome*</label> 
 										<input class="form-control" id="nome" type="text"
 											aria-describedby="nameHelp" placeholder="Nome" name="nome"
-											maxlength="250" value=<?php echo trim($db_pessoa_fetch[0]['NOME']);?>>
+											maxlength="250" value="<?php echo trim($db_pessoa_fetch[0]['NOME']);?>">
 										<div id="nomeErro"
 											style="display: none; font-size: 10pt; color: red">Campo
 											obrigatório!</div>
@@ -572,7 +560,7 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 	<script src="js/sb-admin.min.js"></script>
 	<!-- Custom scripts for this page-->
 	<script src="js/sb-admin-datatables.min.js"></script>
-	<script src="js/sb-admin-charts.min.js"></script>
+	<!--  <script src="js/sb-admin-charts.min.js"></script>-->
 	</div>
 </body>
 

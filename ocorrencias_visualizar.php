@@ -2,42 +2,42 @@
 require 'bo/Sessao.php';
 require  'bo/ControleAcesso.php';
 require 'database/db.php';
-
 use bo\Sessao;
 use bo\ControleAcesso;
 use model\Pessoa;
 
 Sessao::validar();
 
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
+// Load Composer's autoloader
+require 'vendor/autoload.php';
+
+$mail = new PHPMailer();
+
 $papeisPermitidos = array(2,4,1);
 ControleAcesso::validar($papeisPermitidos);
 
+
 $pessoa = unserialize($_SESSION['loggedGSEUser']);
+
+
+$showErrorMessage = null;
 $showSuccessMessage = false;
 
 $db0 = new db();
+$db1 = new db();
+$db2 = new db();
+$db3 = new db();
 
-$sqlTurmas = "SELECT tu.NOME_TURMA, tu.ID FROM TURMA tu ";
-$tipoPessoaIdentificador = $pessoa->tipo_pessoa;
-if ($tipoPessoaIdentificador == 2 ){
-    $sqlTurmas = "SELECT ID, NOME_TURMA FROM TURMA ORDER BY NOME_TURMA";
-    
-} else {
-    $sqlTurmas = "SELECT t.ID, t.NOME_TURMA FROM PESSOA p JOIN TURMA_MATERIA tm ON (tm.ID_PROFESSOR = p.ID)
-    JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and (tp.NOME = 'Professor(a)' OR tp.NOME = 'Diretor(a)'))
-    JOIN TURMA t ON (t.ID = tm.ID_TURMA) ";
-    $sqlTurmas .= " where p.ID = " . $pessoa->id;
-    $sqlTurmas .= " ORDER BY t.NOME_TURMA";
-}
-error_log($sqlTurmas);
+$db_ocorrencia_fetch = $db0->query("SELECT oc.ID, oc.DATA, CASE WHEN LENGTH(oc.DESCRICAO) >= 10 THEN CONCAT(SUBSTR(oc.DESCRICAO,1,10),'...') ELSE oc.DESCRICAO END as 'DESCRICAO', CONCAT(CONCAT(pe.NOME, ' '),  pe.SOBRENOME) as 'ALUNO', CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME) as 'AUTOR' FROM OCORRENCIA oc
+			JOIN PESSOA pe ON (pe.ID = oc.ID_PESSOA_ALUNO)
+            JOIN PESSOA p ON (p.ID = oc.ID_PESSOA_AUTOR)")->fetchAll();
 
-$db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
-
-if (isset($_SESSION2['mensagem_notas'])){
-    $showSuccessMessage = true;
-    $mensagem_sucesso = $_SESSION2['mensagem_notas'];
-    unset($_SESSION2['mensagem_notas']);
-}
+error_log(sizeof($db_ocorrencia_fetch));
 
 ?>
 
@@ -50,7 +50,7 @@ if (isset($_SESSION2['mensagem_notas'])){
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Notas de aluno</title>
+<title>GSE - Visualizar ocorrências</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -61,51 +61,74 @@ if (isset($_SESSION2['mensagem_notas'])){
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+<script src="vendor/jquery/jquery.min.js"></script>
 
 
- <script type="text/javascript">
+
+  <script type="text/javascript">
+
+function abrirDetalhe(turmaId){
+	document.forms[0].turmaId.value = turmaId;
+	document.forms[0].submit();
+}
+
+var data = [
+	<?php
+	foreach ($db_ocorrencia_fetch as $single_row1) {
+    $data = "\t{\n";
+    $data .= "\t\tdetail: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'].")\"><center>&#9998;</center></a>',\n";
+    $data .= "\t\taluno:  '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['ALUNO'] . "</a>',\n";
+    $data .= "\t\tdescricacao: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DESCRICAO'] . "</a>',\n";
+    $data .= "\t\tdataInsercao: '<a onclick=\"abrirDetalhe(" . $single_row1['ID']  . ")\">" . $single_row1['DATA'] . "</a>',\n";
+    $data .= "\t\tautor: '<a onclick=\"abrirDetalhe(" . $single_row1['ID']  . ")\">" . $single_row1['AUTOR'] . "</a>',\n";
+    $data .= "\t},\n";
+    echo $data;
+}
+?>    
+]
+
+
+
+var columns = {
+	detail: '<center>Responder</center>',
+    aluno: 'Aluno',
+    descricacao: 'Descrição',
+    dataInsercao: 'Data de inserção',
+    autor: 'Autor',
+}
+
 	function submit() {
 		document.forms[0].submit();
 	}
-  
-	function validateAndSubmitForm() {
-		var mensagem = document.getElementById("mensagemSucesso");
-		if (mensagem != null){
-			mensagem.style.display = 'none';
-		}	
-		
-		var turma = document.getElementById("turma");
-		var assunto = document.getElementById("assunto");
-		var camposPreenchidos = true;
-		 
-		if (!isNotBlank(turma.value)){
-			camposPreenchidos = false;
-			document.getElementById("turmaErro").style.display = "block";
-		} else {
-			document.getElementById("turmaErro").style.display = "none";
-		}	
 
-		if (!isNotBlank(assunto.value)){
-			camposPreenchidos = false;
-			document.getElementById("assuntoErro").style.display = "block";
-		} else {
-			document.getElementById("assuntoErro").style.display = "none";
-		}
-		
-		if (camposPreenchidos){
-			submit();
-		} 		
-	}
-
-	function isNotBlank(value){
-		if (value == null){
-			return false;
-		}
-		return value.trim().length !== 0;
-	}	
-
+    function atualizarPagina(){
+    	document.forms[0].action = window.location.href;
+    	return false;
+    }	
+ 
   </script>
 
+<style type="text/css">
+
+.active_pagina_atual {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    color: #212529;
+}
+
+.active_pagina_atual:hover {
+     background-color: #212529;
+    border-color: #212529;
+    color: white;
+}
+
+.mt-5, .my-5 {
+    margin-top: 0px!important;
+}
+textarea:focus {
+	outline: none;
+}
+</style>
 
 </head>
 
@@ -247,55 +270,103 @@ if (isset($_SESSION2['mensagem_notas'])){
 		</div>
 	</nav>
 	<div class="content-wrapper">
-	<?php 
-					if ($showSuccessMessage){ ?>
-					    <div style="color:green;text-align: center;" id="mensagemSucesso"><?php echo $mensagem_sucesso;?></br></br></div>
-					<?php }
-					
-					?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
-				<li class="breadcrumb-item">Alunos</li>
-				<li class="breadcrumb-item active">Notas</li>
+				<li class="breadcrumb-item">Ocorrências</li>
+				<li class="breadcrumb-item active">Visualizar</li>
 			</ol>
 			<div class="container">
 				<div>
-					<div class="card-body">
-						<form method="post" action="cadastro_notas_aluno.php">
-							<div class="form-group">
-								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-									<label for="turma">Turma*</label> 
-									<select
-										class="form-control"
-										aria-describedby="nameHelp" id="turma" name="turma">
-									
-									<?php
-                                            foreach ($db_turma_fetch as $single_row1) {
-                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME_TURMA'] . "</option>";
-                                            } 
-                                        ?>
-										
-									</select>
-									<div id="turmaErro"
-						style="display: none; font-size: 10pt; color: red">Campo
-						obrigatório!</div>
+					<div class="card-body" style="padding: 0px;">
+						<form method="post" action="plano_aula_alteracao.php">
+							<input type="hidden" id="planoAulaId" name="planoAulaId" />
+							<input type="hidden" id="turmaId" name="turmaId" />
+							<div class="page-container" style="padding: 0px;">
+								<div class="container">
+									<div class="row mt-5 mb-3 align-items-center">
+										<div class="col-md-5">
+											<!--<button class="btn btn-primary btn-sm" id="rerender">Re-Render</button> 
+                                            <button class="btn btn-primary btn-sm" id="distory">Distory</button> -->
+											<button class="btn btn-primary btn-sm" id="refresh"
+												style="background: #e9ecef; border-color: #ced4da; color: #212529;"
+												onclick="atualizarPagina()">Atualizar</button>
+										</div>
+										<div class="col-md-3">
+											<input type="text" class="form-control"
+												placeholder="Procure..." id="searchField">
+										</div>
+										<div class="col-md-2 text-right">
+											<span class="pr-3">Registros por página:</span>
+										</div>
+										<div class="col-md-2">
+											<div class="d-flex justify-content-end">
+												<select class="custom-select" name="rowsPerPage"
+													id="changeRows">
+													<option value="1">1</option>
+													<option value="5" selected>5</option>
+													<option value="10">10</option>
+													<option value="15">15</option>
+												</select>
+											</div>
+										</div>
+									</div>
+									<div id="root"></div>
 								</div>
-								<br>
-								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-								<label for="assunto">Assunto*</label> 
-									<input
-										class="form-control" id="assunto" type="text"
-										maxlength="255"  name="assunto"
-										placeholder="Assunto">
-									<div id="assuntoErro"
-						style="display: none; font-size: 10pt; color: red">Campo
-						obrigatório!</div>
-								</div>
-							</div>
-					
-        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>
-					</form>
+							</div>							
+							<script src="./table-sortable.js"></script>
+							<script>
+        var table = $('#root').tableSortable({
+            data,
+            columns,
+            searchField: '#searchField',
+            responsive: {
+                1100: {
+                    columns: {
+                        formTurma: 'Turma',
+                        descricacao: 'Descrição',
+                    },
+                },
+            },
+            rowsPerPage: 5,
+            pagination: true,
+            tableWillMount: () => {
+                console.log('table will mount')
+            },
+            tableDidMount: () => {
+                console.log('table did mount')
+            },
+            tableWillUpdate: () => console.log('table will update'),
+            tableDidUpdate: () => console.log('table did update'),
+            tableWillUnmount: () => console.log('table will unmount'),
+            tableDidUnmount: () => console.log('table did unmount'),
+            onPaginationChange: function(nextPage, setPage) {
+                setPage(nextPage);
+            }
+        });
+
+        $('#changeRows').on('change', function() {
+            table.updateRowsPerPage(parseInt($(this).val(), 10));
+        })
+
+        $('#rerender').click(function() {
+            table.refresh(true);
+        })
+
+        $('#distory').click(function() {
+            table.distroy();
+        })
+
+        $('#refresh').click(function() {
+            table.refresh();
+        })
+
+        $('#setPage2').click(function() {
+            table.setPage(1);
+        })
+    </script>
+
+						</form>
 					</div>
 				</div>
 			</div>
@@ -339,24 +410,26 @@ if (isset($_SESSION2['mensagem_notas'])){
 			</div>
 		</div>
 		<!-- Bootstrap core JavaScript-->
-		<script src="vendor/jquery/jquery.min.js"></script>
 		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 		<!-- Core plugin JavaScript-->
 		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 		<!-- Page level plugin JavaScript-->
-		<script src="vendor/chart.js/Chart.min.js"></script>
+		<!-- <script src="vendor/chart.js/Chart.min.js"></script>-->
 		<script src="vendor/datatables/jquery.dataTables.js"></script>
 		<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 		<!-- Custom scripts for all pages-->
 		<script src="js/sb-admin.min.js"></script>
 		<!-- Custom scripts for this page-->
 		<script src="js/sb-admin-datatables.min.js"></script>
-		<script src="js/sb-admin-charts.min.js"></script>
+		<!-- <script src="js/sb-admin-charts.min.js"></script>-->
 	</div>
 </body>
 
 </html>
-
 <?php 
 $db0->close();
+$db1->close();
+$db2->close();
+$db3->close();
 ?>
+
