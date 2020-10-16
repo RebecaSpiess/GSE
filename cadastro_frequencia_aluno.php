@@ -11,9 +11,12 @@ Sessao::validar();
 
 $papeisPermitidos = array(2,4,1);
 ControleAcesso::validar($papeisPermitidos);
+$pessoa = unserialize($_SESSION['loggedGSEUser']);
 
 $turma_id = $_POST['turma'];
 $data = $_POST['data'];
+$IdPessoa = $pessoa->id;
+$tipoPessoaIdentificador = $pessoa->tipo_pessoa;
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
@@ -21,9 +24,23 @@ $showSuccessMessage = false;
 $db0 = new db();
 $db1 = new db();
 $db2 = new db();
+$db3 = new db();
+$db4 = new db();
+
+if ($tipoPessoaIdentificador == 2 ){
+    $db_materia_fetch = $db4->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
+	JOIN MATERIA ma ON (ma.ID = tm.ID_MATERIA)
+    WHERE tm.ID_TURMA = ?", $turma_id)->fetchAll();
+    
+} else {
+    $db_materia_fetch = $db3->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
+	JOIN MATERIA ma ON (ma.ID = tm.ID_MATERIA)
+    WHERE tm.ID_TURMA = ? and tm.ID_PROFESSOR = ?", $turma_id, $IdPessoa)->fetchAll();
+}
 
 $db_turma_fetch = $db0->query("SELECT PE.ID, PE.NOME, PE.SOBRENOME, TU.NOME_TURMA FROM TURMA TU JOIN TURMA_PESSOA TU_PE ON (TU_PE.ID_TURMA = TU.ID) JOIN PESSOA PE ON (TU_PE.ID_PESSOA = PE.ID) 
 WHERE PE.TIPO_PESSOA = 3 AND TU.ID = ? ORDER BY PE.NOME, PE.SOBRENOME", $turma_id)->fetchAll();
+
 
 if (isset($_POST['cadastro_frequencia'])){
         $cadastro_frequencia = $_POST['cadastro_frequencia'];
@@ -281,6 +298,21 @@ if (isset($_POST['cadastro_frequencia'])){
 								<input type="hidden" name="data" value="<?php echo $data;?>" />
 								<input type="hidden" name="cadastro_frequencia" id="cadastro_frequencia" value="false" />
 								<br>
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+									<label for="turma">Matéria*</label> 
+									<select
+										class="form-control"
+										aria-describedby="nameHelp" id="turma" name="turma">
+									
+									<?php
+									foreach ($db_materia_fetch as $single_row1) {
+                                                echo "<option value=\"" . $single_row1['ID_MATERIA'] . "\">" . $single_row1['NOME'] . "</option>";
+                                            } 
+                                        ?>
+										
+									</select>
+								</div>
+								<br>
 								<table cellpadding="3">									
 									<?php
                                             foreach ($db_turma_fetch as $single_row1) {
@@ -360,14 +392,14 @@ if (isset($_POST['cadastro_frequencia'])){
 		<!-- Core plugin JavaScript-->
 		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 		<!-- Page level plugin JavaScript-->
-		<script src="vendor/chart.js/Chart.min.js"></script>
+		<!--<script src="vendor/chart.js/Chart.min.js"></script>-->
 		<script src="vendor/datatables/jquery.dataTables.js"></script>
 		<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 		<!-- Custom scripts for all pages-->
 		<script src="js/sb-admin.min.js"></script>
 		<!-- Custom scripts for this page-->
 		<script src="js/sb-admin-datatables.min.js"></script>
-		<script src="js/sb-admin-charts.min.js"></script>
+		<!--<script src="js/sb-admin-charts.min.js"></script>-->
 	</div>
 </body>
 
@@ -375,4 +407,6 @@ if (isset($_POST['cadastro_frequencia'])){
 
 <?php 
 $db0->close();
+$db3->close();
+$db4->close();
 ?>

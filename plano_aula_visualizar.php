@@ -43,27 +43,6 @@ if ($tipoPessoaId == 2) {
 
 $db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
 
-if (isset($_POST['turma']) and isset($_POST['planoAula'])) {
-    $turma = $_POST['turma'];
-    $planoAula = $_POST['planoAula'];
-
-    if (! empty(trim($turma)) and ! empty(trim($planoAula))) {
-        try {
-            $result = $db1->query("INSERT INTO PLANO_AULA (ID_TURMA, DESCRICAO)
-                          VALUES (?,?) ", $turma, $planoAula)->query_count;
-            if ($result == 1) {
-                $showSuccessMessage = true;
-            }
-        } catch (Exception $ex) {
-            $error_code = $ex->getMessage();
-            if ($error_code == 1062) {
-                $showErrorMessage = "Já existe um registro com ID informado!";
-            } else {
-                $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
-            }
-        }
-    }
-}
 
 ?>
 <!DOCTYPE html>

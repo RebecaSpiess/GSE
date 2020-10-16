@@ -23,21 +23,97 @@ ControleAcesso::validar($papeisPermitidos);
 
 
 $pessoa = unserialize($_SESSION['loggedGSEUser']);
+$alunoId = $_POST['alunoId'];
 
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
 
-$db0 = new db();
-$db1 = new db();
-$db2 = new db();
-$db3 = new db();
 
-$db_ocorrencia_fetch = $db0->query("SELECT oc.ID, oc.ID_PESSOA_ALUNO, oc.DATA, CASE WHEN LENGTH(oc.DESCRICAO) >= 10 THEN CONCAT(SUBSTR(oc.DESCRICAO,1,10),'...') ELSE oc.DESCRICAO END as 'DESCRICAO', CONCAT(CONCAT(pe.NOME, ' '),  pe.SOBRENOME) as 'ALUNO', CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME) as 'AUTOR' FROM OCORRENCIA oc
+
+$msg = null;
+$msg_temp = null;
+try {
+    $db1 = new db();
+    $ocorrencia_recebida = $db1->query("SELECT oc.ID, DATE_FORMAT(oc.DATA, '%d/%m/%Y %H:%i:%s') as DATA, oc.DESCRICAO, CONCAT(CONCAT(pe.NOME, ' '),  pe.SOBRENOME) as 'ALUNO', CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME) as 'AUTOR' FROM OCORRENCIA oc
 			JOIN PESSOA pe ON (pe.ID = oc.ID_PESSOA_ALUNO)
-            JOIN PESSOA p ON (p.ID = oc.ID_PESSOA_AUTOR)")->fetchAll();
+            JOIN PESSOA p ON (p.ID = oc.ID_PESSOA_AUTOR)
+            WHERE (ID_PESSOA_ALUNO = ?) ORDER BY DATA DESC", $alunoId)->fetchAll();
+    foreach ($ocorrencia_recebida as $single_row0) {
+        $horarioRecebimento = $single_row0['DATA'];
+        $avisoRecebimento = $single_row0['DESCRICAO'];
+        $nomeRecebimento = $single_row0['ALUNO'];        
+        $msg_temp = $horarioRecebimento . '&#13;&#10;'. $nomeRecebimento . ': ' . $avisoRecebimento . '&#13;&#10;&#13;&#10;';
+        $msg .= trim($msg_temp); 
+    }
+} finally {
+    $db1->close();
+}
 
-error_log(sizeof($db_ocorrencia_fetch));
+if (isset($_POST['aluno'])
+    and isset($_POST['ocorrencia'])
+    and isset($_POST['tipoOcorrencia'])){
+        $aluno = $_POST['aluno'];
+        $tipo_ocorrencia = $_POST['tipoOcorrencia'];
+        $ocorrencia = $_POST['ocorrencia'];
+        $tipoOcorrencia = $_POST['tipoOcorrencia'];
+        $autor = $pessoa->id;
+        if (!empty(trim($aluno)) and
+            !empty(trim($ocorrencia))){
+                try {
+                    $result = $db1->query("INSERT INTO OCORRENCIA (ID_PESSOA_ALUNO, ID_PESSOA_AUTOR,DESCRICAO, ID_TIPO)
+                          VALUES (?,?,?,?) "
+                        , $aluno
+                        , $autor
+                        , $ocorrencia
+                        , $tipoOcorrencia
+                        )->query_count;
+                        if ($result == 1){
+                            $showSuccessMessage = true;
+                            $mail->isSMTP();                                            // Send using SMTP
+                            $mail->Host       = 'email-ssl.com.br';                    // Set the SMTP server to send through
+                            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+                            $mail->Username   = 'comunicados@gestaosocioeducacional.com.br'; // SMTP username
+                            $mail->Password   = 'Comunicados#20201';                               // SMTP password
+                            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
+                            $mail->Port       = 587;                                    // TCP port to connect to
+                            
+                            //Recipients
+                            $mail->setFrom('comunicados@gestaosocioeducacional.com.br', 'GSE - ' . $pessoa->nome . ' ' . $pessoa->sobrenome);
+                            error_log($pessoa->email);
+                            $mail->addReplyTo($pessoa->email);
+                            
+                            $db_aluno_email_fetch = $db0->query("SELECT responsavel1.EMAIL as RESP1_EMAIL, responsavel2.EMAIL as RESP2_EMAIL FROM PESSOA aluno JOIN PESSOA responsavel1 ON (aluno.RESPONSAVEL_1 = responsavel1.ID) LEFT JOIN PESSOA responsavel2 ON (aluno.RESPONSAVEL_2 = responsavel2.ID) WHERE aluno.ID = ? " , $aluno)->fetchAll();
+                            $resp2email = $db_aluno_email_fetch[0]['RESP2_EMAIL'];
+                            if (isset($resp2email)){
+                                $mail->addAddress($resp2email);
+                            }
+                            $mail->addAddress($db_aluno_email_fetch[0]['RESP1_EMAIL']);
+                            $mail->CharSet='UTF-8';
+                            
+                            // Content
+                            $mail->isHTML(true);                                  // Set email format to HTML
+                            $mail->Subject = 'GSE - Ocorrencia';
+                            $mail->Body    = '<div style="color: #363534; font-family: Calibri, Candara;font-size: 12pt;"> Olá, <br/><br/> você recebeu a seguinte ocorrência de <a href="mailto:'
+                                . $pessoa->email . '">' . $pessoa->nome . ' '
+                                    . $pessoa->sobrenome  . '</a>: <br/> <br/>' . $ocorrencia .
+                                    '<br/><br/>Atenciosamente,<br/>GSE - Gestão Sócio Educacional.</div><span style="font-family: Calibri, Candara;font-size:10pt">http://gestaosocioeducacional.com.br/</span>';
+                            if ($mail->send()){
+                                error_log("Enviado!!!!");
+                            } else {
+                                error_log("Não foi enviado!!!!");
+                            }
+                        } 
+                } catch (Exception $ex){
+                    $error_code = $ex->getMessage();
+                    if ($error_code == 1062){
+                        $showErrorMessage = "Já existe um registro com ID informado!";
+                    } else {
+                        $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
+                    }
+                }
+        }
+}
 
 ?>
 
@@ -50,7 +126,7 @@ error_log(sizeof($db_ocorrencia_fetch));
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Visualizar ocorrências</title>
+<title>GSE - Cadastro de ocorrências</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -61,74 +137,53 @@ error_log(sizeof($db_ocorrencia_fetch));
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
-<script src="vendor/jquery/jquery.min.js"></script>
-
-
-
-  <script type="text/javascript">
-
-function abrirDetalhe(alunoId){
-	document.forms[0].alunoId.value = alunoId;
-	document.forms[0].submit();
-}
-
-var data = [
-	<?php
-	foreach ($db_ocorrencia_fetch as $single_row1) {
-    $data = "\t{\n";
-    $data .= "\t\tdetail: '<a onclick=\"abrirDetalhe(" . $single_row1['ID_PESSOA_ALUNO'].")\"><span style=\"font-size:23px;\"><center>&#10146;</center></span></a>',\n";
-    $data .= "\t\taluno:  '<a onclick=\"abrirDetalhe(" . $single_row1['ID_PESSOA_ALUNO'] . ")\">" . $single_row1['ALUNO'] . "</a>',\n";
-    $data .= "\t\tdescricacao: '<a onclick=\"abrirDetalhe(" . $single_row1['ID_PESSOA_ALUNO'] . ")\">" . $single_row1['DESCRICAO'] . "</a>',\n";
-    $data .= "\t\tdataInsercao: '<a onclick=\"abrirDetalhe(" . $single_row1['ID_PESSOA_ALUNO']  . ")\">" . $single_row1['DATA'] . "</a>',\n";
-    $data .= "\t\tautor: '<a onclick=\"abrirDetalhe(" . $single_row1['ID_PESSOA_ALUNO']  . ")\">" . $single_row1['AUTOR'] . "</a>',\n";
-    $data .= "\t},\n";
-    echo $data;
-}
-?>    
-]
-
-
-
-var columns = {
-	detail: '<center>Responder</center>',
-    aluno: 'Aluno',
-    descricacao: 'Descrição',
-    dataInsercao: 'Data de inserção',
-    autor: 'Autor',
-}
-
-	function submit() {
-		document.forms[0].submit();
-	}
-
-    function atualizarPagina(){
-    	document.forms[0].action = window.location.href;
-    	return false;
-    }	
- 
-  </script>
 
 <style type="text/css">
 
-.active_pagina_atual {
-    background-color: #e9ecef;
-    border-color: #ced4da;
-    color: #212529;
+.btn-primary {
+    color: black !important;
+    background-color: #e9ecef !important;
+    border-color: black !important;
 }
 
-.active_pagina_atual:hover {
-     background-color: #212529;
-    border-color: #212529;
-    color: white;
-}
-
-.mt-5, .my-5 {
-    margin-top: 0px!important;
-}
-textarea:focus {
-	outline: none;
-}
 </style>
+
+<script src="vendor/jquery/jquery.min.js"></script>
+
+  <script type="text/javascript">
+	function submit() {
+		document.forms[0].submit();
+	}
+  
+	function validateAndSubmitForm() {
+		var ocorrencia = document.getElementById("ocorrencia");
+		var aluno = document.getElementById("aluno");
+		var camposPreenchidos = true;
+		 
+		if (!isNotBlank(aluno.value)){
+			camposPreenchidos = false;
+		}
+		
+		if (!isNotBlank(ocorrencia.value)){
+			camposPreenchidos = false;
+		}	
+
+		if (camposPreenchidos){
+			submit();
+		} else {
+			alert('Preencha todos os campos obrigatórios!');
+		}			
+	}
+
+	function isNotBlank(value){
+		if (value == null){
+			return false;
+		}
+		return value.trim().length !== 0;
+	}	
+
+  </script>
+
 
 </head>
 
@@ -274,100 +329,50 @@ textarea:focus {
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item">Ocorrências</li>
-				<li class="breadcrumb-item active">Visualizar</li>
+				<li class="breadcrumb-item active">Cadastro</li>
 			</ol>
 			<div class="container">
 				<div>
-					<div class="card-body" style="padding: 0px;">
-						<form method="post" action="ocorrencias_responder.php">
-							<input type="hidden" id="alunoId" name="alunoId" />
-							<div class="page-container" style="padding: 0px;">
-								<div class="container">
-									<div class="row mt-5 mb-3 align-items-center">
-										<div class="col-md-5">
-											<!--<button class="btn btn-primary btn-sm" id="rerender">Re-Render</button> 
-                                            <button class="btn btn-primary btn-sm" id="distory">Distory</button> -->
-											<button class="btn btn-primary btn-sm" id="refresh"
-												style="background: #e9ecef; border-color: #ced4da; color: #212529;"
-												onclick="atualizarPagina()">Atualizar</button>
-										</div>
-										<div class="col-md-3">
-											<input type="text" class="form-control"
-												placeholder="Procure..." id="searchField">
-										</div>
-										<div class="col-md-2 text-right">
-											<span class="pr-3">Registros por página:</span>
-										</div>
-										<div class="col-md-2">
-											<div class="d-flex justify-content-end">
-												<select class="custom-select" name="rowsPerPage"
-													id="changeRows">
-													<option value="1">1</option>
-													<option value="5" selected>5</option>
-													<option value="10">10</option>
-													<option value="15">15</option>
-												</select>
-											</div>
-										</div>
-									</div>
-									<div id="root"></div>
+					<div class="card-body">
+						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
+						<div class="row">
+							<div class="card mb-3"
+								style="width: 100%; margin-left: 17px; margin-right: 17px">
+								<div class="card-header">
+									Descrição da ocorrência
 								</div>
-							</div>							
-							<script src="./table-sortable.js"></script>
-							<script>
-        var table = $('#root').tableSortable({
-            data,
-            columns,
-            searchField: '#searchField',
-            responsive: {
-                1100: {
-                    columns: {
-                        formTurma: 'Turma',
-                        descricacao: 'Descrição',
-                    },
-                },
-            },
-            rowsPerPage: 5,
-            pagination: true,
-            tableWillMount: () => {
-                console.log('table will mount')
-            },
-            tableDidMount: () => {
-                console.log('table did mount')
-            },
-            tableWillUpdate: () => console.log('table will update'),
-            tableDidUpdate: () => console.log('table did update'),
-            tableWillUnmount: () => console.log('table will unmount'),
-            tableDidUnmount: () => console.log('table did unmount'),
-            onPaginationChange: function(nextPage, setPage) {
-                setPage(nextPage);
-            }
-        });
-
-        $('#changeRows').on('change', function() {
-            table.updateRowsPerPage(parseInt($(this).val(), 10));
-        })
-
-        $('#rerender').click(function() {
-            table.refresh(true);
-        })
-
-        $('#distory').click(function() {
-            table.distroy();
-        })
-
-        $('#refresh').click(function() {
-            table.refresh();
-        })
-
-        $('#setPage2').click(function() {
-            table.setPage(1);
-        })
-    </script>
-
-						</form>
+								<div class="card-body">
+								<textarea class="form-control" id="ocorrenciaRecebidas" rows="10" style="text-align: left;" disabled><?php echo $msg;?></textarea>
+								</div>
+							</div>
+							<br>
+							<span style="margin-left: 17px;">Resposta: *</span>
+							<div class="card mb-3"
+								style="width: 100%; margin-left: 17px; margin-right: 17px;">
+								<div class="card-body" style="padding-left: 1.25rem; padding-top: 5px;padding-bottom: 5px;">
+									<input type="checkbox" name="atendimentoEducacionalEspecializado" id="atendimentoEducacionalEspecializado" />
+									Necessita de atendimento educacional especializado
+								</div>	
+								<div class="card-body" style="padding-top: 0px;padding-bottom: 1.25rem;" >
+								<textarea class="form-control" id="ocorrenciaRecebidas" rows="10" style="text-align: left;"></textarea>
+								</div>
+							</div>
+					
+        					<a class="btn btn-primary btn-block" style="margin-left: 1.1rem;margin-right: 1rem;" onclick="validateAndSubmitForm()">Responder</a>
+					</form>
 					</div>
 				</div>
+				<?php 
+					if (isset($showErrorMessage)){ ?>
+						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </div>
+					<?php 
+					}
+					
+					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
+					    <div style="color:green;text-align: center;">Ocorrência criada com sucesso!</div>
+					<?php }
+					
+					?>
 			</div>
 		</div>
 		<!-- /.container-fluid-->
@@ -409,26 +414,20 @@ textarea:focus {
 			</div>
 		</div>
 		<!-- Bootstrap core JavaScript-->
+		<script src="vendor/jquery/jquery.min.js"></script>
 		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 		<!-- Core plugin JavaScript-->
 		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 		<!-- Page level plugin JavaScript-->
-		<!-- <script src="vendor/chart.js/Chart.min.js"></script>-->
 		<script src="vendor/datatables/jquery.dataTables.js"></script>
 		<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 		<!-- Custom scripts for all pages-->
 		<script src="js/sb-admin.min.js"></script>
 		<!-- Custom scripts for this page-->
 		<script src="js/sb-admin-datatables.min.js"></script>
-		<!-- <script src="js/sb-admin-charts.min.js"></script>-->
 	</div>
 </body>
 
 </html>
-<?php 
-$db0->close();
-$db1->close();
-$db2->close();
-$db3->close();
-?>
+
 
