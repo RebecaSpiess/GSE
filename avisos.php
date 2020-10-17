@@ -161,6 +161,16 @@ try {
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
 
+<style type="text/css">
+
+.btn-primary {
+    color: black !important;
+    background-color: #e9ecef !important;
+    border-color: black !important;
+}
+
+</style>
+
 
 <script type="text/javascript">
 	function trimMensagensRecebidas() {
@@ -386,7 +396,7 @@ try {
 					<div id="avisoErro" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div><br>
 				</div>
 				</div>
-				<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Enviar</a>
+				<a class="btn btn-primary btn-block" style="margin-left: 1.1rem;margin-right: 1rem;" onclick="validateAndSubmitForm()">Enviar</a>
 				</form>
 			</div>
 			<br>

@@ -66,6 +66,16 @@ function listar_professores($id){
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
 
+ <style type="text/css">
+
+.btn-primary {
+    color: black !important;
+    background-color: #e9ecef !important;
+    border-color: black !important;
+}
+
+</style>
+
 <script type="text/javascript">
 	function submit() {
 		document.forms[0].submit();

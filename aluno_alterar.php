@@ -186,6 +186,16 @@ if (
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
 
+<style type="text/css">
+
+.btn-primary {
+    color: black !important;
+    background-color: #e9ecef !important;
+    border-color: black !important;
+}
+
+</style>
+
 <script type="text/javascript">
 	function submit() {
 		document.forms[0].submit();
@@ -875,9 +885,8 @@ if (
 							</div>
 						</div>
 					</div>
-
-					<a class="btn btn-primary btn-block"
-						onclick="validateAndSubmitForm()">Cadastrar</a>
+					
+					<a class="btn btn-primary btn-block" style="margin-left: 1.1rem;margin-right: 1rem;" onclick="validateAndSubmitForm()">Cadastrar</a>
 					</form>
 				</div>
 			</div>

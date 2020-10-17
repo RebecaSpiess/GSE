@@ -20,6 +20,8 @@ $showSuccessMessage = false;
 
 $db0 = new db();
 $db1 = new db();
+$db3 = new db();
+$db4 = new db();
 
 $tipoPessoaId = $pessoa->tipo_pessoa;
 $sqlTurmas = "";
@@ -90,6 +92,16 @@ if (isset($_POST['turma']) and
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+
+<style type="text/css">
+
+.btn-primary {
+    color: black !important;
+    background-color: #e9ecef !important;
+    border-color: black !important;
+}
+
+</style>
 
 
   <script type="text/javascript">
@@ -324,7 +336,7 @@ if (isset($_POST['turma']) and
 								</div>
 							</div>
 					
-        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>
+        					<a class="btn btn-primary btn-block" style="margin-left: 1.1rem;margin-right: 1rem;" onclick="validateAndSubmitForm()">Cadastrar</a>
 					</form>
 					</div>
 				</div>

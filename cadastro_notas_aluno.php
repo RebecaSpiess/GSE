@@ -11,19 +11,36 @@ Sessao::validar();
 
 $papeisPermitidos = array(2,4,1);
 ControleAcesso::validar($papeisPermitidos);
+$pessoa = unserialize($_SESSION['loggedGSEUser']);
 
 
 $turma_id = $_POST['turma'];
 $assunto = $_POST['assunto'];
+$IdPessoa = $pessoa->id;
+$tipoPessoaIdentificador = $pessoa->tipo_pessoa;
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
 
 $db0 = new db();
 $db1 = new db();
+$db4 = new db();
+$db3 = new db();
 
-$db_turma_fetch = $db0->query("SELECT PE.ID, PE.NOME, PE.SOBRENOME, TU.NOME_TURMA FROM TURMA TU JOIN TURMA_PESSOA TU_PE ON (TU_PE.ID_TURMA = TU.ID) JOIN PESSOA PE ON (TU_PE.ID_PESSOA = PE.ID) 
+if ($tipoPessoaIdentificador == 2 ){
+    $db_materia_fetch = $db4->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
+	JOIN MATERIA ma ON (ma.ID = tm.ID_MATERIA)
+    WHERE tm.ID_TURMA = ?", $turma_id)->fetchAll();
+    
+} else {
+    $db_materia_fetch = $db3->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
+	JOIN MATERIA ma ON (ma.ID = tm.ID_MATERIA)
+    WHERE tm.ID_TURMA = ? and tm.ID_PROFESSOR = ?", $turma_id, $IdPessoa)->fetchAll();
+}
+
+$db_turma_fetch = $db0->query("SELECT PE.ID, PE.NOME, PE.SOBRENOME, TU.NOME_TURMA FROM TURMA TU JOIN TURMA_PESSOA TU_PE ON (TU_PE.ID_TURMA = TU.ID) JOIN PESSOA PE ON (TU_PE.ID_PESSOA = PE.ID)
 WHERE PE.TIPO_PESSOA = 3 AND TU.ID = ? ORDER BY PE.NOME, PE.SOBRENOME", $turma_id)->fetchAll();
+
 
 if (isset($_POST['cadastro_notas'])){
         $cadastro_notas = $_POST['cadastro_notas'];
@@ -32,7 +49,7 @@ if (isset($_POST['cadastro_notas'])){
             foreach ($db_turma_fetch as $single_row0) {
                 if (isset($_POST[$single_row0['ID']])){
                     $nota = $_POST[$single_row0['ID']];
-                    $db1->query("INSERT INTO NOTAS (ID_TURMA, ID_PESSOA, NOTA, DESCRICAO) VALUES (?,?,?,?) ",$turma_id,$single_row0['ID'],$nota,$assunto);
+                    $db1->query("INSERT INTO NOTAS (ID_TURMA, ID_PESSOA, NOTA, DESCRICAO, ID_MATERIA) VALUES (?,?,?,?,?) ",$turma_id,$single_row0['ID'],$nota,$assunto);
                     $db1->close();
                     $db1 = new db();
                     $count++;
@@ -69,6 +86,16 @@ if (isset($_POST['cadastro_notas'])){
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+
+<style type="text/css">
+
+.btn-primary {
+    color: black !important;
+    background-color: #e9ecef !important;
+    border-color: black !important;
+}
+
+</style>
 
 
  <script type="text/javascript">
@@ -293,6 +320,21 @@ if (isset($_POST['cadastro_notas'])){
 								<input type="hidden" name="assunto" value="<?php echo $assunto;?>" />
 								<input type="hidden" name="cadastro_notas" id="cadastro_notas" value="false" />
 								<br>
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+									<label for="turma">Matéria*</label> 
+									<select
+										class="form-control"
+										aria-describedby="nameHelp" id="turma" name="turma">
+									
+									<?php
+									foreach ($db_materia_fetch as $single_row1) {
+                                                echo "<option value=\"" . $single_row1['ID_MATERIA'] . "\">" . $single_row1['NOME'] . "</option>";
+                                            } 
+                                        ?>
+										
+									</select>
+								</div>
+								<br>
 								<table cellpadding="3">									
 									<?php
                                             foreach ($db_turma_fetch as $single_row1) {
@@ -312,7 +354,7 @@ if (isset($_POST['cadastro_notas'])){
 							</div>
 							<?php
 							if (!empty($db_turma_fetch)){
-               					echo "<a class=\"btn btn-primary btn-block\" onclick=\"validateAndSubmitForm()\">Cadastrar notas</a>";
+               					echo "<a class=\"btn btn-primary btn-block\" style=\"margin-left: 1.1rem;margin-right: 1rem;\"  onclick=\"validateAndSubmitForm()\">Cadastrar notas</a>";
 							}
         					?>
 					</form>
@@ -379,4 +421,6 @@ if (isset($_POST['cadastro_notas'])){
 
 <?php 
 $db0->close();
+$db4->close();
+$db3->close();
 ?>
