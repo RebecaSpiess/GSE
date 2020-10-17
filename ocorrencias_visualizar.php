@@ -76,11 +76,11 @@ var data = [
 	<?php
 	foreach ($db_ocorrencia_fetch as $single_row1) {
     $data = "\t{\n";
-    $data .= "\t\tdetail: '<a onclick=\"abrirDetalhe(" . $single_row1['ID_PESSOA_ALUNO'].")\"><span style=\"font-size:23px;\"><center>&#10146;</center></span></a>',\n";
-    $data .= "\t\taluno:  '<a onclick=\"abrirDetalhe(" . $single_row1['ID_PESSOA_ALUNO'] . ")\">" . $single_row1['ALUNO'] . "</a>',\n";
-    $data .= "\t\tdescricacao: '<a onclick=\"abrirDetalhe(" . $single_row1['ID_PESSOA_ALUNO'] . ")\">" . $single_row1['DESCRICAO'] . "</a>',\n";
-    $data .= "\t\tdataInsercao: '<a onclick=\"abrirDetalhe(" . $single_row1['ID_PESSOA_ALUNO']  . ")\">" . $single_row1['DATA'] . "</a>',\n";
-    $data .= "\t\tautor: '<a onclick=\"abrirDetalhe(" . $single_row1['ID_PESSOA_ALUNO']  . ")\">" . $single_row1['AUTOR'] . "</a>',\n";
+    $data .= "\t\tdetail: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID_PESSOA_ALUNO'].")\"><span style=\"font-size:23px;\"><center>&#10146;</center></span></a></center>',\n";
+    $data .= "\t\taluno:  '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID_PESSOA_ALUNO'] . ")\">" . $single_row1['ALUNO'] . "</a></center>',\n";
+    $data .= "\t\tdescricacao: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID_PESSOA_ALUNO'] . ")\">" . $single_row1['DESCRICAO'] . "</a></center>',\n";
+    $data .= "\t\tdataInsercao: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID_PESSOA_ALUNO']  . ")\">" . $single_row1['DATA'] . "</a></center>',\n";
+    $data .= "\t\tautor: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID_PESSOA_ALUNO']  . ")\">" . $single_row1['AUTOR'] . "</a></center>',\n";
     $data .= "\t},\n";
     echo $data;
 }
@@ -91,10 +91,10 @@ var data = [
 
 var columns = {
 	detail: '<center>Responder</center>',
-    aluno: 'Aluno',
-    descricacao: 'Descrição',
-    dataInsercao: 'Data de inserção',
-    autor: 'Autor',
+    aluno: '<center>Aluno</center>',
+    descricacao: '<center>Descrição</center>',
+    dataInsercao: '<center>Data de inserção</center>',
+    autor: '<center>Autor</center>',
 }
 
 	function submit() {
@@ -110,13 +110,17 @@ var columns = {
 
 <style type="text/css">
 
+th, td {
+    vertical-align: middle !important;
+}
+
 .active_pagina_atual {
     background-color: #e9ecef;
     border-color: #ced4da;
     color: #212529;
 }
 
-.active_pagina_atual:hover {
+.active_pagina_atual:hover, .active_pagina_atual:focus {
      background-color: #212529;
     border-color: #212529;
     color: white;
@@ -128,6 +132,8 @@ var columns = {
 textarea:focus {
 	outline: none;
 }
+
+
 </style>
 
 </head>
@@ -413,14 +419,12 @@ textarea:focus {
 		<!-- Core plugin JavaScript-->
 		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 		<!-- Page level plugin JavaScript-->
-		<!-- <script src="vendor/chart.js/Chart.min.js"></script>-->
 		<script src="vendor/datatables/jquery.dataTables.js"></script>
 		<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 		<!-- Custom scripts for all pages-->
 		<script src="js/sb-admin.min.js"></script>
 		<!-- Custom scripts for this page-->
 		<script src="js/sb-admin-datatables.min.js"></script>
-		<!-- <script src="js/sb-admin-charts.min.js"></script>-->
 	</div>
 </body>
 

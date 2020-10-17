@@ -67,14 +67,14 @@ var data = [
 	<?php
 	foreach ($db_servidores_fetch as $single_row1) {
         $data = "\t{\n";
-        $data .= "\t\tdetail: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\"><center>&#9998;</center></a>',\n";
-        $data .= "\t\tnome: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME'] . "</a>',\n";
-        $data .= "\t\temail: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['EMAIL'] . "</a>',\n";
-        $data .= "\t\tdataNascimento: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DATA_NASCIMENTO'] . "</a>',\n";
-        $data .= "\t\tsexo: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['SEXO'] . "</a>',\n";
-        $data .= "\t\ttelefone: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TELEFONE'] . "</a>',\n";
-        $data .= "\t\tcpf: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['CPF'] . "</a>',\n";
-        $data .= "\t\ttipoPessoa: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TIPO_PESSOA'] . "</a>',\n";
+        $data .= "\t\tdetail: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\"><span style=\"font-family:none; font-size: 18pt;\">&#9998;</span></a></center>',\n";
+        $data .= "\t\tnome: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME'] . "</a></center>',\n";
+        $data .= "\t\temail: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['EMAIL'] . "</a></center>',\n";
+        $data .= "\t\tdataNascimento: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DATA_NASCIMENTO'] . "</a></center>',\n";
+        $data .= "\t\tsexo: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['SEXO'] . "</a></center>',\n";
+        $data .= "\t\ttelefone: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TELEFONE'] . "</a></center>',\n";
+        $data .= "\t\tcpf: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['CPF'] . "</a></center>',\n";
+        $data .= "\t\ttipoPessoa: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TIPO_PESSOA'] . "</a></center>',\n";
         $data .= "\t},\n";
         echo $data;
 }
@@ -107,13 +107,17 @@ var columns = {
   
  <style type="text/css">
 
+th, td {
+    vertical-align: middle !important;
+}
+
 .active_pagina_atual {
     background-color: #e9ecef;
     border-color: #ced4da;
     color: #212529;
 }
 
-.active_pagina_atual:hover {
+.active_pagina_atual:hover, .active_pagina_atual:focus {
      background-color: #212529;
     border-color: #212529;
     color: white;
@@ -418,14 +422,12 @@ textarea:focus {
 	<!-- Core plugin JavaScript-->
 	<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 	<!-- Page level plugin JavaScript-->
-	<script src="vendor/chart.js/Chart.min.js"></script>
 	<script src="vendor/datatables/jquery.dataTables.js"></script>
 	<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 	<!-- Custom scripts for all pages-->
 	<script src="js/sb-admin.min.js"></script>
 	<!-- Custom scripts for this page-->
 	<script src="js/sb-admin-datatables.min.js"></script>
-	<script src="js/sb-admin-charts.min.js"></script>
 	</div>
 </body>
 

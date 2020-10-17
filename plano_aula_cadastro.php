@@ -336,7 +336,7 @@ if (isset($_POST['turma']) and
 								</div>
 							</div>
 					
-        					<a class="btn btn-primary btn-block" style="margin-left: 1.1rem;margin-right: 1rem;" onclick="validateAndSubmitForm()">Cadastrar</a>
+        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>
 					</form>
 					</div>
 				</div>
@@ -387,14 +387,12 @@ if (isset($_POST['turma']) and
 	<!-- Core plugin JavaScript-->
 	<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 	<!-- Page level plugin JavaScript-->
-	<script src="vendor/chart.js/Chart.min.js"></script>
 	<script src="vendor/datatables/jquery.dataTables.js"></script>
 	<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 	<!-- Custom scripts for all pages-->
 	<script src="js/sb-admin.min.js"></script>
 	<!-- Custom scripts for this page-->
 	<script src="js/sb-admin-datatables.min.js"></script>
-	<script src="js/sb-admin-charts.min.js"></script>
 	</div>
 </body>
 

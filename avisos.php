@@ -354,7 +354,7 @@ try {
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="#">Avisos</a></li>
+				<li class="breadcrumb-item">Avisos</li>
 				<li class="breadcrumb-item active">Quadro de avisos</li>
 			</ol>
 			<div class="card mb-3">
@@ -396,11 +396,11 @@ try {
 					<div id="avisoErro" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div><br>
 				</div>
 				</div>
-				<a class="btn btn-primary btn-block" style="margin-left: 1.1rem;margin-right: 1rem;" onclick="validateAndSubmitForm()">Enviar</a>
+				<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Enviar</a>
 				</form>
 			</div>
 			<br>
-			<div class="row">
+			<div class="row" style="margin: -2px;">
 				<div class="card mb-3"
 					style="width: 100%; margin-left: 17px; margin-right: 17px">
 					<div class="card-header">
@@ -455,11 +455,9 @@ try {
 			<!-- Core plugin JavaScript-->
 			<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 			<!-- Page level plugin JavaScript-->
-			<script src="vendor/chart.js/Chart.min.js"></script>
 			<!-- Custom scripts for all pages-->
 			<script src="js/sb-admin.min.js"></script>
 			<!-- Custom scripts for this page-->
-			<script src="js/sb-admin-charts.min.js"></script>
 		</div>
 
 </body>

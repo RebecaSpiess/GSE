@@ -66,6 +66,24 @@ $db_pessoa_fetch = $db0->query($pessoa_db)->fetchAll();
 <link href="css/sb-admin.css" rel="stylesheet">
 <script src="vendor/jquery/jquery.min.js"></script>
 
+<style>
+
+th, td {
+    vertical-align: middle !important;
+} 
+.active_pagina_atual {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    color: #212529;
+}
+
+.active_pagina_atual:hover, .active_pagina_atual:focus {
+    background-color: #212529 !important;
+    border-color: #212529;
+    color: white;
+}
+
+</style>
 
 <script type="text/javascript">
 function abrirDetalhe(pessoaID){
@@ -77,24 +95,24 @@ var data = [
 	<?php
 	foreach ($db_pessoa_fetch as $single_row1) {
         $data = "\t{\n";
-        $data .= "\t\tdetail: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\"><center>&#9998;</center></a>',\n";
-        $data .= "\t\tnomeAluno: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME'] . "</a>',\n";
-        $data .= "\t\tdataNascimentoAluno: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DATA_NASCIMENTO'] . "</a>',\n";
-        $data .= "\t\tsexoAluno: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['SEXO'] . "</a>',\n";
+        $data .= "\t\tdetail: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\"><span style=\"font-family:none; font-size: 18pt;\">&#9998;</span></a></center>',\n";
+        $data .= "\t\tnomeAluno: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME'] . "</a></center>',\n";
+        $data .= "\t\tdataNascimentoAluno: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DATA_NASCIMENTO'] . "</a></center>',\n";
+        $data .= "\t\tsexoAluno: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['SEXO'] . "</a></center>',\n";
         
-        $data .= "\t\tnomeResp1: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME_RESP1'] . "</a>',\n";
-        $data .= "\t\tcpfResp1: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['CPF_RESP1'] . "</a>',\n";
-        $data .= "\t\ttelefoneResp1: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TELEFONE_RESP1'] . "</a>',\n";
-        $data .= "\t\temailResp1: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['EMAIL_RESP1'] . "</a>',\n";
-        $data .= "\t\tdataNascimentoResp1: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DATA_NASCIMENTO_RESP1'] . "</a>',\n";
-        $data .= "\t\tsexoResp1: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TIPO_SEXO_RESP1'] . "</a>',\n";
+        $data .= "\t\tnomeResp1: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME_RESP1'] . "</a></center>',\n";
+        $data .= "\t\tcpfResp1: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['CPF_RESP1'] . "</a></center>',\n";
+        $data .= "\t\ttelefoneResp1: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TELEFONE_RESP1'] . "</a></center>',\n";
+        $data .= "\t\temailResp1: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['EMAIL_RESP1'] . "</a></center>',\n";
+        $data .= "\t\tdataNascimentoResp1: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DATA_NASCIMENTO_RESP1'] . "</a></center>',\n";
+        $data .= "\t\tsexoResp1: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TIPO_SEXO_RESP1'] . "</a></center>',\n";
         
-        $data .= "\t\tnomeResp2: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME_RESP2'] . "</a>',\n";
-        $data .= "\t\tcpfResp2: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['CPF_RESP2'] . "</a>',\n";
-        $data .= "\t\ttelefoneResp2: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TELEFONE_RESP2'] . "</a>',\n";
-        $data .= "\t\temailResp2: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['EMAIL_RESP2'] . "</a>',\n";
-        $data .= "\t\tdataNascimentoResp2: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DATA_NASCIMENTO_RESP2'] . "</a>',\n";
-        $data .= "\t\tsexoResp2: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TIPO_SEXO_RESP2'] . "</a>',\n";
+        $data .= "\t\tnomeResp2: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME_RESP2'] . "</a></center>',\n";
+        $data .= "\t\tcpfResp2: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['CPF_RESP2'] . "</a></center>',\n";
+        $data .= "\t\ttelefoneResp2: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TELEFONE_RESP2'] . "</a></center>',\n";
+        $data .= "\t\temailResp2: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['EMAIL_RESP2'] . "</a></center>',\n";
+        $data .= "\t\tdataNascimentoResp2: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DATA_NASCIMENTO_RESP2'] . "</a></center>',\n";
+        $data .= "\t\tsexoResp2: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TIPO_SEXO_RESP2'] . "</a></center>',\n";
         $data .= "\t},\n";
         echo $data;
 }
@@ -105,21 +123,21 @@ var data = [
 
 var columns = {
 	detail: '<center>Alterar</center>',
-    nomeAluno: 'Nome Aluno',
-    dataNascimentoAluno: 'Data de nascimento Aluno',
-    sexoAluno: 'Sexo Aluno',
-    nomeResp1: 'Nome Responsavel 1',
-    cpfResp1: 'CPF Responsavel 1',
-    telefoneResp1: 'Telefone Responsavel 1',
-    emailResp1: 'E-Mail Responsavel 1',
-    dataNascimentoResp1: 'Data de nascimento Responsavel 1',
-    sexoResp1: 'Sexo Responsavel 1',
-    nomeResp2: 'Nome Responsavel 2',
-    cpfResp2: 'CPF Responsavel 2',
-    telefoneResp2: 'Telefone Responsavel 2',
-    emailResp2: 'E-Mail Responsavel 2',
-    dataNascimentoResp2: 'Data de nascimento Responsavel 2',
-    sexoResp2: 'Sexo Responsavel 2'
+    nomeAluno: '<center>Nome do aluno</center>',
+    // dataNascimentoAluno: 'Data de nascimento Aluno',
+    sexoAluno: '<center>Sexo do aluno</center>',
+    nomeResp1: '<center>Nome do responsável 1</center>',
+    // cpfResp1: '<center>CPF Responsavel 1</center>',
+    telefoneResp1: '<center>Telefone do responsável 1</center>',
+    //emailResp1: 'E-Mail Responsavel 1',
+    //dataNascimentoResp1: 'Data de nascimento Responsavel 1',
+    //sexoResp1: 'Sexo Responsavel 1',
+    nomeResp2: '<center>Nome do responsável 2</center>',
+    //cpfResp2: 'CPF Responsavel 2',
+    telefoneResp2: '<center>Telefone do responsável 2</center>',
+    //emailResp2: 'E-Mail Responsavel 2',
+    //dataNascimentoResp2: 'Data de nascimento Responsavel 2',
+    //sexoResp2: 'Sexo Responsavel 2'
 }
 
 	function submit() {
@@ -295,7 +313,7 @@ var columns = {
 			</ol>
 			<div class="container">
 				<div>
-					<div class="card-body">
+					<div class="card-body" style="padding-top: 0px;">
 						<form method="post" action="servidores_alterar.php">
 							<input type="hidden" id="pessoaID" name="pessoaID" />
 							<div class="page-container" style="padding: 0px;">
@@ -305,7 +323,7 @@ var columns = {
 											<!--<button class="btn btn-primary btn-sm" id="rerender">Re-Render</button> 
                                             <button class="btn btn-primary btn-sm" id="distory">Distory</button> -->
 											<button class="btn btn-primary btn-sm" id="refresh"
-												style="background: #e9ecef; border-color: #ced4da; color: #212529;" onclick="atualizarPagina();">Atualizar</button>
+												style="background: #e9ecef; border-color: #ced4da; color: #212529;font-size: 1rem;" onclick="atualizarPagina();">Atualizar</button>
 										</div>
 										<div class="col-md-3">
 											<input type="text" class="form-control"
@@ -444,14 +462,12 @@ var columns = {
 	<!-- Core plugin JavaScript-->
 	<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 	<!-- Page level plugin JavaScript-->
-	<!-- <script src="vendor/chart.js/Chart.min.js"></script> -->
 	<script src="vendor/datatables/jquery.dataTables.js"></script>
 	<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 	<!-- Custom scripts for all pages-->
 	<script src="js/sb-admin.min.js"></script>
 	<!-- Custom scripts for this page-->
 	<script src="js/sb-admin-datatables.min.js"></script>
-	<!--<script src="js/sb-admin-charts.min.js"></script>-->
 
 	</div>
 </body>

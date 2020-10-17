@@ -81,12 +81,12 @@ var data = [
 	<?php
 foreach ($db_turma_fetch as $single_row1) {
     $data = "\t{\n";
-    $data .= "\t\tdetail: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\"><center>&#9998;</center></a>',\n";
-    $data .= "\t\tformTurma: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['NOME_TURMA'] . "</a>',\n";
-    $data .= "\t\tdescricacao: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['DESCRICAO'] . "</a>',\n";
-    $data .= "\t\tmateria: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['NOME'] . "</a>',\n";
-    $data .= "\t\tdataInsercao: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['DATA_HORA_CADASTRO'] . "</a>',\n";
-    $data .= "\t\tautor: '<a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['AUTOR'] . "</a>',\n";
+    $data .= "\t\tdetail: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\"><span style=\"font-family:none; font-size: 18pt;\">&#9998;</span></a></center>',\n";
+    $data .= "\t\tformTurma: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['NOME_TURMA'] . "</a></center>',\n";
+    $data .= "\t\tdescricacao: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['DESCRICAO'] . "</a></center>',\n";
+    $data .= "\t\tmateria: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['NOME'] . "</a></center>',\n";
+    $data .= "\t\tdataInsercao: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['DATA_HORA_CADASTRO'] . "</a></center>',\n";
+    $data .= "\t\tautor: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . "," . $single_row1['PLANO_AULA_ID'] .")\">" . $single_row1['AUTOR'] . "</a></center>',\n";
     $data .= "\t},\n";
     echo $data;
 }
@@ -97,11 +97,11 @@ foreach ($db_turma_fetch as $single_row1) {
 
 var columns = {
 	detail: '<center>Alterar</center>',
-    formTurma: 'Turma',
-    descricacao: 'Descrição',
-    materia: 'Matéria',
-    dataInsercao: 'Data de inserção',
-    autor: 'Autor',
+    formTurma: '<center>Turma</center>',
+    descricacao: '<center>Descrição</center>',
+    materia: '<center>Matéria</center>',
+    dataInsercao: '<center>Data de inserção</center>',
+    autor: '<center>Autor</center>',
 }
 
 	function submit() {
@@ -116,13 +116,17 @@ var columns = {
  </script>
 <style type="text/css">
 
+th, td {
+    vertical-align: middle !important;
+}
+
 .active_pagina_atual {
     background-color: #e9ecef;
     border-color: #ced4da;
     color: #212529;
 }
 
-.active_pagina_atual:hover {
+.active_pagina_atual:hover, .active_pagina_atual:focus {
      background-color: #212529;
     border-color: #212529;
     color: white;
@@ -439,14 +443,12 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
 	<!-- Core plugin JavaScript-->
 	<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 	<!-- Page level plugin JavaScript-->
-	<script src="vendor/chart.js/Chart.min.js"></script>
 	<script src="vendor/datatables/jquery.dataTables.js"></script>
 	<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 	<!-- Custom scripts for all pages-->
 	<script src="js/sb-admin.min.js"></script>
 	<!-- Custom scripts for this page-->
 	<script src="js/sb-admin-datatables.min.js"></script>
-	<script src="js/sb-admin-charts.min.js"></script>
 	</div>
 </body>
 
