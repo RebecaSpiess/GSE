@@ -36,10 +36,10 @@ $db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
 
 $db0->close();
 
-if (isset($_SESSION1['mensagem_frequencia'])){
+if (isset($_SESSION['mensagem_frequencia'])){
     $showSuccessMessage = true;
-    $mensagem_sucesso = $_SESSION1['mensagem_frequencia'];
-    unset($_SESSION1['mensagem_frequencia']);
+    $mensagem_sucesso = $_SESSION['mensagem_frequencia'];
+    unset($_SESSION['mensagem_frequencia']);
 }
 
 

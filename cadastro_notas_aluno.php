@@ -42,27 +42,28 @@ $db_turma_fetch = $db0->query("SELECT PE.ID, PE.NOME, PE.SOBRENOME, TU.NOME_TURM
 WHERE PE.TIPO_PESSOA = 3 AND TU.ID = ? ORDER BY PE.NOME, PE.SOBRENOME", $turma_id)->fetchAll();
 
 
-if (isset($_POST['cadastro_notas'])){
+if (isset($_POST['cadastro_notas']) and isset($_POST['materia'])){
         $cadastro_notas = $_POST['cadastro_notas'];
+        $materia = $_POST['materia'];
         $count = 0;
-        if (!empty(trim($cadastro_notas)) and $cadastro_notas == 'true'){
+        if (!empty(trim($cadastro_notas))){
+            error_log("RSG!!!!!!!!!!!");
             foreach ($db_turma_fetch as $single_row0) {
                 if (isset($_POST[$single_row0['ID']])){
                     $nota = $_POST[$single_row0['ID']];
-                    $db1->query("INSERT INTO NOTAS (ID_TURMA, ID_PESSOA, NOTA, DESCRICAO, ID_MATERIA) VALUES (?,?,?,?,?) ",$turma_id,$single_row0['ID'],$nota,$assunto);
-                    $db1->close();
                     $db1 = new db();
+                    $db1->query("INSERT INTO NOTAS (ID_TURMA, ID_PESSOA, NOTA, DESCRICAO, ID_MATERIA) VALUES (?,?,?,?,?) ",$turma_id,$single_row0['ID'],$nota,$assunto, $materia);
+                    $db1->close();
                     $count++;
                 }
             }
-            header("Location: aluno_notas.php");
             if ($count == 1){
                 $_SESSION['mensagem_notas'] = "Nota cadastrada com sucesso!";
             } else if ($count > 1){
                 $_SESSION['mensagem_notas'] = "Notas cadastradas com sucesso!";
             }
-        }
-        $db1->close();
+            header("Location: aluno_notas.php");
+        } 
 } 
 ?>
 
@@ -311,7 +312,7 @@ if (isset($_POST['cadastro_notas'])){
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
 								<?php 
 								if (!empty($db_turma_fetch)){ 
-								    echo "<span style=\"font-weight: bold;\">Turma:</span>" . $db_turma_fetch[0]['NOME_TURMA'] . "<br>";
+								    echo "<span style=\"font-weight: bold;\">Turma: </span>" . $db_turma_fetch[0]['NOME_TURMA'] . "<br>";
 								} else {
 								    echo "<span>Essa turma não possui alunos cadastrados!<br><br>";
 								}?>
@@ -321,10 +322,10 @@ if (isset($_POST['cadastro_notas'])){
 								<input type="hidden" name="cadastro_notas" id="cadastro_notas" value="false" />
 								<br>
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-									<label for="turma">Matéria*</label> 
+									<label for="nota">Matéria:*</label> 
 									<select
 										class="form-control"
-										aria-describedby="nameHelp" id="turma" name="turma">
+										aria-describedby="nameHelp" id="materia" name="materia">
 									
 									<?php
 									foreach ($db_materia_fetch as $single_row1) {
@@ -354,7 +355,7 @@ if (isset($_POST['cadastro_notas'])){
 							</div>
 							<?php
 							if (!empty($db_turma_fetch)){
-               					echo "<a class=\"btn btn-primary btn-block\" style=\"margin-left: 1.1rem;margin-right: 1rem;\"  onclick=\"validateAndSubmitForm()\">Cadastrar notas</a>";
+               					echo "<a class=\"btn btn-primary btn-block\" onclick=\"validateAndSubmitForm()\">Cadastrar notas</a>";
 							}
         					?>
 					</form>

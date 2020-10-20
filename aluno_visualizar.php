@@ -27,8 +27,8 @@ $db = new db();
 $db0 = new db();
 
 $showErrorMessage = null;
-$showSuccessMessage = (isset($_SESSION3['servidorAtualizadoComSucesso']) and $_SESSION3['servidorAtualizadoComSucesso']);
-$_SESSION3['servidorAtualizadoComSucesso']= null;
+$showSuccessMessage = (isset($_SESSION['servidorAtualizadoComSucesso']) and $_SESSION['servidorAtualizadoComSucesso']);
+$_SESSION['servidorAtualizadoComSucesso'] = null;
 
 $pessoa_db = "select pe.ID, CONCAT(CONCAT(pe.NOME, ' '),pe.SOBRENOME) AS 'NOME', pe.DATA_NASCIMENTO, sex.SEXO, pe.RESPONSAVEL_1, pe.RESPONSAVEL_2,
 	   CONCAT(CONCAT(resp1.NOME, ' '),resp1.SOBRENOME) AS 'NOME_RESP1', resp1.CPF AS 'CPF_RESP1', resp1.TELEFONE AS 'TELEFONE_RESP1', resp1.EMAIL AS 'EMAIL_RESP1', resp1.DATA_NASCIMENTO AS 'DATA_NASCIMENTO_RESP1', resp1.TIPO_SEXO AS 'TIPO_SEXO_RESP1',
