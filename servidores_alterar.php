@@ -27,7 +27,6 @@ $tipo_sexo_db = $db2->query("SELECT ID, SEXO FROM SEXO");
 $sqlPessoa = "select pe.ID, pe.NOME, pe.SOBRENOME, pe.EMAIL, pe.DATA_NASCIMENTO, pe.TIPO_SEXO, pe.TELEFONE, pe.CPF, pe.TIPO_PESSOA from PESSOA pe WHERE ID = ?";
 $db_pessoa_fetch = $db0->query($sqlPessoa, $pessoaID)->fetchAll();
 
-error_log("BEZZIIIIIIIIIIIIIII" . $db_pessoa_fetch[0]['NOME']);
 
 $showErrorMessage = null;
 $showSuccessMessage = false;

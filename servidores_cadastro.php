@@ -18,8 +18,10 @@ ControleAcesso::validar($papeisPermitidos);
 
 $db = new db();
 $db1 = new db();
+$db2 = new db();
 
 $tipo_pessoas_db = $db->query("SELECT * FROM TIPO_PESSOA WHERE ID <> 3 and ID <> 5 ORDER BY NOME");
+$tipo_sexo_db = $db2->query("SELECT ID, SEXO FROM SEXO");
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
@@ -449,11 +451,15 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 									obrigatório!</div>
 							</div>
 							<div class="col-md-6">
-								<label for="typeSexo">Sexo*</label><br> <input type="radio" 
-								name="sexoServidor" id="sexoServidor" value="1" checked required> Masculino<br> 
-								<input type="radio" name="sexoServidor" value="0" id="sexoServidor" required> Feminino<br> 
-								<input type="radio" name="sexoServidor" value="2" id="sexoServidor" required> Não deseja informar<br>
-								<input type="radio" name="sexoServidor" value="3" id="sexoServidor" required> Outro<br>
+								<label for="typeSexo">Sexo*</label><br> 
+									<?php
+								$tipo_sexo_db_fetch = $tipo_sexo_db->fetchAll();
+								foreach ($tipo_sexo_db_fetch as $single_row) {
+                                    echo "<input type=\"radio\" name=\"sexoServidor\" id=\"sexoServidor\" value=\"" .
+                                            $single_row['ID'] . "\" required/> " . $single_row['SEXO'] . "<br>";
+                                    }
+                                ?>
+								<br>
 								<div id="sexoServidor" style="display: none; font-size: 10pt; color: red">Campo obrigatório!</div>
 							</div>
 						</div>
@@ -561,4 +567,5 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 <?php
 $db->close();
 $db1->close();
+$db2->close();
 ?>

@@ -283,7 +283,7 @@ if (isset($_SESSION['mensagem_frequencia'])){
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item">Alunos</li>
-				<li class="breadcrumb-item active">Cadastro</li>
+				<li class="breadcrumb-item active">Frequência</li>
 			</ol>
 			<div class="container">
 				<div>
@@ -313,7 +313,7 @@ if (isset($_SESSION['mensagem_frequencia'])){
 								</div>
 							</div>
 					
-        					<a class="btn btn-primary btn-block" style="margin-left: 1.1rem;margin-right: 1rem;" onclick="validateAndSubmitForm()">Cadastrar</a>
+        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>
 					</form>
 					</div>
 				</div>

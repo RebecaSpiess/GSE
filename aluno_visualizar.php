@@ -314,7 +314,7 @@ var columns = {
 			<div class="container">
 				<div>
 					<div class="card-body" style="padding-top: 0px;">
-						<form method="post" action="servidores_alterar.php">
+						<form method="post" action="aluno_alterar.php">
 							<input type="hidden" id="pessoaID" name="pessoaID" />
 							<div class="page-container" style="padding: 0px;">
 								<div class="container">

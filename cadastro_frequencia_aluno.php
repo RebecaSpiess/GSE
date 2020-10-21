@@ -42,8 +42,9 @@ $db_turma_fetch = $db0->query("SELECT PE.ID, PE.NOME, PE.SOBRENOME, TU.NOME_TURM
 WHERE PE.TIPO_PESSOA = 3 AND TU.ID = ? ORDER BY PE.NOME, PE.SOBRENOME", $turma_id)->fetchAll();
 
 
-if (isset($_POST['cadastro_frequencia'])){
+if (isset($_POST['cadastro_frequencia']) and isset($_POST['materia'])){
         $cadastro_frequencia = $_POST['cadastro_frequencia'];
+        $materia = $_POST['materia'];
         $count = 0;
         if (!empty(trim($cadastro_frequencia)) and $cadastro_frequencia == 'true'){
             $db2->query("DELETE FROM FREQUENCIA WHERE ID_TURMA = ? AND DATA = ?", $turma_id, $data);
@@ -54,11 +55,10 @@ if (isset($_POST['cadastro_frequencia'])){
                 if (isset($_POST[$single_row0['ID']])){
                     $presente = 1;
                 }
-                $db1->query("INSERT INTO FREQUENCIA (ID_PESSOA, DATA, PRESENCA, ID_TURMA) VALUES (?,?,?,?) ",$single_row0['ID'],$data,$presente,$turma_id);
+                $db1->query("INSERT INTO FREQUENCIA (ID_PESSOA, DATA, PRESENCA, ID_TURMA, ID_MATERIA) VALUES (?,?,?,?,?) ",$single_row0['ID'],$data,$presente,$turma_id, $materia);
                 $db1->close();
                 $db1 = new db();
             }
-            header("Location: frequencia_cadastro.php");
             if ($count == 1){
                 $_SESSION['mensagem_frequencia'] = "Frequência cadastrada com sucesso!";
             } else if ($count > 1){
@@ -66,6 +66,7 @@ if (isset($_POST['cadastro_frequencia'])){
             }
         }
         $db1->close();
+        header("Location: frequencia_cadastro.php");
 }
 ?>
 
@@ -78,7 +79,7 @@ if (isset($_POST['cadastro_frequencia'])){
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Notas de aluno</title>
+<title>GSE - Frequência de aluno</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -287,7 +288,7 @@ if (isset($_POST['cadastro_frequencia'])){
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item">Alunos</li>
-				<li class="breadcrumb-item active">Notas</li>
+				<li class="breadcrumb-item active">Frequência</li>
 			</ol>
 			<div class="container">
 				<div>
@@ -296,10 +297,9 @@ if (isset($_POST['cadastro_frequencia'])){
 							<div class="form-group">
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
 								
-								<span style="font-weight: bold;">Turma:</span> 
 								<?php 
 								if (!empty($db_turma_fetch)){ 
-								    echo "<span style=\"font-weight: bold;\">Turma:</span>" . $db_turma_fetch[0]['NOME_TURMA'] . "<br>";
+								    echo "<span style=\"font-weight: bold;\">Turma: </span>" . $db_turma_fetch[0]['NOME_TURMA'] . "<br>";
 								} else {
 								    echo "<span>Essa turma não possui alunos cadastrados!<br><br>";
 								}?>
@@ -312,7 +312,7 @@ if (isset($_POST['cadastro_frequencia'])){
 									<label for="turma">Matéria*</label> 
 									<select
 										class="form-control"
-										aria-describedby="nameHelp" id="turma" name="turma">
+										aria-describedby="nameHelp" id="materia" name="materia">
 									
 									<?php
 									foreach ($db_materia_fetch as $single_row1) {
@@ -339,7 +339,7 @@ if (isset($_POST['cadastro_frequencia'])){
 					
         					<?php
 							if (!empty($db_turma_fetch)){
-							    echo "<a class=\"btn btn-primary btn-block\" style=\"margin-left: 1.1rem;margin-right: 1rem;\" onclick=\"validateAndSubmitForm()\">Cadastrar notas</a>";
+							    echo "<a class=\"btn btn-primary btn-block\" style=\"margin-left: 1.1rem;margin-right: 1rem;\" onclick=\"validateAndSubmitForm()\">Cadastrar frequência</a>";
                					 
 							}
         					?>

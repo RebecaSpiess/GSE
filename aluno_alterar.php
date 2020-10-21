@@ -43,6 +43,12 @@ $showMessage=isset($_GET["s"]) and $_GET["s"] == 1;
 $senha = '123456';
 
 $db = new db();
+$db0 = new db();
+$db2 = new db();
+
+$pessoaID = $_POST['pessoaID'];
+$tipo_sexo_db = $db2->query("SELECT ID, SEXO FROM SEXO");
+$tipo_sexo_db_fetch = $tipo_sexo_db->fetchAll();
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
@@ -50,32 +56,7 @@ $showSuccessMessage = false;
 if (
     isset($_POST['nomeAluno']) 
     and isset($_POST['sobrenomeAluno'])
-    and isset($_POST['dataNascimentoAluno'])
-    and isset($_POST['nomeResp1'])
-    and isset($_POST['sobrenomeResp1'])
-    and isset($_POST['cpfResp1'])
-    and isset($_POST['dataNascimentoResp1'])
-    and isset($_POST['emailResp1'])
-    and isset($_POST['telefoneResp1'])
-    and verificaResp2()) {
-        
-        
-        $nomeResp1 = $_POST['nomeResp1'];
-        $sobrenomeResp1 = $_POST['sobrenomeResp1'];
-        $dataNascimentoResp1 = $_POST['dataNascimentoResp1'];
-        $cpfResp1 = $_POST['cpfResp1'];
-        $sexoResp1 = $_POST['sexoResp1'];
-        $emailResp1 = $_POST['emailResp1'];
-        $telefoneResp1 = $_POST['telefoneResp1'];
-        
-        $nomeResp2 = $_POST['nomeResp2'];
-        $sobrenomeResp2 = $_POST['sobrenomeResp2'];
-        $dataNascimentoResp2 = $_POST['dataNascimentoResp2'];
-        $cpfResp2 = $_POST['cpfResp2'];
-        $sexoResp2 = $_POST['sexoResp2'];
-        $emailResp2 = $_POST['emailResp2'];
-        $telefoneResp2 = $_POST['telefoneResp2'];
-        
+    and isset($_POST['dataNascimentoAluno'])){
         
         $nomeAluno = $_POST['nomeAluno'];
         $sobrenomeAluno = $_POST['sobrenomeAluno'];
@@ -84,69 +65,20 @@ if (
         
         if (!empty(trim($nomeAluno)) 
             and !empty(trim($sobrenomeAluno)) 
-            and !empty(trim($dataNascimentoAluno))
-            and !empty(trim($nomeResp1))
-            and !empty(trim($sobrenomeResp1))
-            and !empty(trim($dataNascimentoResp1))
-            and !empty(trim($cpfResp1))
-            and !empty(trim($emailResp1))
-            and !empty(trim($telefoneResp1))
-            ) {
+            and !empty(trim($dataNascimentoAluno))){
             
             $pessoaDao = new PessoaDao();
-                
-            $enc_senha = hash('sha512', $senha . 'GSE');
-                
-            $responsavel1Cadastro = new Pessoa();
-            $responsavel1Cadastro->nome = $nomeResp1;
-            $responsavel1Cadastro->sobrenome = $sobrenomeResp1;
-            $responsavel1Cadastro->data_nascimento = $dataNascimentoResp1;
-            $responsavel1Cadastro->cpf = $cpfResp1;
-            $responsavel1Cadastro->telefone = $telefoneResp1;
-            $responsavel1Cadastro->sexo = intval($sexoResp1);
-            $responsavel1Cadastro->senha = $enc_senha;
-            $responsavel1Cadastro->email = $emailResp1;
-            $responsavel1Cadastro->tipo_pessoa = TipoPessoaCons::RESPONSAVEL;
-            $responsavel1Cadastro->responsavel1 = null;
-            $responsavel1Cadastro->responsavel2 = null;
-            
-            $responsavel2Cadastro = new Pessoa();
-            if (isset($emailResp2) and !empty($emailResp2)){
-                
-                $responsavel2Cadastro->nome = $nomeResp2;
-                $responsavel2Cadastro->sobrenome = $sobrenomeResp2;
-                $responsavel2Cadastro->data_nascimento = $dataNascimentoResp2;
-                $responsavel2Cadastro->cpf = $cpfResp2;
-                $responsavel2Cadastro->telefone = $telefoneResp2;
-                $responsavel2Cadastro->sexo = intval($sexoResp2);
-                $responsavel2Cadastro->senha = $enc_senha;
-                $responsavel2Cadastro->email = $emailResp2;
-                $responsavel2Cadastro->tipo_pessoa = TipoPessoaCons::RESPONSAVEL;
-                $responsavel2Cadastro->responsavel1 = null;
-                $responsavel2Cadastro->responsavel2 = null;
-            }
-            
             try {
-                $pessoaDao->adicionar($responsavel1Cadastro, true);
-                
-                if (isset($emailResp2) and !empty($emailResp2)){
-                    $pessoaDao->adicionar($responsavel2Cadastro, true);
-                }
-                
                 $alunoCadastro = new Pessoa();
-                
+                $alunoCadastro->id = $pessoaID;
                 $alunoCadastro->nome = $nomeAluno;
                 $alunoCadastro->sobrenome = $sobrenomeAluno;
                 $alunoCadastro->data_nascimento = $dataNascimentoAluno;
                 $alunoCadastro->sexo = $sexoAluno;
-                $alunoCadastro->senha = $enc_senha;
                 $alunoCadastro->tipo_pessoa = TipoPessoaCons::ALUNO;
-                $alunoCadastro->responsavel1 = $responsavel1Cadastro->id;
-                if (!empty($emailResp2)){
-                    $alunoCadastro->responsavel2 = $responsavel2Cadastro->id;
+                if ($pessoaDao->atualizar($alunoCadastro)){
+                    $showSuccessMessage = true;
                 }
-                $pessoaDao->adicionar($alunoCadastro, false);
-                $showSuccessMessage = true;
             } catch (Exception $ex) {
                 $error_code = $ex->getMessage();
                 error_log($ex);
@@ -163,6 +95,14 @@ if (
         error_log("Existem campos não setados que devem ser preenchidos e enviados pelo form!");
     }
 
+    $sqlPessoa = "select pe.ID, pe.NOME, pe.SOBRENOME, pe.DATA_NASCIMENTO, pe.TIPO_SEXO, pe.RESPONSAVEL_1, pe.RESPONSAVEL_2,
+	           resp1.NOME AS 'NOME_RESP1',resp1.SOBRENOME AS 'SOBRENOME_RESP1', resp1.CPF AS 'CPF_RESP1', resp1.TELEFONE AS 'TELEFONE_RESP1', resp1.EMAIL AS 'EMAIL_RESP1', resp1.DATA_NASCIMENTO AS 'DATA_NASCIMENTO_RESP1', resp1.TIPO_SEXO AS 'TIPO_SEXO_RESP1',
+	           resp2.NOME AS 'NOME_RESP2',resp2.SOBRENOME AS 'SOBRENOME_RESP2', resp2.CPF AS 'CPF_RESP2', resp2.TELEFONE AS 'TELEFONE_RESP2', resp2.EMAIL AS 'EMAIL_RESP2', resp2.DATA_NASCIMENTO AS 'DATA_NASCIMENTO_RESP2', resp2.TIPO_SEXO AS 'TIPO_SEXO_RESP2' from PESSOA pe
+			JOIN PESSOA resp1 ON (pe.RESPONSAVEL_1 = resp1.ID)
+            left JOIN PESSOA resp2 ON (pe.RESPONSAVEL_2 = resp2.ID)
+            JOIN SEXO sex ON (sex.ID = pe.TIPO_SEXO) WHERE pe.ID = ?";
+    $db_pessoa_fetch = $db0->query($sqlPessoa, $pessoaID)->fetchAll();
+    
 ?>
 
 <!DOCTYPE html>
@@ -174,7 +114,7 @@ if (
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Cadastro de aluno</title>
+<title>GSE - Atualização de aluno</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -292,13 +232,6 @@ if (
 			document.getElementById("dataNascimentoAlunoErro").style.display = "none";
 		}
 
-		if (!isNotBlank(sexoAluno.value)){
-			camposPreenchidos = false;
-			document.getElementById("sexoAlunoErro").style.display = "block";
-		} else {	
-			document.getElementById("sexoAlunoErro").style.display = "none";
-		}
-		
 		if (!isNotBlank(nomeResp1.value)){
 			camposPreenchidos = false;
 			document.getElementById("nomeResp1Erro").style.display = "block";
@@ -652,7 +585,7 @@ if (
 
     if ($showSuccessMessage and ! isset($showErrorMessage)) {
         ?>
-					    <div style="color: green; text-align: center;">Registro criado
+					    <div style="color: green; text-align: center;">Registro atualizado
 				com sucesso!</br></br></div>
 					<?php
     }
@@ -662,19 +595,20 @@ if (
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item">Alunos</li>
-				<li class="breadcrumb-item active">Cadastro</li>
+				<li class="breadcrumb-item active">Atualização</li>
 			</ol>
 			<div class="container">
 				<div>
 					<div class="card-body">
 						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
+							<input type="hidden" name="pessoaID" value="<?php echo $pessoaID;?>">
 							<div class="form-group">
 								<div class="form-row">
 									<div class="col-md-6">
 										<label for="exampleInputName">Nome*</label> <input
 											class="form-control" id="nomeAluno" type="text"
 											aria-describedby="nameHelp" placeholder="Nome" name="nomeAluno"
-											required maxlength="250">
+											required maxlength="250" value="<?php echo trim($db_pessoa_fetch[0]['NOME']);?>">
 										<div id="nomeAlunoErro"
 											style="display: none; font-size: 10pt; color: red">Campo
 											obrigatório!</div>
@@ -683,7 +617,7 @@ if (
 										<label for="exampleInputLastName">Sobrenome*</label> <input
 											class="form-control" id="sobrenomeAluno" type="text"
 											aria-describedby="nameHelp" placeholder="Sobrenome"
-											name="sobrenomeAluno" required maxlength="250">
+											name="sobrenomeAluno" required maxlength="250" value=<?php echo trim($db_pessoa_fetch[0]['SOBRENOME']);?>>
 										<div id="sobrenomeAlunoErro"
 											style="display: none; font-size: 10pt; color: red">Campo
 											obrigatório!</div>
@@ -697,17 +631,24 @@ if (
 											class="form-control date-mask" id="dataNascimentoAluno"
 											name="dataNascimentoAluno" type="date"
 											aria-describedby="nameHelp" placeholder="Data de nascimento"
-											required>
+											required value=<?php echo trim($db_pessoa_fetch[0]['DATA_NASCIMENTO']);?>>
 										<div id="dataNascimentoAlunoErro"
 											style="display: none; font-size: 10pt; color: red">Campo
 											obrigatório!</div>
 									</div>
 									<div class="col-md-6">
-										<label for="typeSexo">Sexo*</label><br> <input type="radio"
-											name="sexoAluno" id="sexoAluno" value="1" checked required> Masculino<br>
-										<input type="radio" name="sexoAluno" value="0" id="sexo" required> Feminino<br>
-										<input type="radio" name="sexoAluno" value="2" id="sexo" required> Não deseja informar<br>
-										<input type="radio" name="sexoAluno" value="3" id="sexo" required> Outro<br>
+										<label for="typeSexo">Sexo*</label><br> 
+											<?php
+								                foreach ($tipo_sexo_db_fetch as $single_row) {
+                                                     if ($single_row['ID'] == $db_pessoa_fetch[0]['TIPO_SEXO']){
+                                                        echo "<input type=\"radio\" name=\"sexoAluno\" id=\"sexoAluno\" value=\"" . 
+                                                        $single_row['ID'] . "\" checked required/> " . $single_row['SEXO'] . "<br>";
+                                                    } else {
+                                                        echo "<input type=\"radio\" name=\"sexoAluno\" id=\"sexoAluno\" value=\"" .
+                                                        $single_row['ID'] . "\" required/> " . $single_row['SEXO'] . "<br>";
+                                                    }
+                                                }
+                                            ?>
 										<div id="sexoAlunoErro"
 											style="display: none; font-size: 10pt; color: red">Campo
 											obrigatório!</div>
@@ -722,26 +663,26 @@ if (
 		<div class="container-fluid">
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item">Resposáveis</li>
-				<li class="breadcrumb-item active">Cadastro</li>
+				<li class="breadcrumb-item active">Atualização</li>
 			</ol>
 			<div class="container" style="padding-left: 30px;">
 				<!--   <form method="post" action="<?=$_SERVER['PHP_SELF'];?>"> -->
 				<div class="form-group">
 					<div class="form-row">
 						<div class="col-md-6">
-							<label for="exampleInputLastName">Nome do responsável 1*</label>
-							<input class="form-control" id="nomeResp1" type="text"
+							<label for="exampleInputLastName">Nome do responsável 1</label>
+							<input class="form-control" id="nomeResp1" type="text" disabled="disabled"
 								aria-describedby="nameHelp" placeholder="Nome" name="nomeResp1"
-								required maxlength="250">
+								required maxlength="250" value="<?php echo trim($db_pessoa_fetch[0]['NOME_RESP1']);?>">
 							<div id="nomeResp1Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
 						</div>
 						<div class="col-md-6">
-							<label for="exampleInputLastName">Sobrenome do responsável 1*</label>
+							<label for="exampleInputLastName">Sobrenome do responsável 1</label>
 							<input class="form-control" id="sobrenomeResp1" type="text"
-								aria-describedby="nameHelp" placeholder="Sobrenome"
-								name="sobrenomeResp1" required maxlength="250">
+								aria-describedby="nameHelp" placeholder="Sobrenome" disabled="disabled"
+								name="sobrenomeResp1" required maxlength="250" value="<?php echo trim($db_pessoa_fetch[0]['SOBRENOME_RESP1']);?>">
 							<div id="sobrenomeResp1Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
@@ -751,19 +692,19 @@ if (
 				<div class="form-group">
 					<div class="form-row">
 						<div class="col-md-6">
-							<label for="inputCpfResp1"> CPF do responsável 1*</label> <input
-								class="form-control cpf-mask" id="cpfResp1" type="text"
+							<label for="inputCpfResp1"> CPF do responsável 1</label> <input
+								class="form-control cpf-mask" id="cpfResp1" type="text" disabled="disabled"
 								placeholder="000.000.000-00" name="cpfResp1" maxlength="14"
-								onkeydown="javascript: fMasc( this, mCPF );">
+								onkeydown="javascript: fMasc( this, mCPF );" value="<?php echo trim($db_pessoa_fetch[0]['CPF_RESP1']);?>">
 							<div id="cpfResp1Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
 						</div>
 						<div class="col-md-6">
-							<label for="inputTelefoneResp1"> Telefone do responsável 1*</label>
-							<input class="form-control" id="telefoneResp1" type="text"
+							<label for="inputTelefoneResp1"> Telefone do responsável 1</label>
+							<input class="form-control" id="telefoneResp1" type="text" disabled="disabled"
 								placeholder="(00) 0000-0000" name="telefoneResp1" maxlength="14"
-								onkeydown="javascript: fMasc( this, mTel );">
+								onkeydown="javascript: fMasc( this, mTel );" value="<?php echo trim($db_pessoa_fetch[0]['TELEFONE_RESP1']);?>">
 							<div id="telefoneResp1Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
@@ -772,10 +713,10 @@ if (
 				</div>
 				<div class="form-group">
 					<label for="exampleInputEmail1">Endereço de e-mail do responsável
-						1*</label> <input class="form-control" id="emailResp1" type="text"
+						1</label> <input class="form-control" id="emailResp1" type="text" disabled="disabled"
 						name="emailResp1" aria-describedby="emailHelp"
 						placeholder="E-mail usado para encaminhamento de comunicados"
-						required maxlength="250">
+						required maxlength="250" value="<?php echo trim($db_pessoa_fetch[0]['EMAIL_RESP1']);?>">
 					<div id="emailResp1Erro"
 						style="display: none; font-size: 10pt; color: red">Campo
 						obrigatório!</div>
@@ -784,20 +725,27 @@ if (
 					<div class="form-row">
 						<div class="col-md-6">
 							<label for="exampleInputName">Data de nascimento*</label> <input
-								class="form-control date-mask" id="dataNascimentoResp1"
+								class="form-control date-mask" id="dataNascimentoResp1" disabled="disabled"
 								name="dataNascimentoResp1" type="date"
 								aria-describedby="nameHelp" placeholder="Data de nascimento"
-								required>
+								required value="<?php echo trim($db_pessoa_fetch[0]['DATA_NASCIMENTO_RESP1']);?>">
 							<div id="dataNascimentoResp1Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
 						</div>
 						<div class="col-md-6">
 							<label for="typeSexo">Sexo*</label><br> 
-							<input type="radio" name="sexoResp1" id="sexoResp1" value="1" checked required> Masculino<br> 
-							<input type="radio" name="sexoResp1" value="0" id="sexoResp1" required> Feminino<br> 
-							<input type="radio" name="sexoResp1" value="2" id="sexo" required> Não deseja informar<br>
-							<input type="radio" name="sexoResp1" value="3" id="sexo" required> Outro<br>
+							<?php
+								foreach ($tipo_sexo_db_fetch as $single_row) {
+                                    if ($single_row['ID'] == $db_pessoa_fetch[0]['TIPO_SEXO_RESP1']){
+                                        echo "<input type=\"radio\" name=\"sexoResp1\" id=\"sexoResp1\" disabled=\"disabled\" value=\"" . 
+                                            $single_row['ID'] . "\" checked required/> " . $single_row['SEXO'] . "<br>";
+                                    } else {
+                                        echo "<input type=\"radio\" name=\"sexoResp1\" id=\"sexoResp1\" disabled=\"disabled\" value=\"" .
+                                            $single_row['ID'] . "\" required/> " . $single_row['SEXO'] . "<br>";
+                                    }
+                                }
+                                ?>
 							<div id="sexoResp1Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
@@ -809,19 +757,19 @@ if (
 				<div class="form-group">
 					<div class="form-row">
 						<div class="col-md-6">
-							<label for="exampleInputLastName">Nome do responsável 2</label> <input
-								class="form-control" id="nomeResp2" type="text"
+							<label for="exampleInputLastName">Nome do responsável 2</label> <input 
+								class="form-control" id="nomeResp2" type="text" disabled="disabled"
 								aria-describedby="nameHelp" placeholder="Nome" name="nomeResp2"
-								required maxlength="250">
+								required maxlength="250" value="<?php echo trim($db_pessoa_fetch[0]['NOME_RESP2']);?>">
 							<div id="nomeResp2Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
 						</div>
 						<div class="col-md-6">
 							<label for="exampleInputLastName">Sobrenome do responsável 2</label>
-							<input class="form-control" id="sobrenomeResp2" type="text"
+							<input class="form-control" id="sobrenomeResp2" type="text" disabled="disabled"
 								aria-describedby="nameHelp" placeholder="Sobrenome"
-								name="sobrenomeResp2" required maxlength="250">
+								name="sobrenomeResp2" required maxlength="250" value="<?php echo trim($db_pessoa_fetch[0]['SOBRENOME_RESP2']);?>">
 							<div id="sobrenomeResp2Erro"
 								style="display: none; font-size: 10pt; color: red">Campo
 								obrigatório!</div>
@@ -832,17 +780,17 @@ if (
 							<div class="col-md-6">
 								<label for="exampleInputEmail1"> CPF do responsável 2</label> <input
 									class="form-control cpf-mask" id="cpfResp2" type="text"
-									placeholder="000.000.000-00" name="cpfResp2" maxlength="14"
-									onkeydown="javascript: fMasc( this, mCPF );">
+									placeholder="000.000.000-00" name="cpfResp2" maxlength="14" disabled="disabled"
+									onkeydown="javascript: fMasc( this, mCPF );" value="<?php echo trim($db_pessoa_fetch[0]['CPF_RESP2']);?>">
 								<div id="cpfResp2Erro"
 									style="display: none; font-size: 10pt; color: red">Campo
 									obrigatório!</div>
 							</div>
 							<div class="col-md-6">
-								<label for="inputTelefoneResp1"> Telefone do responsável 2*</label>
-								<input class="form-control" id="telefoneResp2" type="text"
+								<label for="inputTelefoneResp1"> Telefone do responsável 2</label>
+								<input class="form-control" id="telefoneResp2" type="text" disabled="disabled"
 									placeholder="(00) 0000-0000" name="telefoneResp2"
-									maxlength="14" onkeydown="javascript: fMasc( this, mTel );">
+									maxlength="14" onkeydown="javascript: fMasc( this, mTel );" value="<?php echo trim($db_pessoa_fetch[0]['TELEFONE_RESP2']);?>">
 								<div id="telefoneResp2Erro"
 									style="display: none; font-size: 10pt; color: red">Campo
 									obrigatório!</div>
@@ -851,10 +799,10 @@ if (
 					</div>
 					<div class="form-group">
 						<label for="exampleInputEmail1">Endereço de e-mail do responsável
-							2</label> <input class="form-control" id="emailResp2" type="text"
+							2</label> <input class="form-control" id="emailResp2" type="text" disabled="disabled"
 							name="emailResp2" aria-describedby="emailHelp"
 							placeholder="E-mail usado para encaminhamento de comunicados"
-							required maxlength="250">
+							required maxlength="250" value="<?php echo trim($db_pessoa_fetch[0]['EMAIL_RESP2']);?>">
 						<div id="email2ValidacaoErro"
 							style="display: none; font-size: 10pt; color: red">Campo
 							obrigatório!</div>
@@ -863,22 +811,28 @@ if (
 						<div class="form-row">
 							<div class="col-md-6">
 								<label for="exampleInputName">Data de nascimento</label> <input
-									class="form-control date-mask" id="dataNascimentoResp2"
+									class="form-control date-mask" id="dataNascimentoResp2" disabled="disabled"
 									name="dataNascimentoResp2" type="date"
 									aria-describedby="nameHelp" placeholder="Data de nascimento"
-									required>
+									required value="<?php echo trim($db_pessoa_fetch[0]['DATA_NASCIMENTO_RESP2']);?>">
 								<div id="dataNascimentoResp2Erro"
 									style="display: none; font-size: 10pt; color: red">Campo
 									obrigatório!</div>
 							</div>
 							<div class="col-md-6">
-								<label for="typeSexo">Sexo</label><br> <input type="radio"
-									name="sexoResp2" id="sexoResp2" value="1" checked required>
-								Masculino<br> <input type="radio" name="sexoResp2" value="0"
-									id="sexoResp2" required> Feminino<br> <input type="radio"
-									name="sexoResp2" value="2" id="sexoResp2" required> Não deseja
-								informar<br> <input type="radio" name="sexoResp2" value="3"
-									id="sexoResp2" required> Outro<br>
+								<label for="typeSexo">Sexo</label><br>
+									<?php
+								foreach ($tipo_sexo_db_fetch as $single_row) {
+                                    if ($single_row['ID'] == $db_pessoa_fetch[0]['TIPO_SEXO_RESP2']){
+                                        echo "<input type=\"radio\" name=\"sexoResp2\" id=\"sexoResp2\" disabled=\"disabled\" value=\"" . 
+                                            $single_row['ID'] . "\" checked required/> " . $single_row['SEXO'] . "<br>";
+                                    } else {
+                                        echo "<input type=\"radio\" name=\"sexoResp2\" id=\"sexoResp2\" disabled=\"disabled\" value=\"" .
+                                            $single_row['ID'] . "\" required/> " . $single_row['SEXO'] . "<br>";
+                                    }
+                                }
+                                ?>
+
 								<div id="sexoResp2Erro"
 									style="display: none; font-size: 10pt; color: red">Campo
 									obrigatório!</div>
@@ -886,7 +840,7 @@ if (
 						</div>
 					</div>
 					
-					<a class="btn btn-primary btn-block" style="margin-left: 1.1rem;margin-right: 1rem;" onclick="validateAndSubmitForm()">Cadastrar</a>
+					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Atualizar</a>
 					</form>
 				</div>
 			</div>

@@ -5,7 +5,20 @@ use model\Pessoa;
 class PessoaDao
 {
 
+
     
+    function atualizar($pessoa){
+        $db = new db();
+        $counter = 0;
+        try {
+            $counter = $db->query("UPDATE PESSOA SET NOME=?, SOBRENOME=?, DATA_NASCIMENTO=?, TIPO_SEXO=? WHERE ID = ?",
+                $pessoa->nome, $pessoa->sobrenome, $pessoa->data_nascimento, $pessoa->sexo, $pessoa->id) -> query_count;
+        } finally {
+            $db->close();
+        }
+        error_log("COUNTTERRRRRRRRRRRRRRRRRRRRRRRR - PID: " . $pessoa->id);
+        return $counter > 0;
+    }
     
     function adicionar($pessoa, $sobrescrita){
         $db = new db();
