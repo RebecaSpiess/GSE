@@ -1,43 +1,50 @@
 <?php
 require 'bo/Sessao.php';
-require  'bo/ControleAcesso.php';
+require 'bo/ControleAcesso.php';
 require 'database/db.php';
 
 use bo\Sessao;
 use bo\ControleAcesso;
-use model\Pessoa;
 
 Sessao::validar();
 
-$papeisPermitidos = array(2,4,1,7);
+$papeisPermitidos = array(
+    2,
+    4
+);
 ControleAcesso::validar($papeisPermitidos);
+$turmaID = $_POST['turmaId'];
 
-$pessoa = unserialize($_SESSION['loggedGSEUser']);
-$showSuccessMessage = false;
+$db = new db();
+$db1 = new db();
+$db2 = new db();
+$db3 = new db();
+$db4 = new db();
+$db5 = new db();
 
-$db0 = new db();
+$professor_db = $db2->query("select p.ID, p.NOME, p.SOBRENOME, p.EMAIL from PESSOA p JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and tp.NOME = 'Professor(a)') ORDER BY p.NOME, p.SOBRENOME");
 
-$sqlTurmas = "SELECT tu.NOME_TURMA, tu.ID FROM TURMA tu ";
-$tipoPessoaIdentificador = $pessoa->tipo_pessoa;
-if ($tipoPessoaIdentificador == 2 ){
-    $sqlTurmas = "SELECT ID, NOME_TURMA FROM TURMA ORDER BY NOME_TURMA";
-    
-} else {
-    $sqlTurmas = "SELECT t.ID, t.NOME_TURMA FROM PESSOA p JOIN TURMA_MATERIA tm ON (tm.ID_PROFESSOR = p.ID)
-    JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and (tp.NOME = 'Professor(a)' OR tp.NOME = 'Diretor(a)'))
-    JOIN TURMA t ON (t.ID = tm.ID_TURMA) ";
-    $sqlTurmas .= " where p.ID = " . $pessoa->id;
-    $sqlTurmas .= " ORDER BY t.NOME_TURMA";
+$sqlTurma = "SELECT tu.ID, tu.NOME_TURMA, CONCAT(CONCAT(pe.NOME, ' '),pe.SOBRENOME) AS 'NOME', tu.ID_PESSOA_PROFESSOR_REGENTE FROM TURMA tu
+	join PESSOA pe on (tu.ID_PESSOA_PROFESSOR_REGENTE = pe.ID)
+    where tu.ID = ?";
+$db_pessoa_fetch = $db->query($sqlTurma, $turmaID)->fetchAll();
+$materia_db = $db1->query("SELECT ID, NOME FROM MATERIA ORDER BY NOME")->fetchAll();
+
+function listar_professores($id){
+    $db6 = new db();
+    try {
+        $professores = $db6->query("select p.ID, p.NOME, p.SOBRENOME, p.EMAIL from PESSOA p JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and tp.NOME = 'Professor(a)') ORDER BY p.NOME, p.SOBRENOME")->fetchAll();
+        $listaProfessorCriada = "<select name=\"professor_disciplina_" . $id . "\">";
+        foreach ($professores as $professor){
+            $listaProfessorCriada .= "<option value=\"" . $professor['ID'] . "\"\>" . $professor['NOME'] . " " . $professor['SOBRENOME'] . " (" . $professor['EMAIL'] . ")</option>";
+        }
+        $listaProfessorCriada .= "</select>";
+    } finally {
+        $db6->close();
+    }
+    return $listaProfessorCriada;
 }
-error_log($sqlTurmas);
 
-$db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
-
-if (isset($_SESSION['mensagem_notas'])){
-    $showSuccessMessage = true;
-    $mensagem_sucesso = $_SESSION['mensagem_notas'];
-    unset($_SESSION['mensagem_notas']);
-}
 
 ?>
 
@@ -50,7 +57,7 @@ if (isset($_SESSION['mensagem_notas'])){
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Notas de aluno</title>
+<title>GSE - Alteração de turma</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -62,7 +69,7 @@ if (isset($_SESSION['mensagem_notas'])){
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
 
-<style type="text/css">
+ <style type="text/css">
 
 .btn-primary {
     color: black !important;
@@ -84,39 +91,53 @@ if (isset($_SESSION['mensagem_notas'])){
 
 </style>
 
-
- <script type="text/javascript">
+<script type="text/javascript">
 	function submit() {
 		document.forms[0].submit();
 	}
   
 	function validateAndSubmitForm() {
-		var mensagem = document.getElementById("mensagemSucesso");
-		if (mensagem != null){
-			mensagem.style.display = 'none';
-		}	
-		
-		var turma = document.getElementById("turma");
-		var assunto = document.getElementById("assunto");
+		var professor_responsavel = document.getElementById("professorResp");
 		var camposPreenchidos = true;
 		 
-		if (!isNotBlank(turma.value)){
+		var nome_turma = document.getElementById("nomeTurma");
+		if (!isNotBlank(nome_turma.value)){
 			camposPreenchidos = false;
-			document.getElementById("turmaErro").style.display = "block";
-		} else {
-			document.getElementById("turmaErro").style.display = "none";
-		}	
+			document.getElementById("nome_turma_erro").style.display = "block";
+		} else {			
+			document.getElementById("nome_turma_erro").style.display = "none";
+		}
 
-		if (!isNotBlank(assunto.value)){
+		var haUmaMateriaSelecionada = false;
+	
+		<?php
+		echo "\n";
+		foreach ($materia_db as $single_row1) {
+		    echo "\t\tvar materia_" . $single_row1['ID'] . " = document.getElementById(\"materia_" . $single_row1['ID'] . "\");\n";
+		    echo "\t\tif (materia_" . $single_row1['ID'] . ".checked){\n";
+			echo "   \t\thaUmaMateriaSelecionada = true;\n";
+		    echo "\t\t}\n";
+		}
+		?>
+
+		if (!haUmaMateriaSelecionada){
 			camposPreenchidos = false;
-			document.getElementById("assuntoErro").style.display = "block";
+			document.getElementById("materia_erro").style.display = "block";
 		} else {
-			document.getElementById("assuntoErro").style.display = "none";
+			document.getElementById("materia_erro").style.display = "none";
+		}		 
+
+		var arquivoCsv = document.getElementById("csvfile");
+		if (arquivoCsv.files.length == 0){
+			camposPreenchidos = false;
+			document.getElementById("arquivo_csv_erro").style.display = "block";
+		} else {			
+			document.getElementById("arquivo_csv_erro").style.display = "none";
 		}
 		
 		if (camposPreenchidos){
 			submit();
-		} 		
+		}		
 	}
 
 	function isNotBlank(value){
@@ -127,7 +148,6 @@ if (isset($_SESSION['mensagem_notas'])){
 	}	
 
   </script>
-
 
 </head>
 
@@ -272,56 +292,103 @@ if (isset($_SESSION['mensagem_notas'])){
 		</div>
 	</nav>
 	<div class="content-wrapper">
-	<?php 
-					if ($showSuccessMessage){ ?>
-					    <div style="color:green;text-align: center;" id="mensagemSucesso"><?php echo $mensagem_sucesso;?></br></br></div>
-					<?php }
-					
-					?>
+		<?php 
+		if (isset($_SESSION['errosCadastroTurma'])){
+		    $errosIdentificados = $_SESSION['errosCadastroTurma'];
+		    echo "<div style=\"color: red; text-align: left; padding: 15px\">";
+		    $textoFinal = "";
+		    foreach ($errosIdentificados as $erroIndentificado) {
+		        $textoFinal .= $erroIndentificado;
+		    }
+		    $textoFinal = trim($textoFinal);
+		    $textoFinalUltimoCaracter= substr($textoFinal, -1);
+		    if ($textoFinalUltimoCaracter == ","){
+		        echo substr($textoFinal, 0, (strlen($textoFinal)-1));
+		    } else {
+		        echo $textoFinal;
+		    }
+		    echo "<br></div>";
+		    $_SESSION['errosCadastroTurma'] = null;		    
+		} else if (isset($_SESSION['sucessoCadastroTurma']) and $_SESSION['sucessoCadastroTurma']){
+		    echo "<div style=\"color: green; text-align: center;\">Turma cadastrada com sucesso!<br><br></div>";
+		}
+		
+		?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
-				<li class="breadcrumb-item">Alunos</li>
-				<li class="breadcrumb-item active">Notas</li>
+				<li class="breadcrumb-item">Turma</li>
+				<li class="breadcrumb-item active">Alteração</li>
 			</ol>
 			<div class="container">
 				<div>
-					<div class="card-body">
-						<form method="post" action="cadastro_notas_aluno.php">
+					<div class="card-body" style="padding: 0px;">
+						<form method="post" action="php-script-to-process-form-upload.php" enctype="multipart/form-data">
 							<div class="form-group">
-								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-									<label for="turma">Turma*</label> 
-									<select
-										class="form-control"
-										aria-describedby="nameHelp" id="turma" name="turma">
-									
-									<?php
-                                            foreach ($db_turma_fetch as $single_row1) {
-                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME_TURMA'] . "</option>";
-                                            } 
-                                        ?>
-										
-									</select>
-									<div id="turmaErro"
-						style="display: none; font-size: 10pt; color: red">Campo
-						obrigatório!</div>
+								<div class="form-row">
+									<div class="col-md-6" style="width:100%; max-width: 100%; flex: none;">
+										<label for="exampleInputName">Nome da turma*</label> <input
+											class="form-control" id="nomeTurma" type="text"
+											aria-describedby="nameHelp" placeholder="Nome da turma"
+											name="nome_turma" required maxlength="255" value="<?php echo trim($db_pessoa_fetch[0]['NOME_TURMA']);?>">
+											<div id="nome_turma_erro" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
+          							</div>
 								</div>
 								<br>
-								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-								<label for="assunto">Assunto*</label> 
-									<input
-										class="form-control" id="assunto" type="text"
-										maxlength="255"  name="assunto"
-										placeholder="Assunto">
-									<div id="assuntoErro"
-						style="display: none; font-size: 10pt; color: red">Campo
-						obrigatório!</div>
+								<div class="col-md-6" style="padding-left: 0px;padding-right: 0px;width:100%; max-width: 100%;">
+										<label for="exampleInputLastName">Professor regente*</label>
+											<input type="hidden" name="professor_responsavel" id="professorResp" value="false" >
+										<br>
+										<select class="form-control" id="professorResp" aria-describedby="nameHelp" name="professor_responsavel">
+										<?php
+											$professor_db_fetch = $professor_db->fetchAll();
+											 foreach ($professor_db_fetch as $single_row0) {
+											     if ($single_row['ID'] == $db_pessoa_fetch[0]['TIPO_PESSOA']){
+											         echo "<option value=\"" . $single_row0['ID'] . "\"selected>" . $single_row0['NOME'] . " " . $single_row0['SOBRENOME']
+											             . " (" . $single_row0['EMAIL'] . ")" . "</option>";
+                                                } else {
+                                                    echo "<option value=\"" . $single_row0['ID'] . "\"\>" . $single_row0['NOME'] . " " . $single_row0['SOBRENOME']
+                                                    . " (" . $single_row0['EMAIL'] . ")" . "</option>";
+                                                    
+                                               }
+											 }
+                                            ?>
+										</select>
 								</div>
-							</div>
-					
-        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>
-					</form>
+								<br>
+								<div class="col-md-6" style="padding-left: 0px;padding-right: 0px;width:100%; max-width: 100%;">
+										<label>Matéria*</label>
+										<div id="materia_erro" style="display: none;font-size: 10pt; color:red">Selecione ao menos uma matéria!</div>
+										<input type="hidden" name="materia" id="materia" value="false" >
+								<br>
+          								<table cellpadding="3">
+										<?php
+                                            foreach ($materia_db as $single_row1) {
+                                                echo "<tr>";
+                                                echo "<td>" . "<input type=\"checkbox\" id=\"materia_" . $single_row1['ID'] . "\" name=\"". $single_row1['ID'] . "\" /> </td>";
+                                                echo "<td>" . $single_row1['NOME'] . "</td>";
+                                                echo "<td>" . listar_professores($single_row1['ID']) . "</td>";
+                                                echo "</tr>";
+                                            } 
+                                        ?>
+										</table>
+								</div>
+								<br>		
+										<div class="form-group">
+											<label for="exampleInputEmail1">Alunos</label><br>
+											<div id="arquivo_csv_erro" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
+											<input type="file" accept=".csv" name="csvfile" id="csvfile" /> <br><br> 
+																							
+										</div>
+									</div>
+								</div>
+								<a class="btn btn-primary btn-block"
+									onclick= "validateAndSubmitForm()">Alterar</a>
+						
+						</form>
 					</div>
+					<br>
+        <br>
 				</div>
 			</div>
 		</div>
@@ -363,23 +430,28 @@ if (isset($_SESSION['mensagem_notas'])){
 				</div>
 			</div>
 		</div>
-		<!-- Bootstrap core JavaScript-->
-		<script src="vendor/jquery/jquery.min.js"></script>
-		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-		<!-- Core plugin JavaScript-->
-		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-		<!-- Page level plugin JavaScript-->
-		<script src="vendor/datatables/jquery.dataTables.js"></script>
-		<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
-		<!-- Custom scripts for all pages-->
-		<script src="js/sb-admin.min.js"></script>
-		<!-- Custom scripts for this page-->
-		<script src="js/sb-admin-datatables.min.js"></script>
+				<!-- Bootstrap core JavaScript-->
+	<script src="vendor/jquery/jquery.min.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<!-- Core plugin JavaScript-->
+	<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+	<!-- Page level plugin JavaScript-->
+	<script src="vendor/datatables/jquery.dataTables.js"></script>
+	<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
+	<!-- Custom scripts for all pages-->
+	<script src="js/sb-admin.min.js"></script>
+	<!-- Custom scripts for this page-->
+	<script src="js/sb-admin-datatables.min.js"></script>
 	</div>
 </body>
 
 </html>
 
 <?php 
-$db0->close();
+$db->close();
+$db1->close();
+$db2->close();
+$db3->close();
+$db4->close();
+$db5->close();
 ?>

@@ -2,11 +2,9 @@
 require 'bo/Sessao.php';
 require 'bo/ControleAcesso.php';
 require 'database/db.php';
-require 'PessoaDao.php';
 
 use bo\Sessao;
 use bo\ControleAcesso;
-use model\Pessoa;
 
 Sessao::validar();
 
@@ -17,18 +15,18 @@ $papeisPermitidos = array(
 ControleAcesso::validar($papeisPermitidos);
 
 
-$db0 = new db();
+$db = new db();
 $db1 = new db();
+$db2 = new db();
+$db3 = new db();
+$db4 = new db();
+$db5 = new db();
 
-$pessoas_db = "select pe.ID, CONCAT(CONCAT(pe.NOME, ' '),pe.SOBRENOME) AS 'NOME', pe.EMAIL, pe.DATA_NASCIMENTO, sex.SEXO, pe.TELEFONE, pe.CPF, tp.NOME AS 'TIPO_PESSOA' from PESSOA pe 
-			JOIN TIPO_PESSOA tp ON (pe.TIPO_PESSOA = tp.ID)
-            JOIN SEXO sex ON (sex.ID = pe.TIPO_SEXO)
-            where pe.TIPO_PESSOA <> 3 and pe.TIPO_PESSOA <> 5 ORDER BY NOME";
+$db_turma_fetch = $db2->query("SELECT tu.ID, tu.NOME_TURMA, CONCAT(CONCAT(pe.NOME, ' '),pe.SOBRENOME) AS 'NOME' FROM TURMA tu
+	join PESSOA pe on (tu.ID_PESSOA_PROFESSOR_REGENTE = pe.ID)")->fetchAll();
 
-$db_servidores_fetch = $db0->query($pessoas_db)->fetchAll();
+//$db_turma_fetch = $db1->query($turma_db)->fetchAll();
 
-$showSuccessMessage = (isset($_SESSION['servidorAtualizadoComSucesso']) and $_SESSION['servidorAtualizadoComSucesso']);
-$_SESSION['servidorAtualizadoComSucesso']= null;
 
 ?>
 
@@ -41,7 +39,7 @@ $_SESSION['servidorAtualizadoComSucesso']= null;
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Visualizar servidor</title>
+<title>GSE - Visualizar de turma</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -54,29 +52,43 @@ $_SESSION['servidorAtualizadoComSucesso']= null;
 <link href="css/sb-admin.css" rel="stylesheet">
 <script src="vendor/jquery/jquery.min.js"></script>
 
+ <style type="text/css">
+
+.btn-primary {
+    color: black !important;
+    background-color: #e9ecef !important;
+    border-color: black !important;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #F4F4F4;
+}
+::-webkit-scrollbar {
+    width: 6px;
+    background: #F4F4F4;
+}
+::-webkit-scrollbar-thumb {
+    background: #dad7d7;
+}
+
+</style>
 
 <script type="text/javascript">
 
-
-function abrirDetalhe(pessoaID){
-	document.forms[0].pessoaID.value = pessoaID;
+function abrirDetalhe(turmaId){
+	document.forms[0].turmaId.value = turmaId;
 	document.forms[0].submit();
 }
 
 var data = [
 	<?php
-	foreach ($db_servidores_fetch as $single_row1) {
-        $data = "\t{\n";
-        $data .= "\t\tdetail: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\"><span style=\"font-family:none; font-size: 18pt;\">&#9998;</span></a></center>',\n";
-        $data .= "\t\tnome: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME'] . "</a></center>',\n";
-        $data .= "\t\temail: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['EMAIL'] . "</a></center>',\n";
-        $data .= "\t\tdataNascimento: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DATA_NASCIMENTO'] . "</a></center>',\n";
-        $data .= "\t\tsexo: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['SEXO'] . "</a></center>',\n";
-        $data .= "\t\ttelefone: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TELEFONE'] . "</a></center>',\n";
-        $data .= "\t\tcpf: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['CPF'] . "</a></center>',\n";
-        $data .= "\t\ttipoPessoa: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TIPO_PESSOA'] . "</a></center>',\n";
-        $data .= "\t},\n";
-        echo $data;
+foreach ($db_turma_fetch as $single_row1) {
+    $data = "\t{\n";
+    $data .= "\t\tdetail: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\"><span style=\"font-family:none; font-size: 18pt;\">&#9998;</span></a></center>',\n";
+    $data .= "\t\tformTurma: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME_TURMA'] . "</a></center>',\n";
+    $data .= "\t\tprofessor: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME'] . "</a></center>',\n";
+    $data .= "\t},\n";
+    echo $data;
 }
 ?>    
 ]
@@ -85,27 +97,21 @@ var data = [
 
 var columns = {
 	detail: '<center>Alterar</center>',
-    nome: 'Nome',
-    email: 'E-Mail',
-    dataNascimento: 'Data de nascimento',
-    sexo: 'Sexo',
-    telefone: 'Telefone',
-    cpf: 'CPF',
-    tipoPessoa: 'Cargo'
+    formTurma: '<center>Nome</center>',
+    professor: '<center>Professor regente</center>',
 }
 
 	function submit() {
 		document.forms[0].submit();
 	}
 
-	function atualizarPagina(){
-		document.forms[0].action = window.location.href;
-		return false;
-	}
-	
-  </script>
+    function atualizarPagina(){
+    	document.forms[0].action = window.location.href;
+    	return false;
+    }	
   
- <style type="text/css">
+ </script>
+<style type="text/css">
 
 th, td {
     vertical-align: middle !important;
@@ -140,10 +146,9 @@ textarea:focus {
 ::-webkit-scrollbar-thumb {
     background: #dad7d7;
 }
+</style>
 
 
-</style> 
-  
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -287,26 +292,39 @@ textarea:focus {
 		</div>
 	</nav>
 	<div class="content-wrapper">
-	<?php
-        if ($showSuccessMessage) {
-            ?>
-					    <div style="color: green; text-align: center;">Registro criado
-					com sucesso!</br></br></div>
-					<?php
-    }
-
-    ?>
+		<?php 
+		if (isset($_SESSION['errosCadastroTurma'])){
+		    $errosIdentificados = $_SESSION['errosCadastroTurma'];
+		    echo "<div style=\"color: red; text-align: left; padding: 15px\">";
+		    $textoFinal = "";
+		    foreach ($errosIdentificados as $erroIndentificado) {
+		        $textoFinal .= $erroIndentificado;
+		    }
+		    $textoFinal = trim($textoFinal);
+		    $textoFinalUltimoCaracter= substr($textoFinal, -1);
+		    if ($textoFinalUltimoCaracter == ","){
+		        echo substr($textoFinal, 0, (strlen($textoFinal)-1));
+		    } else {
+		        echo $textoFinal;
+		    }
+		    echo "<br></div>";
+		    $_SESSION['errosCadastroTurma'] = null;		    
+		} else if (isset($_SESSION['sucessoCadastroTurma']) and $_SESSION['sucessoCadastroTurma']){
+		    echo "<div style=\"color: green; text-align: center;\">Turma cadastrada com sucesso!<br><br></div>";
+		}
+		
+		?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
-				<li class="breadcrumb-item">Servidores</li>
+				<li class="breadcrumb-item">Turma</li>
 				<li class="breadcrumb-item active">Visualizar</li>
 			</ol>
 			<div class="container">
 				<div>
-					<div class="card-body">
-						<form method="post" action="servidores_alterar.php">
-							<input type="hidden" id="pessoaID" name="pessoaID" />
+					<div class="card-body" style="padding: 0px;">
+						<form method="post" action="turma_alterar.php">
+							<input type="hidden" id="turmaId" name="turmaId" />
 							<div class="page-container" style="padding: 0px;">
 								<div class="container">
 									<div class="row mt-5 mb-3 align-items-center">
@@ -314,7 +332,8 @@ textarea:focus {
 											<!--<button class="btn btn-primary btn-sm" id="rerender">Re-Render</button> 
                                             <button class="btn btn-primary btn-sm" id="distory">Distory</button> -->
 											<button class="btn btn-primary btn-sm" id="refresh"
-												style="background: #e9ecef; border-color: #ced4da; color: #212529;" onclick="atualizarPagina();">Atualizar</button>
+												style="background: #e9ecef; border-color: #ced4da; color: #212529; font-size: 1rem"
+												onclick="atualizarPagina()">Atualizar</button>
 										</div>
 										<div class="col-md-3">
 											<input type="text" class="form-control"
@@ -337,9 +356,8 @@ textarea:focus {
 									</div>
 									<div id="root"></div>
 								</div>
-							</div>	
-							
-						<script src="./table-sortable.js"></script>
+							</div>							
+							<script src="./table-sortable.js"></script>
 							<script>
         var table = $('#root').tableSortable({
             data,
@@ -390,50 +408,54 @@ textarea:focus {
             table.setPage(1);
         })
     </script>
-    </form>
-					
-				</div>
-		</div>
-	</div>
-	<!-- /.container-fluid-->
-	<!-- /.content-wrapper-->
-	<footer class="sticky-footer">
-		<div class="container">
-			<div class="text-center">
-				<small>Copyright © GSE 2020</small>
-			</div>
-		</div>
-	</footer>
-	<!-- Scroll to Top Button-->
-	<a class="scroll-to-top rounded" href="#page-top"> <i
-		class="fa fa-angle-up"></i>
-	</a>
-	<!-- Logout Modal-->
-	<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
-		aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Deseja mesmo sair?</h5>
-					<button class="close" type="button" data-dismiss="modal"
-						aria-label="Close">
-						<span aria-hidden="true">×</span>
-					</button>
-				</div>
-				<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja
-					pronto para encerrar a seção atual.</div>
-				<div class="modal-footer">
-					<button class="btn btn-secondary" type="button"
-						data-dismiss="modal">Cancelar</button>
-					<form action="bo/Sessao.php" name="logout" method="POST">
-						<input type="hidden" value="GSElogout" name="logout"> <a
-							class="btn btn-primary" onclick="document.logout.submit()">Sair</a>
-					</form>
+
+						</form>
+					</div>
+					<br>
+        <br>
 				</div>
 			</div>
 		</div>
-	</div>
-	<!-- Bootstrap core JavaScript-->
+		<!-- /.container-fluid-->
+		<!-- /.content-wrapper-->
+		<footer class="sticky-footer">
+			<div class="container">
+				<div class="text-center">
+					<small>Copyright © GSE 2020</small>
+				</div>
+			</div>
+		</footer>
+		<!-- Scroll to Top Button-->
+		<a class="scroll-to-top rounded" href="#page-top"> <i
+			class="fa fa-angle-up"></i>
+		</a>
+		<!-- Logout Modal-->
+		<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+			aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLabel">Deseja mesmo sair?</h5>
+						<button class="close" type="button" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+					</div>
+					<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja
+						pronto para encerrar a seção atual.</div>
+					<div class="modal-footer">
+						<button class="btn btn-secondary" type="button"
+							data-dismiss="modal">Cancelar</button>
+						<form action="bo/Sessao.php" name="logout" method="POST">
+							<input type="hidden" value="GSElogout" name="logout"> <a
+								class="btn btn-primary" onclick="document.logout.submit()">Sair</a>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+				<!-- Bootstrap core JavaScript-->
+	<script src="vendor/jquery/jquery.min.js"></script>
 	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 	<!-- Core plugin JavaScript-->
 	<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
@@ -449,7 +471,12 @@ textarea:focus {
 
 </html>
 
-<?php
-$db0->close();
+<?php 
+$db->close();
 $db1->close();
+$db2->close();
+$db3->close();
+$db4->close();
+$db5->close();
 ?>
+
