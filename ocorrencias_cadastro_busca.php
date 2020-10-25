@@ -191,13 +191,29 @@ if (isset($_POST['aluno']) and isset($_POST['ocorrencia']) and isset($_POST['tip
                         });
                     }
                 });
-            }); 
+            });
+
+            function carregaAlunos(){
+                var turmaId = $('#turma').val();
+                if(turmaId){
+                    $.ajax({
+                        type:'POST',
+                        url:"carregarAlunos.php",
+                        data:'turma_id='+turmaId,
+                        success: function(html) {
+                            $('#aluno').html(html);
+                        }
+                    });
+                }
+                
+            }    
+             
 
 </script>
 
 </head>
 
-<body class="fixed-nav sticky-footer bg-dark" id="page-top">
+<body class="fixed-nav sticky-footer bg-dark" id="page-top" onload="carregaAlunos()">
 	<!-- Navigation-->
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"
 		id="mainNav">
@@ -368,7 +384,7 @@ if (isset($_POST['aluno']) and isset($_POST['ocorrencia']) and isset($_POST['tip
 								<div class="col-md-6"
 									style="flex: none; max-width: 100%; padding: 0px;">
 									<label for="turma">Turma*</label> <select class="form-control"
-										aria-describedby="nameHelp" id="turma" name="turma">
+										aria-describedby="nameHelp" id="turma" name="turma" onshow="alert('TESTE');">
 										<?php
         foreach ($db_turma_fetch as $single_row1) {
             echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME_TURMA'] . "</option>";
