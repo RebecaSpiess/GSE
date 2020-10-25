@@ -1,13 +1,12 @@
 <?php
 require 'bo/Sessao.php';
-require  'bo/ControleAcesso.php';
+require 'bo/ControleAcesso.php';
 require 'database/db.php';
 use bo\Sessao;
 use bo\ControleAcesso;
 use model\Pessoa;
 
 Sessao::validar();
-
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -18,12 +17,15 @@ require 'vendor/autoload.php';
 
 $mail = new PHPMailer();
 
-$papeisPermitidos = array(2,4,1,7);
+$papeisPermitidos = array(
+    2,
+    4,
+    1,
+    7
+);
 ControleAcesso::validar($papeisPermitidos);
 
-
 $pessoa = unserialize($_SESSION['loggedGSEUser']);
-
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
@@ -33,73 +35,61 @@ $db1 = new db();
 $db2 = new db();
 $db3 = new db();
 
-$db_alunos_fetch = $db0->query("SELECT aluno.ID, aluno.NOME, aluno.SOBRENOME, responsavel.EMAIL FROM PESSOA aluno JOIN PESSOA responsavel ON (aluno.RESPONSAVEL_1 = responsavel.ID) WHERE aluno.TIPO_PESSOA = 3 ORDER  BY aluno.NOME, aluno.SOBRENOME ")->fetchAll();
 $db_tipo_fetch = $db3->query("SELECT ID, NOME FROM TIPO_OCORRENCIA ORDER  BY NOME")->fetchAll();
 $db_turma_fetch = $db2->query("SELECT ID, NOME_TURMA FROM TURMA ORDER  BY NOME_TURMA")->fetchAll();
 
-if (isset($_POST['aluno'])
-    and isset($_POST['ocorrencia'])
-    and isset($_POST['tipoOcorrencia'])){
-        $aluno = $_POST['aluno'];
-        $tipo_ocorrencia = $_POST['tipoOcorrencia'];
-        $ocorrencia = $_POST['ocorrencia'];
-        $tipoOcorrencia = $_POST['tipoOcorrencia'];
-        $autor = $pessoa->id;
-        if (!empty(trim($aluno)) and
-            !empty(trim($ocorrencia))){
-                try {
-                    $result = $db1->query("INSERT INTO OCORRENCIA (ID_PESSOA_ALUNO, ID_PESSOA_AUTOR,DESCRICAO, ID_TIPO)
-                          VALUES (?,?,?,?) "
-                        , $aluno
-                        , $autor
-                        , $ocorrencia
-                        , $tipoOcorrencia
-                        )->query_count;
-                        if ($result == 1){
-                            $showSuccessMessage = true;
-                            $mail->isSMTP();                                            // Send using SMTP
-                            $mail->Host       = 'email-ssl.com.br';                    // Set the SMTP server to send through
-                            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-                            $mail->Username   = 'comunicados@gestaosocioeducacional.com.br'; // SMTP username
-                            $mail->Password   = 'Comunicados#20201';                               // SMTP password
-                            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
-                            $mail->Port       = 587;                                    // TCP port to connect to
-                            
-                            //Recipients
-                            $mail->setFrom('comunicados@gestaosocioeducacional.com.br', 'GSE - ' . $pessoa->nome . ' ' . $pessoa->sobrenome);
-                            error_log($pessoa->email);
-                            $mail->addReplyTo($pessoa->email);
-                            
-                            $db_aluno_email_fetch = $db0->query("SELECT responsavel1.EMAIL as RESP1_EMAIL, responsavel2.EMAIL as RESP2_EMAIL FROM PESSOA aluno JOIN PESSOA responsavel1 ON (aluno.RESPONSAVEL_1 = responsavel1.ID) LEFT JOIN PESSOA responsavel2 ON (aluno.RESPONSAVEL_2 = responsavel2.ID) WHERE aluno.ID = ? " , $aluno)->fetchAll();
-                            $resp2email = $db_aluno_email_fetch[0]['RESP2_EMAIL'];
-                            if (isset($resp2email)){
-                                $mail->addAddress($resp2email);
-                            }
-                            $mail->addAddress($db_aluno_email_fetch[0]['RESP1_EMAIL']);
-                            $mail->CharSet='UTF-8';
-                            
-                            // Content
-                            $mail->isHTML(true);                                  // Set email format to HTML
-                            $mail->Subject = 'GSE - Ocorrencia';
-                            $mail->Body    = '<div style="color: #363534; font-family: Calibri, Candara;font-size: 12pt;"> Olá, <br/><br/> você recebeu a seguinte ocorrência de <a href="mailto:'
-                                . $pessoa->email . '">' . $pessoa->nome . ' '
-                                    . $pessoa->sobrenome  . '</a>: <br/> <br/>' . $ocorrencia .
-                                    '<br/><br/>Atenciosamente,<br/>GSE - Gestão Sócio Educacional.</div><span style="font-family: Calibri, Candara;font-size:10pt">http://gestaosocioeducacional.com.br/</span>';
-                            if ($mail->send()){
-                                error_log("Enviado!!!!");
-                            } else {
-                                error_log("Não foi enviado!!!!");
-                            }
-                        } 
-                } catch (Exception $ex){
-                    $error_code = $ex->getMessage();
-                    if ($error_code == 1062){
-                        $showErrorMessage = "Já existe um registro com ID informado!";
-                    } else {
-                        $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
-                    }
+if (isset($_POST['aluno']) and isset($_POST['ocorrencia']) and isset($_POST['tipoOcorrencia'])) {
+    $aluno = $_POST['aluno'];
+    $tipo_ocorrencia = $_POST['tipoOcorrencia'];
+    $ocorrencia = $_POST['ocorrencia'];
+    $tipoOcorrencia = $_POST['tipoOcorrencia'];
+    $autor = $pessoa->id;
+    if (! empty(trim($aluno)) and ! empty(trim($ocorrencia))) {
+        try {
+            $result = $db1->query("INSERT INTO OCORRENCIA (ID_PESSOA_ALUNO, ID_PESSOA_AUTOR,DESCRICAO, ID_TIPO)
+                          VALUES (?,?,?,?) ", $aluno, $autor, $ocorrencia, $tipoOcorrencia)->query_count;
+            if ($result == 1) {
+                $showSuccessMessage = true;
+                $mail->isSMTP(); // Send using SMTP
+                $mail->Host = 'email-ssl.com.br'; // Set the SMTP server to send through
+                $mail->SMTPAuth = true; // Enable SMTP authentication
+                $mail->Username = 'comunicados@gestaosocioeducacional.com.br'; // SMTP username
+                $mail->Password = 'Comunicados#20201'; // SMTP password
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
+                $mail->Port = 587; // TCP port to connect to
+
+                // Recipients
+                $mail->setFrom('comunicados@gestaosocioeducacional.com.br', 'GSE - ' . $pessoa->nome . ' ' . $pessoa->sobrenome);
+                error_log($pessoa->email);
+                $mail->addReplyTo($pessoa->email);
+
+                $db_aluno_email_fetch = $db0->query("SELECT responsavel1.EMAIL as RESP1_EMAIL, responsavel2.EMAIL as RESP2_EMAIL FROM PESSOA aluno JOIN PESSOA responsavel1 ON (aluno.RESPONSAVEL_1 = responsavel1.ID) LEFT JOIN PESSOA responsavel2 ON (aluno.RESPONSAVEL_2 = responsavel2.ID) WHERE aluno.ID = ? ", $aluno)->fetchAll();
+                $resp2email = $db_aluno_email_fetch[0]['RESP2_EMAIL'];
+                if (isset($resp2email)) {
+                    $mail->addAddress($resp2email);
                 }
+                $mail->addAddress($db_aluno_email_fetch[0]['RESP1_EMAIL']);
+                $mail->CharSet = 'UTF-8';
+
+                // Content
+                $mail->isHTML(true); // Set email format to HTML
+                $mail->Subject = 'GSE - Ocorrencia';
+                $mail->Body = '<div style="color: #363534; font-family: Calibri, Candara;font-size: 12pt;"> Olá, <br/><br/> você recebeu a seguinte ocorrência de <a href="mailto:' . $pessoa->email . '">' . $pessoa->nome . ' ' . $pessoa->sobrenome . '</a>: <br/> <br/>' . $ocorrencia . '<br/><br/>Atenciosamente,<br/>GSE - Gestão Sócio Educacional.</div><span style="font-family: Calibri, Candara;font-size:10pt">http://gestaosocioeducacional.com.br/</span>';
+                if ($mail->send()) {
+                    error_log("Enviado!!!!");
+                } else {
+                    error_log("Não foi enviado!!!!");
+                }
+            }
+        } catch (Exception $ex) {
+            $error_code = $ex->getMessage();
+            if ($error_code == 1062) {
+                $showErrorMessage = "Já existe um registro com ID informado!";
+            } else {
+                $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
+            }
         }
+    }
 }
 
 ?>
@@ -127,31 +117,30 @@ if (isset($_POST['aluno'])
 <link href="css/sb-admin.css" rel="stylesheet">
 <script src="vendor/jquery/jquery.min.js"></script>
 
- <style type="text/css">
-
+<style type="text/css">
 .btn-primary {
-    color: black !important;
-    background-color: #e9ecef !important;
-    border-color: black !important;
+	color: black !important;
+	background-color: #e9ecef !important;
+	border-color: black !important;
 }
 
 ::-webkit-scrollbar-track {
-    background-color: #F4F4F4;
+	background-color: #F4F4F4;
 }
+
 ::-webkit-scrollbar {
-    width: 6px;
-    background: #F4F4F4;
+	width: 6px;
+	background: #F4F4F4;
 }
+
 ::-webkit-scrollbar-thumb {
-    background: #dad7d7;
+	background: #dad7d7;
 }
-
-
 </style>
 
 
 
-  <script type="text/javascript">
+<script type="text/javascript">
 	function submit() {
 		document.forms[0].submit();
 	}
@@ -186,6 +175,26 @@ if (isset($_POST['aluno'])
   </script>
 
 
+<script type="text/javascript">
+
+            $(document).ready(function(){
+                $('#turma').on('change', function(){
+                    var turmaId = $(this).val();
+                    if(turmaId){
+                        $.ajax({
+                            type:'POST',
+                            url:"carregarAlunos.php",
+                            data:'turma_id='+turmaId,
+                            success: function(html) {
+                                $('#aluno').html(html);
+                            }
+                        });
+                    }
+                });
+            }); 
+
+</script>
+
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -201,19 +210,22 @@ if (isset($_POST['aluno'])
 			<span class="navbar-toggler-icon"></span>
 		</button>
 		<div class="collapse navbar-collapse" id="navbarResponsive">
-			<ul class="navbar-nav navbar-sidenav" id="exampleAccordion" style="overflow-y:auto" >
+			<ul class="navbar-nav navbar-sidenav" id="exampleAccordion"
+				style="overflow-y: auto">
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Alunos</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Alunos</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse" id="collapseExamplePages">
-						
-							<li><a href="aluno_cadastro.php">Cadastro</a></li>
-							<li><a href="aluno_visualizar.php">Visualizar</a></li>
-					</ul></li>
+
+						<li><a href="aluno_cadastro.php">Cadastro</a></li>
+						<li><a href="aluno_visualizar.php">Visualizar</a></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Charts">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
@@ -224,56 +236,64 @@ if (isset($_POST['aluno'])
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages1" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Disciplinas</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages1"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Disciplinas</span>
 				</a><?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages1">
 						<li><a href="disciplina_cadastro.php">Cadastro</a></li>
 						<li><a href="disciplina_visualizar.php">Visualizar</a></li>
-					</ul></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages2" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages2"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Frequência</span>
 				</a><?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
 						<li><a href="frequencia_cadastro.php">Cadastro</a></li>
-					</ul></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages3" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages3"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Notas</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
 						<li><a href="aluno_notas.php">Cadastro</a></li>
-					</ul></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages4" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Plano
-							de aula</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages4"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Plano de aula</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages4">
 						<li><a href="plano_aula_cadastro.php">Cadastro</a></li>
 						<li><a href="plano_aula_visualizar.php">Visualizar</a></li>
-					</ul></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7,6))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages5" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Ocorrências</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages5"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Ocorrências</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages5">
@@ -283,7 +303,8 @@ if (isset($_POST['aluno'])
 						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,7,6))) { ?>
 						<li><a href="ocorrencias_visualizar.php">Visualizar</a></li>
 						<?php } ?>
-					</ul></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Charts">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
@@ -294,27 +315,31 @@ if (isset($_POST['aluno'])
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages6" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Servidores</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages6"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Servidores</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages6">
 						<li><a href="servidores_cadastro.php">Cadastro</a></li>
 						<li><a href="servidores_visualizar.php">Visualizar</a></li>
-					</ul></li>	
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages7" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Turmas</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages7"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Turmas</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages7">
 						<li><a href="turma_cadastro.php">Cadastro</a></li>
 						<li><a href="turma_visualizar.php">Visualizar</a></li>
-					</ul></li>
+					</ul>
+				</li>
 			</ul>
 			<ul class="navbar-nav sidenav-toggler">
 				<li class="nav-item"><a class="nav-link text-center"
@@ -340,64 +365,62 @@ if (isset($_POST['aluno'])
 					<div class="card-body">
 						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
 							<div class="form-group">
-								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-									<label for="turma">Turma*</label>
-									 <select
-										class="form-control"
+								<div class="col-md-6"
+									style="flex: none; max-width: 100%; padding: 0px;">
+									<label for="turma">Turma*</label> <select class="form-control"
 										aria-describedby="nameHelp" id="turma" name="turma">
 										<?php
-										foreach ($db_turma_fetch as $single_row1) {
-                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME_TURMA'] . "</option>";
-                                            } 
-                                        ?>
+        foreach ($db_turma_fetch as $single_row1) {
+            echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME_TURMA'] . "</option>";
+        }
+        ?>
 																			
-									</select>
-									<label for="turma">Aluno*</label> 
-									<select
-										class="form-control"
-										aria-describedby="nameHelp" id="aluno" name="aluno">
+									</select> <label for="turma">Aluno*</label> <select
+										class="form-control" aria-describedby="nameHelp" id="aluno"
+										name="aluno">
 									
-									<?php
-                                            foreach ($db_alunos_fetch as $single_row1) {
-                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME'] . ' ' . $single_row1['SOBRENOME'] . ' - ' .  $single_row1['EMAIL'] . "</option>";
-                                            } 
-                                        ?>
-										
-									</select>
-									<label for="turma">Tipo de ocorrência*</label> 
-									<select
-										class="form-control"
-										aria-describedby="nameHelp" id="tipoOcorrencia" name="tipoOcorrencia">
+									</select> <label for="turma">Tipo de ocorrência*</label> <select
+										class="form-control" aria-describedby="nameHelp"
+										id="tipoOcorrencia" name="tipoOcorrencia">
 										
 										<?php
-										foreach ($db_tipo_fetch as $single_row1) {
-                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME'] . "</option>";
-                                            } 
-                                        ?>
+        foreach ($db_tipo_fetch as $single_row1) {
+            echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME'] . "</option>";
+        }
+        ?>
 									</select>
 								</div>
 								<br>
-								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-								<label for="planoAula">Ocorrência*</label> 
-									<textarea rows="10" cols="30" style="width: 100%; max-width:100% " maxlength="250" id="ocorrencia" name="ocorrencia"></textarea>
+								<div class="col-md-6"
+									style="flex: none; max-width: 100%; padding: 0px;">
+									<label for="planoAula">Ocorrência*</label>
+									<textarea rows="10" cols="30"
+										style="width: 100%; max-width: 100%" maxlength="250"
+										id="ocorrencia" name="ocorrencia"></textarea>
 								</div>
 							</div>
-					
-        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>
-					</form>
+
+							<a class="btn btn-primary btn-block"
+								onclick="validateAndSubmitForm()">Cadastrar</a>
+						</form>
 					</div>
 				</div>
-				<?php 
-					if (isset($showErrorMessage)){ ?>
-						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </div>
-					<?php 
-					}
-					
-					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
-					    <div style="color:green;text-align: center;">Ocorrência criada com sucesso!</div>
-					<?php }
-					
-					?>
+				<?php
+    if (isset($showErrorMessage)) {
+        ?>
+						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </div>
+					<?php
+    }
+
+    if ($showSuccessMessage and ! isset($showErrorMessage)) {
+        ?>
+					    <div style="color: green; text-align: center;">Ocorrência
+					criada com sucesso!</div>
+					<?php
+
+}
+
+    ?>
 			</div>
 		</div>
 		<!-- /.container-fluid-->
@@ -454,7 +477,7 @@ if (isset($_POST['aluno'])
 </body>
 
 </html>
-<?php 
+<?php
 $db0->close();
 $db1->close();
 $db2->close();

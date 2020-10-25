@@ -36,6 +36,17 @@ if ($tipoPessoaId == 2 ){
     $sqlTurmas .= " ORDER BY t.NOME_TURMA";
 }
 
+if ($tipoPessoaId == 2 ){
+    $sqlMateria = "SELECT ID, NOME FROM MATERIA ORDER BY NOME";
+    
+} else {
+    $sqlTurmas = "SELECT t.ID, t.NOME_TURMA FROM PESSOA p JOIN TURMA_MATERIA tm ON (tm.ID_PROFESSOR = p.ID)
+    JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and (tp.NOME = 'Professor(a)' OR tp.NOME = 'Diretor(a)'))
+    JOIN TURMA t ON (t.ID = tm.ID_TURMA) ";
+    $sqlTurmas .= " where p.ID = " . $pessoa->id;
+    $sqlTurmas .= " ORDER BY t.NOME_TURMA";
+}
+
 error_log($sqlTurmas);
 
 $db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
@@ -329,6 +340,19 @@ if (isset($_POST['turma']) and
 									<select
 										class="form-control"
 										aria-describedby="nameHelp" placeholder="Turma" id="turma" name="turma">
+									
+									<?php
+                                            foreach ($db_turma_fetch as $single_row1) {
+                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME_TURMA'] . "</option>";
+                                            } 
+                                        ?>
+										
+									</select>
+									<br>
+									<label for="turma">Matéria*</label> 
+									<select
+										class="form-control"
+										aria-describedby="nameHelp" placeholder="Matéria" id="materia" name="materia">
 									
 									<?php
                                             foreach ($db_turma_fetch as $single_row1) {
