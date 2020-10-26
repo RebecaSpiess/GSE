@@ -16,7 +16,6 @@ class PessoaDao
         } finally {
             $db->close();
         }
-        error_log("COUNTTERRRRRRRRRRRRRRRRRRRRRRRR - PID: " . $pessoa->id);
         return $counter > 0;
     }
     
@@ -48,7 +47,6 @@ class PessoaDao
                     $resultadoSelect = $selectId->fetchAll();
                     if ($contador > 0) {
                         $pessoa->id = $resultadoSelect[0]['ID'];
-                        error_log("ID: " . $pessoa->id);
                     }
                 }
             }
@@ -87,7 +85,6 @@ class PessoaDao
                     $resultadoSelect = $selectId->fetchAll();
                     if ($contador > 0) {
                         $pessoa->id = $resultadoSelect[0]['ID'];
-                        error_log("ID: " . $pessoa->id);
                         return true;
                     }
                 }

@@ -28,12 +28,12 @@ $db3 = new db();
 $db4 = new db();
 
 if ($tipoPessoaIdentificador == 2 ){
-    $db_materia_fetch = $db4->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
+    $db_materia_professor_fetch = $db4->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
 	JOIN MATERIA ma ON (ma.ID = tm.ID_MATERIA)
     WHERE tm.ID_TURMA = ?", $turma_id)->fetchAll();
     
 } else {
-    $db_materia_fetch = $db3->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
+    $db_materia_professor_fetch = $db3->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
 	JOIN MATERIA ma ON (ma.ID = tm.ID_MATERIA)
     WHERE tm.ID_TURMA = ? and tm.ID_PROFESSOR = ?", $turma_id, $IdPessoa)->fetchAll();
 }
@@ -330,7 +330,7 @@ if (isset($_POST['cadastro_frequencia']) and isset($_POST['materia'])){
 										aria-describedby="nameHelp" id="materia" name="materia">
 									
 									<?php
-									foreach ($db_materia_fetch as $single_row1) {
+									foreach ($db_materia_professor_fetch as $single_row1) {
                                                 echo "<option value=\"" . $single_row1['ID_MATERIA'] . "\">" . $single_row1['NOME'] . "</option>";
                                             } 
                                         ?>

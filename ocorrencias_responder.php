@@ -25,84 +25,44 @@ ControleAcesso::validar($papeisPermitidos);
 $pessoa = unserialize($_SESSION['loggedGSEUser']);
 $alunoId = $_POST['alunoId'];
 
+error_log("ALUNO ID: " . $alunoId);
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
 
+$atendimentoEspecial = false;
 
+$nomeCompletoAluno = null;
 
 $msg = null;
 $msg_temp = null;
-try {
-    $db1 = new db();
-    $ocorrencia_recebida = $db1->query("SELECT oc.ID, DATE_FORMAT(oc.DATA, '%d/%m/%Y %H:%i:%s') as DATA, oc.DESCRICAO, CONCAT(CONCAT(pe.NOME, ' '),  pe.SOBRENOME) as 'ALUNO', CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME) as 'AUTOR' FROM OCORRENCIA oc
-			JOIN PESSOA pe ON (pe.ID = oc.ID_PESSOA_ALUNO)
-            JOIN PESSOA p ON (p.ID = oc.ID_PESSOA_AUTOR)
-            WHERE (ID_PESSOA_ALUNO = ?) ORDER BY DATA DESC", $alunoId)->fetchAll();
-    foreach ($ocorrencia_recebida as $single_row0) {
-        $horarioRecebimento = $single_row0['DATA'];
-        $avisoRecebimento = $single_row0['DESCRICAO'];
-        $nomeRecebimento = $single_row0['ALUNO'];        
-        $msg_temp = $horarioRecebimento . '&#13;&#10;'. $nomeRecebimento . ': ' . $avisoRecebimento . '&#13;&#10;&#13;&#10;';
-        $msg .= trim($msg_temp); 
-    }
-} finally {
-    $db1->close();
-}
 
-if (isset($_POST['aluno'])
-    and isset($_POST['ocorrencia'])
-    and isset($_POST['tipoOcorrencia'])){
-        $aluno = $_POST['aluno'];
-        $tipo_ocorrencia = $_POST['tipoOcorrencia'];
+
+if (isset($_POST['alunoId'])
+    and isset($_POST['ocorrencia'])){
+        $aluno = $_POST['alunoId'];
         $ocorrencia = $_POST['ocorrencia'];
-        $tipoOcorrencia = $_POST['tipoOcorrencia'];
+        $tipoOcorrencia = 3;
         $autor = $pessoa->id;
+        $atendimentoEspecial = false;
+        if (isset($_POST['atendimentoEducacionalEspecializado'])){
+            $atendimentoEspecial = true;
+        }
         if (!empty(trim($aluno)) and
             !empty(trim($ocorrencia))){
+                $db2 = new db();
                 try {
-                    $result = $db1->query("INSERT INTO OCORRENCIA (ID_PESSOA_ALUNO, ID_PESSOA_AUTOR,DESCRICAO, ID_TIPO)
-                          VALUES (?,?,?,?) "
+                    $result = $db2->query("INSERT INTO OCORRENCIA (ID_PESSOA_ALUNO, ID_PESSOA_AUTOR,DESCRICAO, ID_TIPO, ATENDIMENTO_ESPECIAL)
+                          VALUES (?,?,?,?,?) "
                         , $aluno
                         , $autor
                         , $ocorrencia
                         , $tipoOcorrencia
+                        , $atendimentoEspecial
                         )->query_count;
                         if ($result == 1){
-                            $showSuccessMessage = true;
-                            $mail->isSMTP();                                            // Send using SMTP
-                            $mail->Host       = 'email-ssl.com.br';                    // Set the SMTP server to send through
-                            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-                            $mail->Username   = 'comunicados@gestaosocioeducacional.com.br'; // SMTP username
-                            $mail->Password   = 'Comunicados#20201';                               // SMTP password
-                            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
-                            $mail->Port       = 587;                                    // TCP port to connect to
-                            
-                            //Recipients
-                            $mail->setFrom('comunicados@gestaosocioeducacional.com.br', 'GSE - ' . $pessoa->nome . ' ' . $pessoa->sobrenome);
-                            error_log($pessoa->email);
-                            $mail->addReplyTo($pessoa->email);
-                            
-                            $db_aluno_email_fetch = $db0->query("SELECT responsavel1.EMAIL as RESP1_EMAIL, responsavel2.EMAIL as RESP2_EMAIL FROM PESSOA aluno JOIN PESSOA responsavel1 ON (aluno.RESPONSAVEL_1 = responsavel1.ID) LEFT JOIN PESSOA responsavel2 ON (aluno.RESPONSAVEL_2 = responsavel2.ID) WHERE aluno.ID = ? " , $aluno)->fetchAll();
-                            $resp2email = $db_aluno_email_fetch[0]['RESP2_EMAIL'];
-                            if (isset($resp2email)){
-                                $mail->addAddress($resp2email);
-                            }
-                            $mail->addAddress($db_aluno_email_fetch[0]['RESP1_EMAIL']);
-                            $mail->CharSet='UTF-8';
-                            
-                            // Content
-                            $mail->isHTML(true);                                  // Set email format to HTML
-                            $mail->Subject = 'GSE - Ocorrencia';
-                            $mail->Body    = '<div style="color: #363534; font-family: Calibri, Candara;font-size: 12pt;"> Olá, <br/><br/> você recebeu a seguinte ocorrência de <a href="mailto:'
-                                . $pessoa->email . '">' . $pessoa->nome . ' '
-                                    . $pessoa->sobrenome  . '</a>: <br/> <br/>' . $ocorrencia .
-                                    '<br/><br/>Atenciosamente,<br/>GSE - Gestão Sócio Educacional.</div><span style="font-family: Calibri, Candara;font-size:10pt">http://gestaosocioeducacional.com.br/</span>';
-                            if ($mail->send()){
-                                error_log("Enviado!!!!");
-                            } else {
-                                error_log("Não foi enviado!!!!");
-                            }
+                            $_SESSION['mensagem_sucesso_ocorrencia'] = 'Ocorrência respondida';
+                            header("Location: ocorrencias_visualizar.php");
                         } 
                 } catch (Exception $ex){
                     $error_code = $ex->getMessage();
@@ -111,8 +71,35 @@ if (isset($_POST['aluno'])
                     } else {
                         $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
                     }
+                } finally {
+                    $db2->close();
                 }
-        }
+        } 
+} 
+
+
+try {
+    $db1 = new db();
+    $ocorrencia_recebida = $db1->query("SELECT oc.ID, DATE_FORMAT(oc.DATA, '%d/%m/%Y %H:%i:%s') as DATA, oc.DESCRICAO, CONCAT(CONCAT(pe.NOME, ' '),  pe.SOBRENOME) as 'ALUNO', CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME) as 'AUTOR', oc.ATENDIMENTO_ESPECIAL FROM OCORRENCIA oc
+			JOIN PESSOA pe ON (pe.ID = oc.ID_PESSOA_ALUNO)
+            JOIN PESSOA p ON (p.ID = oc.ID_PESSOA_AUTOR)
+            WHERE ID_PESSOA_ALUNO = ? ORDER BY DATA DESC", $alunoId)->fetchAll();
+    $firstRow = true;
+    foreach ($ocorrencia_recebida as $single_row0) {
+        $horarioRecebimento = $single_row0['DATA'];
+        $avisoRecebimento = $single_row0['DESCRICAO'];
+        $nomeRecebimento = $single_row0['AUTOR'];
+        $msg_temp = $horarioRecebimento . '&#13;&#10;'. $nomeRecebimento . ': ' . $avisoRecebimento . '&#13;&#10;&#13;&#10;';
+        $msg .= trim($msg_temp);
+        
+        if ($firstRow and $single_row0['ATENDIMENTO_ESPECIAL'] == 1){
+            $atendimentoEspecial = true;
+        } 
+        $nomeCompletoAluno = $single_row0['ALUNO'];
+        $firstRow = false; 
+    }
+} finally {
+    $db1->close();
 }
 
 ?>
@@ -169,13 +156,8 @@ if (isset($_POST['aluno'])
   
 	function validateAndSubmitForm() {
 		var ocorrencia = document.getElementById("ocorrencia");
-		var aluno = document.getElementById("aluno");
 		var camposPreenchidos = true;
 		 
-		if (!isNotBlank(aluno.value)){
-			camposPreenchidos = false;
-		}
-		
 		if (!isNotBlank(ocorrencia.value)){
 			camposPreenchidos = false;
 		}	
@@ -350,14 +332,15 @@ if (isset($_POST['aluno'])
 				<div>
 					<div class="card-body">
 						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
+						<input type="hidden" name="alunoId" id="alunoId" value="<?php echo $alunoId; ?>" />
 						<div class="row">
 							<div class="card mb-3"
 								style="width: 100%; margin-left: 17px; margin-right: 17px">
 								<div class="card-header">
-									Descrição da ocorrência
+									Descrição da ocorrência do aluno: <?php echo $nomeCompletoAluno; ?>
 								</div>
 								<div class="card-body">
-								<textarea class="form-control" id="ocorrenciaRecebidas" rows="10" style="text-align: left;" disabled><?php echo $msg;?></textarea>
+								<textarea class="form-control" id="ocorrenciaRecebidas" name="ocorrenciaRecebidas" rows="10" style="text-align: left;" disabled><?php echo $msg;?></textarea>
 								</div>
 							</div>
 							<br>
@@ -365,11 +348,11 @@ if (isset($_POST['aluno'])
 							<div class="card mb-3"
 								style="width: 100%; margin-left: 17px; margin-right: 17px;">
 								<div class="card-body" style="padding-left: 1.25rem; padding-top: 5px;padding-bottom: 5px;">
-									<input type="checkbox" name="atendimentoEducacionalEspecializado" id="atendimentoEducacionalEspecializado" />
+									<input type="checkbox" name="atendimentoEducacionalEspecializado" id="atendimentoEducacionalEspecializado" <?php echo ($atendimentoEspecial ? "checked" : ""); ?> />
 									Necessita de atendimento educacional especializado
 								</div>	
 								<div class="card-body" style="padding-top: 0px;padding-bottom: 1.25rem;" >
-								<textarea class="form-control" id="ocorrenciaRecebidas" rows="10" style="text-align: left;"></textarea>
+								<textarea class="form-control" id="ocorrencia" name="ocorrencia" rows="10" style="text-align: left;"></textarea>
 								</div>
 							</div>
 					
@@ -377,17 +360,6 @@ if (isset($_POST['aluno'])
 					</form>
 					</div>
 				</div>
-				<?php 
-					if (isset($showErrorMessage)){ ?>
-						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </div>
-					<?php 
-					}
-					
-					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
-					    <div style="color:green;text-align: center;">Ocorrência criada com sucesso!</div>
-					<?php }
-					
-					?>
 			</div>
 		</div>
 		<!-- /.container-fluid-->

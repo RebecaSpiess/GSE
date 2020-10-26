@@ -27,6 +27,13 @@ $pessoa = unserialize($_SESSION['loggedGSEUser']);
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
+$mensagem_sucesso = null;
+
+if (isset($_SESSION['mensagem_sucesso_ocorrencia'])){
+    $showSuccessMessage = true;
+    $mensagem_sucesso = $_SESSION['mensagem_sucesso_ocorrencia'];
+    unset($_SESSION['mensagem_sucesso_ocorrencia']);
+}
 
 $db0 = new db();
 $db1 = new db();
@@ -35,7 +42,8 @@ $db3 = new db();
 
 $db_ocorrencia_fetch = $db0->query("SELECT oc.ID, oc.ID_PESSOA_ALUNO, oc.DATA, CASE WHEN LENGTH(oc.DESCRICAO) >= 10 THEN CONCAT(SUBSTR(oc.DESCRICAO,1,10),'...') ELSE oc.DESCRICAO END as 'DESCRICAO', CONCAT(CONCAT(pe.NOME, ' '),  pe.SOBRENOME) as 'ALUNO', CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME) as 'AUTOR' FROM OCORRENCIA oc
 			JOIN PESSOA pe ON (pe.ID = oc.ID_PESSOA_ALUNO)
-            JOIN PESSOA p ON (p.ID = oc.ID_PESSOA_AUTOR)")->fetchAll();
+            JOIN PESSOA p ON (p.ID = oc.ID_PESSOA_AUTOR)
+            group by oc.ID_PESSOA_ALUNO")->fetchAll();
 
 error_log(sizeof($db_ocorrencia_fetch));
 
@@ -291,6 +299,12 @@ textarea:focus {
 		</div>
 	</nav>
 	<div class="content-wrapper">
+	<?php 
+					if ($showSuccessMessage){ ?>
+					    <div style="color:green;text-align: center;" id="mensagemSucesso"><?php echo $mensagem_sucesso;?></br></br></div>
+					<?php }
+					
+					?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">

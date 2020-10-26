@@ -21,7 +21,7 @@ $showSuccessMessage = false;
 
 $db0 = new db();
 
-$db_materia_fetch = $db0->query("SELECT ID, NOME, PROPOSTA_CURRICULAR FROM MATERIA")->fetchAll();
+$db_materia_professor_fetch = $db0->query("SELECT ID, NOME, PROPOSTA_CURRICULAR FROM MATERIA")->fetchAll();
 
 $showSuccessMessage = (isset($_SESSION['disciplinaAtualizadoComSucesso']) and $_SESSION['disciplinaAtualizadoComSucesso']);
 $_SESSION['disciplinaAtualizadoComSucesso']= null;
@@ -118,7 +118,7 @@ function abrirDetalhe(disciplinaId){
 
 var data = [
 	<?php
-	foreach ($db_materia_fetch as $single_row1) {
+	foreach ($db_materia_professor_fetch as $single_row1) {
     $data = "\t{\n";
     $data .= "\t\tdetail: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\"><span style=\"font-family:none; font-size: 18pt;\">&#9998;</span></a></center>',\n";
     $data .= "\t\tnome: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['NOME'] . "</a></center>',\n";
