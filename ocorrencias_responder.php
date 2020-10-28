@@ -158,14 +158,15 @@ try {
 		var ocorrencia = document.getElementById("ocorrencia");
 		var camposPreenchidos = true;
 		 
-		if (!isNotBlank(ocorrencia.value)){
-			camposPreenchidos = false;
-		}	
+			if (!isNotBlank(ocorrencia.value)){
+				camposPreenchidos = false;
+				document.getElementById("ocorrenciaErro").style.display = "block";
+			} else {			
+				document.getElementById("ocorrenciaErro").style.display = "none";
+			}	
 
 		if (camposPreenchidos){
 			submit();
-		} else {
-			alert('Preencha todos os campos obrigatórios!');
 		}			
 	}
 
@@ -353,6 +354,7 @@ try {
 								</div>	
 								<div class="card-body" style="padding-top: 0px;padding-bottom: 1.25rem;" >
 								<textarea class="form-control" id="ocorrencia" name="ocorrencia" rows="10" style="text-align: left;"></textarea>
+								<div id="ocorrenciaErro" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
 								</div>
 							</div>
 					

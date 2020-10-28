@@ -120,6 +120,7 @@
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
 						<li><a href="avaliacao.php">Avaliação</a></li>
+						<li><a href="avaliacao_visualizar.php">Avaliação visualizar</a></li>
 						<li><a href="aluno_notas.php">Cadastro de notas</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"

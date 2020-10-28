@@ -290,7 +290,7 @@ textarea:focus {
 	<?php
         if ($showSuccessMessage) {
             ?>
-					    <div style="color: green; text-align: center;">Registro criado
+					    <div style="color: green; text-align: center;">Registro alterado
 					com sucesso!</br></br></div>
 					<?php
     }

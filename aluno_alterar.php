@@ -77,9 +77,10 @@ if (
                 $alunoCadastro->sexo = $sexoAluno;
                 $alunoCadastro->tipo_pessoa = TipoPessoaCons::ALUNO;
                 if ($pessoaDao->atualizar($alunoCadastro)){
-                    $showSuccessMessage = true;
-                }
-            } catch (Exception $ex) {
+                        $_SESSION['alunoAtualizadoComSucesso'] = true;
+                        header("Location: aluno_visualizar.php");
+                    }
+                } catch (Exception $ex) {
                 $error_code = $ex->getMessage();
                 error_log($ex);
                 if ($error_code == 1062) {

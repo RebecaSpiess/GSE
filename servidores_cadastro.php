@@ -177,22 +177,32 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 		if (!isNotBlank(tipoPessoa.value)){
 			camposPreenchidos = false;
 		}
-		
-		if (camposPreenchidos){
-			if (validateEmail(email.value)){
-				replaceAll(cpf, ".","");
-				replaceAll(cpf, "-","");
 
-				replaceAll(telefone, "-","");
-				replaceAll(telefone, "(","");
-				replaceAll(telefone, ")","");
-				submit();
-			} else {
-				alert('Você informou um endereço de e-mail inválido!');
-			}		
-		} else {
-			alert('Preencha todos os campos obrigatórios!');
-		}			
+		if (!isNotBlank(email.value)){
+			camposPreenchidos = false;
+			document.getElementById("emailServidorErro").style.display = "block";
+		} else if (!validateEmail(email.value)){
+			document.getElementById("emailServidorErro").innerHTML = "Você informou um endereço de e-mail inválido!"; 
+			document.getElementById("emailServidorErro").style.display = "block";
+			camposPreenchidos = false;
+	    } else {	
+			document.getElementById("emailServidorErro").style.display = "none";
+		}
+
+		
+		if (validateEmail(email.value)){
+			replaceAll(cpf, ".","");
+			replaceAll(cpf, "-","");
+
+			replaceAll(telefone, "-","");
+			replaceAll(telefone, "(","");
+			replaceAll(telefone, ")","");
+			
+			}
+
+		if (camposPreenchidos){	 
+			submit();
+		} 			
 	}
 
 	function replaceAll(campo, valor, replace){

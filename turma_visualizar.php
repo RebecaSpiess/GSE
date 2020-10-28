@@ -13,6 +13,7 @@ $papeisPermitidos = array(
     4
 );
 ControleAcesso::validar($papeisPermitidos);
+$showSuccessMessage = false;
 
 
 $db = new db();
@@ -27,6 +28,11 @@ $db_turma_fetch = $db2->query("SELECT tu.ID, tu.NOME_TURMA, CONCAT(CONCAT(pe.NOM
 
 //$db_turma_fetch = $db1->query($turma_db)->fetchAll();
 
+if (isset($_SESSION['atualizarTurmaMensagem'])){
+    $showSuccessMessage = true;
+    $mensagem_sucesso = $_SESSION['atualizarTurmaMensagem'];
+    unset($_SESSION['atualizarTurmaMensagem']);
+} 
 
 ?>
 
@@ -292,28 +298,12 @@ textarea:focus {
 		</div>
 	</nav>
 	<div class="content-wrapper">
-		<?php 
-		if (isset($_SESSION['errosCadastroTurma'])){
-		    $errosIdentificados = $_SESSION['errosCadastroTurma'];
-		    echo "<div style=\"color: red; text-align: left; padding: 15px\">";
-		    $textoFinal = "";
-		    foreach ($errosIdentificados as $erroIndentificado) {
-		        $textoFinal .= $erroIndentificado;
-		    }
-		    $textoFinal = trim($textoFinal);
-		    $textoFinalUltimoCaracter= substr($textoFinal, -1);
-		    if ($textoFinalUltimoCaracter == ","){
-		        echo substr($textoFinal, 0, (strlen($textoFinal)-1));
-		    } else {
-		        echo $textoFinal;
-		    }
-		    echo "<br></div>";
-		    $_SESSION['errosCadastroTurma'] = null;		    
-		} else if (isset($_SESSION['sucessoCadastroTurma']) and $_SESSION['sucessoCadastroTurma']){
-		    echo "<div style=\"color: green; text-align: center;\">Turma cadastrada com sucesso!<br><br></div>";
-		}
-		
-		?>
+			<?php 
+					if ($showSuccessMessage){ ?>
+					    <div style="color:green;text-align: center;" id="mensagemSucesso"><?php echo $mensagem_sucesso;?></br></br></div>
+					<?php }
+					
+					?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">

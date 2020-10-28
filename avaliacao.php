@@ -13,9 +13,11 @@ $papeisPermitidos = array(2,4,1,7);
 ControleAcesso::validar($papeisPermitidos);
 
 $pessoa = unserialize($_SESSION['loggedGSEUser']);
+$showErrorMessage = null;
 $showSuccessMessage = false;
 
 $db0 = new db();
+$db1 = new db();
 
 $sqlTurmas = "SELECT tu.NOME_TURMA, tu.ID FROM TURMA tu ";
 $tipoPessoaIdentificador = $pessoa->tipo_pessoa;
@@ -32,6 +34,45 @@ if ($tipoPessoaIdentificador == 2 ){
 error_log($sqlTurmas);
 
 $db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
+
+if (isset($_POST['turma']) and
+    isset($_POST['instrumentoAvaliacao']) and
+    isset($_POST['dataAvaliacao'])and 
+    isset($_POST['conteudoAvaliacao'])and 
+    isset($_POST['materia'])){
+        $turma = $_POST['turma'];
+        $instrumentoAvaliacao = $_POST['instrumentoAvaliacao'];
+        $dataAvaliacao = $_POST['dataAvaliacao'];
+        $conteudoAvaliacao = $_POST['conteudoAvaliacao'];
+        $materia = $_POST['materia'];
+        
+        if (!empty(trim($turma)) and
+            !empty(trim($instrumentoAvaliacao))and
+            !empty(trim($dataAvaliacao))and
+            !empty(trim($conteudoAvaliacao))and 
+            !empty(trim($materia))){
+                try {
+                    $result = $db1->query("INSERT INTO NOTAS (ID_TURMA, INSTRUMENTO_AVALIACAO, DATA, DESCRICAO, ID_MATERIA)
+                          VALUES (?,?, ?, ?, ?) "
+                        , $turma
+                        , $instrumentoAvaliacao
+                        , $dataAvaliacao
+                        , $conteudoAvaliacao
+                        , $materia
+                        )->query_count;
+                        if ($result == 1){
+                            $showSuccessMessage = true;
+                        }
+                } catch (Exception $ex){
+                    $error_code = $ex->getMessage();
+                    if ($error_code == 1062){
+                        $showErrorMessage = "Já existe um registro com ID informado!";
+                    } else {
+                        $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
+                    }
+                }
+        }
+}
 
 if (isset($_SESSION['mensagem_notas'])){
     $showSuccessMessage = true;
@@ -61,6 +102,7 @@ if (isset($_SESSION['mensagem_notas'])){
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+<script src="vendor/jquery/jquery.min.js"></script>
 
 <style type="text/css">
 
@@ -97,7 +139,7 @@ if (isset($_SESSION['mensagem_notas'])){
 		}	
 		
 		var turma = document.getElementById("turma");
-		var assunto = document.getElementById("assunto");
+		var conteudoAvaliacao = document.getElementById("conteudoAvaliacao");
 		var camposPreenchidos = true;
 		 
 		if (!isNotBlank(turma.value)){
@@ -107,11 +149,25 @@ if (isset($_SESSION['mensagem_notas'])){
 			document.getElementById("turmaErro").style.display = "none";
 		}	
 
-		if (!isNotBlank(assunto.value)){
+		if (!isNotBlank(conteudoAvaliacao.value)){
 			camposPreenchidos = false;
 			document.getElementById("assuntoErro").style.display = "block";
 		} else {
 			document.getElementById("assuntoErro").style.display = "none";
+		}
+
+		if (!isNotBlank(dataAvaliacao.value)){
+			camposPreenchidos = false;
+			document.getElementById("dataAvaliacaoErro").style.display = "block";
+		} else {		
+			document.getElementById("dataAvaliacaoErro").style.display = "none";
+		}
+
+		if (!isNotBlank(instrumentoAvaliacao.value)){
+			camposPreenchidos = false;
+			document.getElementById("instrumentoAvaliacaoErro").style.display = "block";
+		} else {
+			document.getElementById("instrumentoAvaliacaoErro").style.display = "none";
 		}
 		
 		if (camposPreenchidos){
@@ -127,11 +183,47 @@ if (isset($_SESSION['mensagem_notas'])){
 	}	
 
   </script>
+  
+  <script type="text/javascript">
+
+            $(document).ready(function(){
+                $('#turma').on('change', function(){
+                    var turmaId = $(this).val();
+                    if(turmaId){
+                        $.ajax({
+                            type:'POST',
+                            url:"carregarMateria.php",
+                            data:'turma_id='+turmaId,
+                            success: function(html) {
+                                $('#materia').html(html);
+                            }
+                        });
+                    }
+                });
+            });
+
+            function carregaMateria(){
+                var turmaId = $('#turma').val();
+                if(turmaId){
+                    $.ajax({
+                        type:'POST',
+                        url:"carregarMateria.php",
+                        data:'turma_id='+turmaId,
+                        success: function(html) {
+                            $('#materia').html(html);
+                        }
+                    });
+                }
+                
+            }    
+             
+
+</script>
 
 
 </head>
 
-<body class="fixed-nav sticky-footer bg-dark" id="page-top">
+<body class="fixed-nav sticky-footer bg-dark" id="page-top" onload="carregaMateria()">
 	<!-- Navigation-->
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"
 		id="mainNav">
@@ -273,8 +365,13 @@ if (isset($_SESSION['mensagem_notas'])){
 	</nav>
 	<div class="content-wrapper">
 	<?php 
-					if ($showSuccessMessage){ ?>
-					    <div style="color:green;text-align: center;" id="mensagemSucesso"><?php echo $mensagem_sucesso;?></br></br></div>
+					if (isset($showErrorMessage)){ ?>
+						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </br></br></div>
+					<?php 
+					}
+					
+					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
+					    <div style="color:green;text-align: center;">Registro criado com sucesso!</br></br></div>
 					<?php }
 					
 					?>
@@ -287,7 +384,7 @@ if (isset($_SESSION['mensagem_notas'])){
 			<div class="container">
 				<div>
 					<div class="card-body">
-						<form method="post" action="cadastro_notas_aluno.php">
+						<form method="post">
 							<div class="form-group">
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
 									<label for="turma">Turma*</label> 
@@ -308,7 +405,18 @@ if (isset($_SESSION['mensagem_notas'])){
 								</div>
 								<br>
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-									<label for="turma">Instrumento de avaliação*</label> 
+									<label for="turma">Materia*</label> 
+									<select
+										class="form-control"
+										aria-describedby="nameHelp" id="materia" name="materia">
+									</select>
+									<div id="turmaErro"
+						style="display: none; font-size: 10pt; color: red">Campo
+						obrigatório!</div>
+								</div>
+								<br>
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+									<label for="instrumentoAvaliacao">Instrumento de avaliação*</label> 
 									<input
 										class="form-control" id="instrumentoAvaliacao" type="text"
 										maxlength="255"  name="instrumentoAvaliacao"
@@ -319,7 +427,7 @@ if (isset($_SESSION['mensagem_notas'])){
 								</div>
 								<br>
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-									<label for="turma">Data da avaliação*</label> 
+									<label for="dataAavalilação">Data da avaliação*</label> 
 									<input
 											class="form-control date-mask" id="dataAvaliacao"
 											name="dataAvaliacao" type="date"
@@ -331,7 +439,7 @@ if (isset($_SESSION['mensagem_notas'])){
 								</div>
 								<br>
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-								<label for="assunto">Conteúdo*</label> 
+								<label for="conteudoAvaliacao">Conteúdo*</label> 
 									<textarea rows="10" cols="30" style="width: 100%; max-width:100%;border: 1px solid #ced4da" maxlength="250" id="conteudoAvaliacao" name="conteudoAvaliacao" placeholder="Conteudo cobrado na avaliação"></textarea>
 									<div id="assuntoErro"
 						style="display: none; font-size: 10pt; color: red">Campo
@@ -402,4 +510,5 @@ if (isset($_SESSION['mensagem_notas'])){
 
 <?php 
 $db0->close();
+$db1->close();
 ?>

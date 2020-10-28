@@ -156,12 +156,13 @@ if (isset($_POST['aluno']) and isset($_POST['ocorrencia']) and isset($_POST['tip
 		
 		if (!isNotBlank(ocorrencia.value)){
 			camposPreenchidos = false;
+			document.getElementById("ocorrenciaErro").style.display = "block";
+		} else {
+			document.getElementById("ocorrenciaErro").style.display = "none";
 		}	
 
 		if (camposPreenchidos){
 			submit();
-		} else {
-			alert('Preencha todos os campos obrigatórios!');
 		}			
 	}
 
@@ -370,6 +371,22 @@ if (isset($_POST['aluno']) and isset($_POST['ocorrencia']) and isset($_POST['tip
 		</div>
 	</nav>
 	<div class="content-wrapper">
+	<?php
+    if (isset($showErrorMessage)) {
+        ?>
+						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </br></br></div>
+					<?php
+    }
+
+    if ($showSuccessMessage and ! isset($showErrorMessage)) {
+        ?>
+					    <div style="color: green; text-align: center;">Ocorrência
+					criada com sucesso!</br></br></div>
+					<?php
+
+}
+
+    ?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
@@ -384,7 +401,7 @@ if (isset($_POST['aluno']) and isset($_POST['ocorrencia']) and isset($_POST['tip
 								<div class="col-md-6"
 									style="flex: none; max-width: 100%; padding: 0px;">
 									<label for="turma">Turma*</label> <select class="form-control"
-										aria-describedby="nameHelp" id="turma" name="turma" onshow="alert('TESTE');">
+										aria-describedby="nameHelp" id="turma" name="turma";">
 										<?php
         foreach ($db_turma_fetch as $single_row1) {
             echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME_TURMA'] . "</option>";
@@ -413,6 +430,9 @@ if (isset($_POST['aluno']) and isset($_POST['ocorrencia']) and isset($_POST['tip
 									<textarea rows="10" cols="30"
 										style="width: 100%; max-width: 100%" maxlength="250"
 										id="ocorrencia" name="ocorrencia"></textarea>
+									<div id="ocorrenciaErro"
+										style="display: none; font-size: 10pt; color: red">Campo
+										obrigatório!</div>
 								</div>
 							</div>
 
@@ -421,22 +441,7 @@ if (isset($_POST['aluno']) and isset($_POST['ocorrencia']) and isset($_POST['tip
 						</form>
 					</div>
 				</div>
-				<?php
-    if (isset($showErrorMessage)) {
-        ?>
-						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </div>
-					<?php
-    }
-
-    if ($showSuccessMessage and ! isset($showErrorMessage)) {
-        ?>
-					    <div style="color: green; text-align: center;">Ocorrência
-					criada com sucesso!</div>
-					<?php
-
-}
-
-    ?>
+				
 			</div>
 		</div>
 		<!-- /.container-fluid-->

@@ -1,69 +1,68 @@
 <?php
 require 'bo/Sessao.php';
-require 'bo/ControleAcesso.php';
+require  'bo/ControleAcesso.php';
 require 'database/db.php';
 
 use bo\Sessao;
 use bo\ControleAcesso;
+use model\Pessoa;
 
 Sessao::validar();
 
-$papeisPermitidos = array(
-    2,
-    4
-);
+$papeisPermitidos = array(2,4,1,7);
 ControleAcesso::validar($papeisPermitidos);
-$turmaID = $_POST['turmaId'];
 
-$db = new db();
+$pessoa = unserialize($_SESSION['loggedGSEUser']);
+$showErrorMessage = null;
+$showSuccessMessage = false;
+$avaliacaoId = $_POST['idAvaliacao'];
+
+$db0 = new db();
 $db1 = new db();
-$db2 = new db();
-$db3 = new db();
-$db4 = new db();
-$db5 = new db();
 
-$professor_db = $db2->query("select p.ID, p.NOME, p.SOBRENOME, p.EMAIL from PESSOA p JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and tp.NOME = 'Professor(a)') ORDER BY p.NOME, p.SOBRENOME");
+$sqlTurmas = "SELECT n.ID, n.DESCRICAO, n.INSTRUMENTO_AVALIACAO, DATE_FORMAT(n.DATA, '%Y-%m-%d') as DATA, m.NOME , t.NOME_TURMA FROM NOTAS n
+JOIN TURMA_PESSOA turmaPessoa ON (turmaPessoa.ID_TURMA = n.ID_TURMA)
+JOIN TURMA t ON (t.ID = n.ID_TURMA)
+JOIN MATERIA m ON (m.ID = n.ID_MATERIA)
+where n.ID = ?";
+$tipoPessoaIdentificador = $pessoa->tipo_pessoa;
 
-$sqlTurma = "SELECT tu.ID, tu.NOME_TURMA, CONCAT(CONCAT(pe.NOME, ' '),pe.SOBRENOME) AS 'NOME', tu.ID_PESSOA_PROFESSOR_REGENTE FROM TURMA tu
-	join PESSOA pe on (tu.ID_PESSOA_PROFESSOR_REGENTE = pe.ID)
-    where tu.ID = ?";
-$db_pessoa_fetch = $db->query($sqlTurma, $turmaID)->fetchAll();
-$materia_db = $db3->query("SELECT ID, NOME FROM MATERIA ORDER BY NOME")->fetchAll();
-$sqlMateria = "SELECT ID_MATERIA, ID_PROFESSOR FROM gestaose.TURMA_MATERIA where ID_TURMA = ?";
-$db_materia_professor_fetch = $db4->query($sqlMateria, $turmaID)->fetchAll();
+$db_turma_fetch = $db0->query($sqlTurmas, $avaliacaoId)->fetchAll();
 
-$arrayMaterias = array();
-$arrayProfessores = array();
-foreach ($db_materia_professor_fetch as $singleMateriaRow){
-    array_push($arrayMaterias, $singleMateriaRow['ID_MATERIA']);
-    $idMateriaIdProfessor = $singleMateriaRow['ID_MATERIA'] . '-' . $singleMateriaRow['ID_PROFESSOR'];
-    error_log("Array inicial: " . $idMateriaIdProfessor);
-    array_push($arrayProfessores, $idMateriaIdProfessor);  
-}
-
-function listar_professores($id, $arrayProfessores){
-    $db6 = new db();
-    try {
-        $professores = $db6->query("select p.ID, p.NOME, p.SOBRENOME, p.EMAIL from PESSOA p JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and tp.NOME = 'Professor(a)') ORDER BY p.NOME, p.SOBRENOME")->fetchAll();
-        $listaProfessorCriada = "<select name=\"professor_disciplina_" . $id . "\">";
-        foreach ($professores as $professor){
-            $idMateriaIdProfessor = $id . '-' . $professor['ID'];
-            error_log("Verificação: " . $idMateriaIdProfessor);
-            if (in_array($idMateriaIdProfessor, $arrayProfessores)){
-                $listaProfessorCriada .= "<option value=\"" . $professor['ID'] . "\" selected \>" . $professor['NOME'] . " " . $professor['SOBRENOME'] . " (" . $professor['EMAIL'] . ")</option>";
-            } else {
-                 $listaProfessorCriada .= "<option value=\"" . $professor['ID'] . "\"\>" . $professor['NOME'] . " " . $professor['SOBRENOME'] . " (" . $professor['EMAIL'] . ")</option>";
-                
-            }
-            
+if (isset($_POST['instrumentoAvaliacao']) and
+    isset($_POST['dataAvaliacao'])and 
+    isset($_POST['conteudoAvaliacao'])){
+        $turma = $_POST['turma'];
+        $instrumentoAvaliacao = $_POST['instrumentoAvaliacao'];
+        $dataAvaliacao = $_POST['dataAvaliacao'];
+        $conteudoAvaliacao = $_POST['conteudoAvaliacao'];
+        
+        if (!empty(trim($instrumentoAvaliacao))and
+            !empty(trim($dataAvaliacao))and
+            !empty(trim($conteudoAvaliacao))){
+                try {
+                    $result = $db1->query("UPDATE NOTAS SET INSTRUMENTO_AVALIACAO = ?, DATA = ?, DESCRICAO = ? WHERE ID=?", $instrumentoAvaliacao, $dataAvaliacao, $conteudoAvaliacao, $avaliacaoId)
+                       ->query_count;
+                        if ($result == 1){
+                            $_SESSION['avaliacaoAtualizadaComSucesso'] = true;
+                            header("Location: avaliacao_visualizar.php");
+                        }
+                } catch (Exception $ex){
+                    $error_code = $ex->getMessage();
+                    if ($error_code == 1062){
+                        $showErrorMessage = "Já existe um registro com ID informado!";
+                    } else {
+                        $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
+                    }
+                }
         }
-        $listaProfessorCriada .= "</select>";
-    } finally {
-        $db6->close();
-    }
-    return $listaProfessorCriada;
 }
 
+if (isset($_SESSION['mensagem_notas'])){
+    $showSuccessMessage = true;
+    $mensagem_sucesso = $_SESSION['mensagem_notas'];
+    unset($_SESSION['mensagem_notas']);
+}
 
 ?>
 
@@ -76,7 +75,7 @@ function listar_professores($id, $arrayProfessores){
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Alteração de turma</title>
+<title>GSE - Notas de aluno</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -88,7 +87,7 @@ function listar_professores($id, $arrayProfessores){
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
 
- <style type="text/css">
+<style type="text/css">
 
 .btn-primary {
     color: black !important;
@@ -110,45 +109,53 @@ function listar_professores($id, $arrayProfessores){
 
 </style>
 
-<script type="text/javascript">
+
+ <script type="text/javascript">
 	function submit() {
 		document.forms[0].submit();
 	}
   
 	function validateAndSubmitForm() {
-		var professor_responsavel = document.getElementById("professorResp");
+		var mensagem = document.getElementById("mensagemSucesso");
+		if (mensagem != null){
+			mensagem.style.display = 'none';
+		}	
+		
+		var turma = document.getElementById("turma");
+		var conteudoAvaliacao = document.getElementById("conteudoAvaliacao");
 		var camposPreenchidos = true;
 		 
-		var nome_turma = document.getElementById("nomeTurma");
-		if (!isNotBlank(nome_turma.value)){
+		if (!isNotBlank(turma.value)){
 			camposPreenchidos = false;
-			document.getElementById("nome_turma_erro").style.display = "block";
-		} else {			
-			document.getElementById("nome_turma_erro").style.display = "none";
-		}
-
-		var haUmaMateriaSelecionada = false;
-	
-		<?php
-		echo "\n";
-		foreach ($materia_db as $single_row1) {
-		    echo "\t\tvar materia_" . $single_row1['ID'] . " = document.getElementById(\"materia_" . $single_row1['ID'] . "\");\n";
-		    echo "\t\tif (materia_" . $single_row1['ID'] . ".checked){\n";
-			echo "   \t\thaUmaMateriaSelecionada = true;\n";
-		    echo "\t\t}\n";
-		}
-		?>
-
-		if (!haUmaMateriaSelecionada){
-			camposPreenchidos = false;
-			document.getElementById("materia_erro").style.display = "block";
+			document.getElementById("turmaErro").style.display = "block";
 		} else {
-			document.getElementById("materia_erro").style.display = "none";
-		}		 
+			document.getElementById("turmaErro").style.display = "none";
+		}	
 
+		if (!isNotBlank(conteudoAvaliacao.value)){
+			camposPreenchidos = false;
+			document.getElementById("assuntoErro").style.display = "block";
+		} else {
+			document.getElementById("assuntoErro").style.display = "none";
+		}
+
+		if (!isNotBlank(dataAvaliacao.value)){
+			camposPreenchidos = false;
+			document.getElementById("dataAvaliacaoErro").style.display = "block";
+		} else {		
+			document.getElementById("dataAvaliacaoErro").style.display = "none";
+		}
+
+		if (!isNotBlank(instrumentoAvaliacao.value)){
+			camposPreenchidos = false;
+			document.getElementById("instrumentoAvaliacaoErro").style.display = "block";
+		} else {
+			document.getElementById("instrumentoAvaliacaoErro").style.display = "none";
+		}
+		
 		if (camposPreenchidos){
 			submit();
-		}		
+		} 		
 	}
 
 	function isNotBlank(value){
@@ -159,6 +166,7 @@ function listar_professores($id, $arrayProfessores){
 	}	
 
   </script>
+
 
 </head>
 
@@ -303,128 +311,88 @@ function listar_professores($id, $arrayProfessores){
 		</div>
 	</nav>
 	<div class="content-wrapper">
-		<?php 
-		if (isset($_SESSION['errosCadastroTurma'])){
-		    $errosIdentificados = $_SESSION['errosCadastroTurma'];
-		    echo "<div style=\"color: red; text-align: left; padding: 15px\">";
-		    $textoFinal = "";
-		    foreach ($errosIdentificados as $erroIndentificado) {
-		        $textoFinal .= $erroIndentificado;
-		    }
-		    $textoFinal = trim($textoFinal);
-		    $textoFinalUltimoCaracter= substr($textoFinal, -1);
-		    if ($textoFinalUltimoCaracter == ","){
-		        echo substr($textoFinal, 0, (strlen($textoFinal)-1));
-		    } else {
-		        echo $textoFinal;
-		    }
-		    echo "<br></div>";
-		    $_SESSION['errosCadastroTurma'] = null;		    
-		} else if (isset($_SESSION['sucessoCadastroTurma']) and $_SESSION['sucessoCadastroTurma']){
-		    echo "<div style=\"color: green; text-align: center;\">Turma cadastrada com sucesso!<br><br></div>";
-		}
-		
-		?>
+	<?php 
+					if (isset($showErrorMessage)){ ?>
+						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </br></br></div>
+					<?php 
+					}
+					
+					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
+					    <div style="color:green;text-align: center;">Registro criado com sucesso!</br></br></div>
+					<?php }
+					
+					?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
-				<li class="breadcrumb-item">Turma</li>
-				<li class="breadcrumb-item active">Alteração</li>
+				<li class="breadcrumb-item">Alunos</li>
+				<li class="breadcrumb-item active">Notas</li>
 			</ol>
 			<div class="container">
 				<div>
-					<div class="card-body" style="padding: 0px;">
-						<form method="post" action="atualizarTurma.php" enctype="multipart/form-data">
-							<input type="hidden" name="turmaId" id="turmaId" value="<?php echo $turmaID; ?>">
+					<div class="card-body">
+						<form method="post">
+						<input type="hidden" name="idAvaliacao" value="<?php echo $avaliacaoId;?>"/>
 							<div class="form-group">
-								<div class="form-row">
-									<div class="col-md-6" style="width:100%; max-width: 100%; flex: none;">
-										<label for="exampleInputName">Nome da turma*</label> <input
-											class="form-control" id="nomeTurma" type="text"
-											aria-describedby="nameHelp" placeholder="Nome da turma"
-											name="nome_turma" required maxlength="255" value="<?php echo trim($db_pessoa_fetch[0]['NOME_TURMA']);?>">
-											<div id="nome_turma_erro" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
-          							</div>
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+									<label for="turma">Turma*</label> 
+									<input type="text"
+										class="form-control" aria-describedby="nameHelp"
+										disabled="disabled" placeholder="Turma" id="turma"
+										name="turma"
+										value="<?php echo $db_turma_fetch[0]['NOME_TURMA'];?>">
+									<div id="turmaErro"
+						style="display: none; font-size: 10pt; color: red">Campo
+						obrigatório!</div>
 								</div>
 								<br>
-								<div class="col-md-6" style="padding-left: 0px;padding-right: 0px;width:100%; max-width: 100%;">
-										<label for="exampleInputLastName">Professor regente*</label>
-											<input type="hidden" name="professor_responsavel" id="professorResp" value="false" >
-										<br>
-										<select class="form-control" id="professorResp" aria-describedby="nameHelp" name="professor_responsavel">
-										<?php
-											$professor_db_fetch = $professor_db->fetchAll();
-											 foreach ($professor_db_fetch as $single_row0) {
-											     echo "<option value=\"" . $single_row0['ID'] . "\"\>" . $single_row0['NOME'] . " " . $single_row0['SOBRENOME']
-											     . " (" . $single_row0['EMAIL'] . ")" . "</option>";
-											 }
-                                            ?>
-										</select>
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+									<label for="turma">Materia*</label> 
+									<input type="text"
+										class="form-control" aria-describedby="nameHelp"
+										disabled="disabled" placeholder="Turma" id="materia"
+										name="materia"
+										value="<?php echo $db_turma_fetch[0]['NOME'];?>">
+									<div id="materiaErro"
+						style="display: none; font-size: 10pt; color: red">Campo
+						obrigatório!</div>
 								</div>
 								<br>
-								<div class="col-md-6" style="padding-left: 0px;padding-right: 0px;width:100%; max-width: 100%;">
-										<label>Matéria*</label>
-										<div id="materia_erro" style="display: none;font-size: 10pt; color:red">Selecione ao menos uma matéria!</div>
-										<input type="hidden" name="materia" id="materia" value="false" >
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+									<label for="instrumentoAvaliacao">Instrumento de avaliação*</label> 
+									<input
+										class="form-control" id="instrumentoAvaliacao" type="text"
+										maxlength="255"  name="instrumentoAvaliacao"
+										placeholder="Tipo avaliação. Ex.: Prova, seminário, etc." value="<?php echo $db_turma_fetch[0]['INSTRUMENTO_AVALIACAO'];?>">
+									<div id="instrumentoAvaliacaoErro"
+						style="display: none; font-size: 10pt; color: red">Campo
+						obrigatório!</div>
+								</div>
 								<br>
-          								<table cellpadding="3">
-										<?php
-                                            foreach ($materia_db as $single_row1) {
-                                                echo "<tr>";
-                                                if(in_array($single_row1['ID'], $arrayMaterias)){
-                                                    echo "<td>" . "<input type=\"checkbox\" checked id=\"materia_" . $single_row1['ID'] . "\" name=\"". $single_row1['ID'] . "\" /> </td>";
-                                                } else {
-                                                    echo "<td>" . "<input type=\"checkbox\" id=\"materia_" . $single_row1['ID'] . "\" name=\"". $single_row1['ID'] . "\" /> </td>";
-                                                }
-                                                echo "<td>" . $single_row1['NOME'] . "</td>";
-                                                echo "<td>" . listar_professores($single_row1['ID'], $arrayProfessores) . "</td>";
-                                                echo "</tr>";
-                                            } 
-                                        ?>
-										</table>
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+									<label for="dataAavalilação">Data da avaliação*</label> 
+									<input
+											class="form-control date-mask" id="dataAvaliacao"
+											name="dataAvaliacao" type="date"
+											aria-describedby="nameHelp" placeholder="Data de nascimento"
+											required value="<?php echo $db_turma_fetch[0]['DATA'];?>">
+									<div id="dataAvaliacaoErro"
+						style="display: none; font-size: 10pt; color: red">Campo
+						obrigatório!</div>
 								</div>
-								<br>		
-										<div class="form-group">
-										<?php
-										
-										$dbAlunosCadastradosSql = $db5->query("SELECT concat(concat(P.NOME, ' '), P.SOBRENOME) AS NOME_ALUNO, PR1.EMAIL FROM TURMA_PESSOA TP
-                                        JOIN PESSOA P ON (P.ID = TP.ID_PESSOA AND P.TIPO_PESSOA = '3')
-                                        JOIN PESSOA PR1 ON (PR1.ID = P.RESPONSAVEL_1)
-                                        WHERE TP.ID_TURMA = ? ORDER BY P.NOME, P.SOBRENOME", $turmaID);
-										
-										$alunosQuantidade = $dbAlunosCadastradosSql->numRows();
-										$db_pessoa_fetch = $dbAlunosCadastradosSql->fetchAll();
-										
-										?>
-										
-										
-											<label for="exampleInputEmail1">Alunos cadastrados: <?php echo $alunosQuantidade; ?></label><br>
-											<?php if ($alunosQuantidade <> 0){?>
-											<table border="1px" cellpadding="3px" style="width:100%" >
-											<thead style="font-weight: bold">
-												<td style="text-align:center; width:50%">Nome</td>
-												<td style="text-align:center; width:50%">Endereço de e-mail do responsável 1</td>
-											</thead>
-											<?php
-											foreach ($db_pessoa_fetch as $singleRowAluno) {
-											echo "<tr>";
-											echo "<td style=\"text-align:center\">" . $singleRowAluno['NOME_ALUNO'] . "</td>";
-											echo "<td style=\"text-align:center\">" . $singleRowAluno['EMAIL'] . "</td>";
-											echo "</tr>";
-										     }
-											?>
-											</table>												
-											<?php } ?>
-										</div>
-									</div>
+								<br>
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+								<label for="conteudoAvaliacao">Conteúdo*</label> 
+									<textarea rows="10" cols="30" style="width: 100%; max-width:100%;border: 1px solid #ced4da" maxlength="250" id="conteudoAvaliacao" name="conteudoAvaliacao" placeholder="Conteudo cobrado na avaliação"> <?php echo $db_turma_fetch[0]['DESCRICAO'];?></textarea>
+									<div id="assuntoErro"
+						style="display: none; font-size: 10pt; color: red">Campo
+						obrigatório!</div>
 								</div>
-								<a class="btn btn-primary btn-block"
-									onclick= "validateAndSubmitForm()">Alterar</a>
-						
-						</form>
+							</div>
+					
+        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Alterar</a>
+					</form>
 					</div>
-					<br>
-        <br>
 				</div>
 			</div>
 		</div>
@@ -466,28 +434,24 @@ function listar_professores($id, $arrayProfessores){
 				</div>
 			</div>
 		</div>
-				<!-- Bootstrap core JavaScript-->
-	<script src="vendor/jquery/jquery.min.js"></script>
-	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-	<!-- Core plugin JavaScript-->
-	<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-	<!-- Page level plugin JavaScript-->
-	<script src="vendor/datatables/jquery.dataTables.js"></script>
-	<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
-	<!-- Custom scripts for all pages-->
-	<script src="js/sb-admin.min.js"></script>
-	<!-- Custom scripts for this page-->
-	<script src="js/sb-admin-datatables.min.js"></script>
+		<!-- Bootstrap core JavaScript-->
+		<script src="vendor/jquery/jquery.min.js"></script>
+		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+		<!-- Core plugin JavaScript-->
+		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+		<!-- Page level plugin JavaScript-->
+		<script src="vendor/datatables/jquery.dataTables.js"></script>
+		<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
+		<!-- Custom scripts for all pages-->
+		<script src="js/sb-admin.min.js"></script>
+		<!-- Custom scripts for this page-->
+		<script src="js/sb-admin-datatables.min.js"></script>
 	</div>
 </body>
 
 </html>
 
 <?php 
-$db->close();
+$db0->close();
 $db1->close();
-$db2->close();
-$db3->close();
-$db4->close();
-$db5->close();
 ?>

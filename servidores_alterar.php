@@ -155,9 +155,13 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 		if (!isNotBlank(email.value)){
 			camposPreenchidos = false;
 			document.getElementById("emailServidorErro").style.display = "block";
-		} else {
+		} else if (!validateEmail(email.value)){
+			document.getElementById("emailServidorErro").innerHTML = "Você informou um endereço de e-mail inválido!"; 
+			document.getElementById("emailServidorErro").style.display = "block";
+			camposPreenchidos = false;
+	    } else {	
 			document.getElementById("emailServidorErro").style.display = "none";
-		} 	
+		}	
 
 		if (!isNotBlank(dataNascimento.value)){
 			camposPreenchidos = false;
@@ -184,7 +188,7 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 			camposPreenchidos = false;
 		}
 		
-		if (camposPreenchidos){
+		
 			if (validateEmail(email.value)){
 				replaceAll(cpf, ".","");
 				replaceAll(cpf, "-","");
@@ -192,13 +196,12 @@ if (isset($_POST['cpf']) and isset($_POST['telefone']) and isset($_POST['tipo_pe
 				replaceAll(telefone, "-","");
 				replaceAll(telefone, "(","");
 				replaceAll(telefone, ")","");
+				
+			}
+
+			if (camposPreenchidos){		
 				submit();
-			} else {
-				alert('Você informou um endereço de e-mail inválido!');
-			}		
-		} else {
-			alert('Preencha todos os campos obrigatórios!');
-		}			
+			} 			
 	}
 
 	function replaceAll(campo, valor, replace){
