@@ -17,15 +17,17 @@ $showSuccessMessage = false;
 
 $db0 = new db();
 
-$sqlTurmas = "SELECT tu.NOME_TURMA, tu.ID FROM TURMA tu ";
+$sqlTurmas = "";
 $tipoPessoaIdentificador = $pessoa->tipo_pessoa;
 if ($tipoPessoaIdentificador == 2 ){
-    $sqlTurmas = "SELECT ID, NOME_TURMA FROM TURMA ORDER BY NOME_TURMA";
+    $sqlTurmas = "SELECT distinct tu.ID, tu.NOME_TURMA FROM TURMA tu JOIN NOTAS nota ON (nota.ID_TURMA = tu.ID) ORDER BY NOME_TURMA";
     
 } else {
-    $sqlTurmas = "SELECT t.ID, t.NOME_TURMA FROM PESSOA p JOIN TURMA_MATERIA tm ON (tm.ID_PROFESSOR = p.ID)
+    $sqlTurmas = "SELECT distinct t.ID, t.NOME_TURMA FROM PESSOA p JOIN TURMA_MATERIA tm ON (tm.ID_PROFESSOR = p.ID)
     JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and (tp.NOME = 'Professor(a)' OR tp.NOME = 'Diretor(a)'))
-    JOIN TURMA t ON (t.ID = tm.ID_TURMA) ";
+    JOIN TURMA t ON (t.ID = tm.ID_TURMA) 
+    JOIN NOTAS nota ON (nota.ID_TURMA = t.ID)";    
+    
     $sqlTurmas .= " where p.ID = " . $pessoa->id;
     $sqlTurmas .= " ORDER BY t.NOME_TURMA";
 }
@@ -61,6 +63,7 @@ if (isset($_SESSION['mensagem_notas'])){
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+<script src="vendor/jquery/jquery.min.js"></script>
 
 <style type="text/css">
 
@@ -84,6 +87,42 @@ if (isset($_SESSION['mensagem_notas'])){
 
 </style>
 
+<script type="text/javascript">
+
+            $(document).ready(function(){
+                $('#turma').on('change', function(){
+                    var turmaId = $(this).val();
+                    if(turmaId){
+                        $.ajax({
+                            type:'POST',
+                            url:"carregarMateriaAvaliacao.php",
+                            data:'turma_id='+turmaId,
+                            success: function(html) {
+                                $('#materia').html(html);
+                            }
+                        });
+                    }
+                });
+            });
+
+            function carregarMateriaAvaliacao(){
+                var turmaId = $('#turma').val();
+                if(turmaId){
+                    $.ajax({
+                        type:'POST',
+                        url:"carregarMateriaAvaliacao.php",
+                        data:'turma_id='+turmaId,
+                        success: function(html) {
+                            $('#materia').html(html);
+                        }
+                    });
+                }
+                
+            }    
+             
+
+</script>
+
 
  <script type="text/javascript">
 	function submit() {
@@ -97,7 +136,6 @@ if (isset($_SESSION['mensagem_notas'])){
 		}	
 		
 		var turma = document.getElementById("turma");
-		var assunto = document.getElementById("assunto");
 		var camposPreenchidos = true;
 		 
 		if (!isNotBlank(turma.value)){
@@ -106,13 +144,6 @@ if (isset($_SESSION['mensagem_notas'])){
 		} else {
 			document.getElementById("turmaErro").style.display = "none";
 		}	
-
-		if (!isNotBlank(assunto.value)){
-			camposPreenchidos = false;
-			document.getElementById("assuntoErro").style.display = "block";
-		} else {
-			document.getElementById("assuntoErro").style.display = "none";
-		}
 		
 		if (camposPreenchidos){
 			submit();
@@ -131,7 +162,7 @@ if (isset($_SESSION['mensagem_notas'])){
 
 </head>
 
-<body class="fixed-nav sticky-footer bg-dark" id="page-top">
+<body class="fixed-nav sticky-footer bg-dark" id="page-top" onload="carregarMateriaAvaliacao()">
 	<!-- Navigation-->
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"
 		id="mainNav">
@@ -308,15 +339,16 @@ if (isset($_SESSION['mensagem_notas'])){
 								</div>
 								<br>
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-								<label for="assunto">Assunto*</label> 
-									<input
-										class="form-control" id="assunto" type="text"
-										maxlength="255"  name="assunto"
-										placeholder="Assunto">
-									<div id="assuntoErro"
+									<label for="turma">Materia*</label> 
+									<select
+										class="form-control"
+										aria-describedby="nameHelp" id="materia" name="materia">
+									</select>
+									<div id="turmaErro"
 						style="display: none; font-size: 10pt; color: red">Campo
 						obrigatório!</div>
 								</div>
+								<br>
 							</div>
 					
         					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>

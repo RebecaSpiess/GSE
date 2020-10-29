@@ -52,18 +52,21 @@ error_log($sqlTurmas);
 $db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
 
 if (isset($_POST['turma']) and
-    isset($_POST['planoAula'])){
+    isset($_POST['planoAula']) and
+    isset($_POST['materia'])){
         $turma = $_POST['turma'];
         $planoAula = $_POST['planoAula'];
+        $materia = $_POST['materia'];
         
         if (!empty(trim($turma)) and
             !empty(trim($planoAula))){
                 try {
-                    $result = $db1->query("INSERT INTO PLANO_AULA (ID_TURMA, DESCRICAO, ID_AUTOR)
-                          VALUES (?,?, ?) "
+                    $result = $db1->query("INSERT INTO PLANO_AULA (ID_TURMA, DESCRICAO, ID_AUTOR, ID_MATERIA)
+                          VALUES (?,?, ?, ?) "
                         , $turma
                         , $planoAula 
                         , $pessoa->id
+                        , $materia
                         )->query_count;
                         if ($result == 1){
                             $showSuccessMessage = true;
@@ -103,6 +106,7 @@ if (isset($_POST['turma']) and
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+<script src="vendor/jquery/jquery.min.js"></script>
 
 <style type="text/css">
 
@@ -170,9 +174,46 @@ if (isset($_POST['turma']) and
         outline: none;
     }
   </style>
+  
+  <script type="text/javascript">
+
+            $(document).ready(function(){
+                $('#turma').on('change', function(){
+                    var turmaId = $(this).val();
+                    if(turmaId){
+                        $.ajax({
+                            type:'POST',
+                            url:"carregarMateria.php",
+                            data:'turma_id='+turmaId,
+                            success: function(html) {
+                                $('#materia').html(html);
+                            }
+                        });
+                    }
+                });
+            });
+
+            function carregaMateria(){
+                var turmaId = $('#turma').val();
+                if(turmaId){
+                    $.ajax({
+                        type:'POST',
+                        url:"carregarMateria.php",
+                        data:'turma_id='+turmaId,
+                        success: function(html) {
+                            $('#materia').html(html);
+                        }
+                    });
+                }
+                
+            }    
+             
+
+</script>
+
 </head>
 
-<body class="fixed-nav sticky-footer bg-dark" id="page-top">
+<body class="fixed-nav sticky-footer bg-dark" id="page-top" onload="carregaMateria()">
 	<!-- Navigation-->
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"
 		id="mainNav">
@@ -349,21 +390,15 @@ if (isset($_POST['turma']) and
 										
 									</select>
 									<br>
-									<label for="turma">Matéria*</label> 
+									<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+									<label for="turma">Materia*</label> 
 									<select
 										class="form-control"
-										aria-describedby="nameHelp" placeholder="Matéria" id="materia" name="materia">
-									
-									<?php
-                                            foreach ($db_turma_fetch as $single_row1) {
-                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME_TURMA'] . "</option>";
-                                            } 
-                                        ?>
-										
+										aria-describedby="nameHelp" id="materia" name="materia">
 									</select>
 									<div id="turmaErro"
-											style="display: none; font-size: 10pt; color: red">Campo
-											obrigatório!</div>
+						style="display: none; font-size: 10pt; color: red">Campo
+						obrigatório!</div>
 								</div>
 								<br>
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">

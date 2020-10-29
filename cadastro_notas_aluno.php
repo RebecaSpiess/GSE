@@ -1,6 +1,6 @@
 <?php
 require 'bo/Sessao.php';
-require  'bo/ControleAcesso.php';
+require 'bo/ControleAcesso.php';
 require 'database/db.php';
 
 use bo\Sessao;
@@ -9,13 +9,17 @@ use model\Pessoa;
 
 Sessao::validar();
 
-$papeisPermitidos = array(2,4,1);
+$papeisPermitidos = array(
+    2,
+    4,
+    1
+);
 ControleAcesso::validar($papeisPermitidos);
 $pessoa = unserialize($_SESSION['loggedGSEUser']);
 
-
 $turma_id = $_POST['turma'];
-$assunto = $_POST['assunto'];
+$materia_id = $_POST['materia'];
+
 $IdPessoa = $pessoa->id;
 $tipoPessoaIdentificador = $pessoa->tipo_pessoa;
 
@@ -24,14 +28,15 @@ $showSuccessMessage = false;
 
 $db0 = new db();
 $db1 = new db();
-$db4 = new db();
+$db2 = new db();
 $db3 = new db();
+$db4 = new db();
+$db5 = new db();
 
-if ($tipoPessoaIdentificador == 2 ){
+if ($tipoPessoaIdentificador == 2) {
     $db_materia_professor_fetch = $db4->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
 	JOIN MATERIA ma ON (ma.ID = tm.ID_MATERIA)
     WHERE tm.ID_TURMA = ?", $turma_id)->fetchAll();
-    
 } else {
     $db_materia_professor_fetch = $db3->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
 	JOIN MATERIA ma ON (ma.ID = tm.ID_MATERIA)
@@ -41,30 +46,35 @@ if ($tipoPessoaIdentificador == 2 ){
 $db_turma_fetch = $db0->query("SELECT PE.ID, PE.NOME, PE.SOBRENOME, TU.NOME_TURMA FROM TURMA TU JOIN TURMA_PESSOA TU_PE ON (TU_PE.ID_TURMA = TU.ID) JOIN PESSOA PE ON (TU_PE.ID_PESSOA = PE.ID)
 WHERE PE.TIPO_PESSOA = 3 AND TU.ID = ? ORDER BY PE.NOME, PE.SOBRENOME", $turma_id)->fetchAll();
 
+$sqlmateria = "select ma.NOME from MATERIA ma 
+WHERE ma.ID = ? ";
+$db_materia_fetch = $db2->query($sqlmateria, $materia_id)->fetchAll();
 
-if (isset($_POST['cadastro_notas']) and isset($_POST['materia'])){
-        $cadastro_notas = $_POST['cadastro_notas'];
-        $materia = $_POST['materia'];
-        $count = 0;
-        if (!empty(trim($cadastro_notas))){
-            error_log("RSG!!!!!!!!!!!");
-            foreach ($db_turma_fetch as $single_row0) {
-                if (isset($_POST[$single_row0['ID']])){
-                    $nota = $_POST[$single_row0['ID']];
-                    $db1 = new db();
-                    $db1->query("INSERT INTO NOTAS (ID_TURMA, ID_PESSOA, NOTA, DESCRICAO, ID_MATERIA) VALUES (?,?,?,?,?) ",$turma_id,$single_row0['ID'],$nota,$assunto, $materia);
-                    $db1->close();
-                    $count++;
-                }
+$sql_turma_materia_sql = "select ID 'ID_NOTAS', INSTRUMENTO_AVALIACAO,  DATE_FORMAT(DATA, '%Y-%m-%d') as DATA  from NOTAS WHERE ID_TURMA = ? AND ID_MATERIA = ?";
+$db_notas_materia_turma_fetch = $db5->query($sql_turma_materia_sql, $turma_id, $materia_id)->fetchAll();
+
+if (isset($_POST['cadastro_notas']) and isset($_POST['materia'])) {
+    $cadastro_notas = $_POST['cadastro_notas'];
+    $materia = $_POST['materia'];
+    $count = 0;
+    if (! empty(trim($cadastro_notas))) {
+        foreach ($db_turma_fetch as $single_row0) {
+            if (isset($_POST[$single_row0['ID']])) {
+                $nota = $_POST[$single_row0['ID']];
+                $db1 = new db();
+                $db1->query("INSERT INTO NOTAS (ID_TURMA, ID_PESSOA, NOTA, DESCRICAO, ID_MATERIA) VALUES (?,?,?,?,?) ", $turma_id, $single_row0['ID'], $nota, $assunto, $materia);
+                $db1->close();
+                $count ++;
             }
-            if ($count == 1){
-                $_SESSION['mensagem_notas'] = "Nota cadastrada com sucesso!";
-            } else if ($count > 1){
-                $_SESSION['mensagem_notas'] = "Notas cadastradas com sucesso!";
-            }
-            header("Location: aluno_notas.php");
-        } 
-} 
+        }
+        if ($count == 1) {
+            $_SESSION['mensagem_notas'] = "Nota cadastrada com sucesso!";
+        } else if ($count > 1) {
+            $_SESSION['mensagem_notas'] = "Notas cadastradas com sucesso!";
+        }
+        header("Location: aluno_notas.php");
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -89,29 +99,28 @@ if (isset($_POST['cadastro_notas']) and isset($_POST['materia'])){
 <link href="css/sb-admin.css" rel="stylesheet">
 
 <style type="text/css">
-
 .btn-primary {
-    color: black !important;
-    background-color: #e9ecef !important;
-    border-color: black !important;
+	color: black !important;
+	background-color: #e9ecef !important;
+	border-color: black !important;
 }
 
 ::-webkit-scrollbar-track {
-    background-color: #F4F4F4;
+	background-color: #F4F4F4;
 }
+
 ::-webkit-scrollbar {
-    width: 6px;
-    background: #F4F4F4;
+	width: 6px;
+	background: #F4F4F4;
 }
+
 ::-webkit-scrollbar-thumb {
-    background: #dad7d7;
+	background: #dad7d7;
 }
-
-
 </style>
 
 
- <script type="text/javascript">
+<script type="text/javascript">
 	function submit() {
 		document.forms[0].submit();
 	}
@@ -120,22 +129,22 @@ if (isset($_POST['cadastro_notas']) and isset($_POST['materia'])){
 		var camposPreenchidos = true;
 		var existeCampoPreenchido = null;
 		<?php
-        foreach ($db_turma_fetch as $single_row1) {
-            echo "var aluno_" .  $single_row1['ID'] . " = document.getElementById(\"" . $single_row1['ID'] . "\");\n";
-            
-            echo "if (isNotBlank(aluno_" .$single_row1['ID'] . ".value)){\n";
-            echo "    var value_aluno_" .$single_row1['ID'] . " =  aluno_" .$single_row1['ID'] . ".value;\n";
-            echo "    if (existeCampoPreenchido == null){\n";
-            echo "        existeCampoPreenchido = true;\n";
-            echo "    }\n";
-            echo "    if (value_aluno_" . $single_row1['ID'] . " < 0 || value_aluno_" . $single_row1['ID'] ."  > 10) {\n";
-            echo "         camposPreenchidos = false;\n";
-            echo "    }\n";
-            echo "} else {\n";
-            echo "   existeCampoPreenchido = false;\n";
-            echo "}\n";
-        } 
-       ?>
+foreach ($db_turma_fetch as $single_row1) {
+    echo "var aluno_" . $single_row1['ID'] . " = document.getElementById(\"" . $single_row1['ID'] . "\");\n";
+
+    echo "if (isNotBlank(aluno_" . $single_row1['ID'] . ".value)){\n";
+    echo "    var value_aluno_" . $single_row1['ID'] . " =  aluno_" . $single_row1['ID'] . ".value;\n";
+    echo "    if (existeCampoPreenchido == null){\n";
+    echo "        existeCampoPreenchido = true;\n";
+    echo "    }\n";
+    echo "    if (value_aluno_" . $single_row1['ID'] . " < 0 || value_aluno_" . $single_row1['ID'] . "  > 10) {\n";
+    echo "         camposPreenchidos = false;\n";
+    echo "    }\n";
+    echo "} else {\n";
+    echo "   existeCampoPreenchido = false;\n";
+    echo "}\n";
+}
+?>
        	
 		if (!existeCampoPreenchido){
 			camposPreenchidos = false;
@@ -174,19 +183,22 @@ if (isset($_POST['cadastro_notas']) and isset($_POST['materia'])){
 			<span class="navbar-toggler-icon"></span>
 		</button>
 		<div class="collapse navbar-collapse" id="navbarResponsive">
-			<ul class="navbar-nav navbar-sidenav" id="exampleAccordion" style="overflow-y:auto" >
+			<ul class="navbar-nav navbar-sidenav" id="exampleAccordion"
+				style="overflow-y: auto">
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Alunos</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Alunos</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse" id="collapseExamplePages">
-						
-							<li><a href="aluno_cadastro.php">Cadastro</a></li>
-							<li><a href="aluno_visualizar.php">Visualizar</a></li>
-					</ul></li>
+
+						<li><a href="aluno_cadastro.php">Cadastro</a></li>
+						<li><a href="aluno_visualizar.php">Visualizar</a></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Charts">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
@@ -197,56 +209,64 @@ if (isset($_POST['cadastro_notas']) and isset($_POST['materia'])){
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages1" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Disciplinas</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages1"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Disciplinas</span>
 				</a><?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages1">
 						<li><a href="disciplina_cadastro.php">Cadastro</a></li>
 						<li><a href="disciplina_visualizar.php">Visualizar</a></li>
-					</ul></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages2" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages2"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Frequência</span>
 				</a><?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
 						<li><a href="frequencia_cadastro.php">Cadastro</a></li>
-					</ul></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages3" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages3"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Notas</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
 						<li><a href="aluno_notas.php">Cadastro</a></li>
-					</ul></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages4" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Plano
-							de aula</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages4"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Plano de aula</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages4">
 						<li><a href="plano_aula_cadastro.php">Cadastro</a></li>
 						<li><a href="plano_aula_visualizar.php">Visualizar</a></li>
-					</ul></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7,6))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages5" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Ocorrências</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages5"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Ocorrências</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages5">
@@ -256,7 +276,8 @@ if (isset($_POST['cadastro_notas']) and isset($_POST['materia'])){
 						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,7,6))) { ?>
 						<li><a href="ocorrencias_visualizar.php">Visualizar</a></li>
 						<?php } ?>
-					</ul></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Charts">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
@@ -267,27 +288,31 @@ if (isset($_POST['cadastro_notas']) and isset($_POST['materia'])){
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages6" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Servidores</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages6"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Servidores</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages6">
 						<li><a href="servidores_cadastro.php">Cadastro</a></li>
 						<li><a href="servidores_visualizar.php">Visualizar</a></li>
-					</ul></li>	
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages7" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Turmas</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages7"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Turmas</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages7">
 						<li><a href="turma_cadastro.php">Cadastro</a></li>
 						<li><a href="turma_visualizar.php">Visualizar</a></li>
-					</ul></li>
+					</ul>
+				</li>
 			</ul>
 			<ul class="navbar-nav sidenav-toggler">
 				<li class="nav-item"><a class="nav-link text-center"
@@ -302,17 +327,26 @@ if (isset($_POST['cadastro_notas']) and isset($_POST['materia'])){
 		</div>
 	</nav>
 	<div class="content-wrapper">
-	<?php 
-					if (isset($showErrorMessage)){ ?>
-						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </br></br></div>
-					<?php 
-					}
-					
-					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
-					    <div style="color:green;text-align: center;">Notas cadastradas com sucesso!</br></br></div>
-					<?php }
-					
-					?>
+	<?php
+if (isset($showErrorMessage)) {
+    ?>
+						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </br>
+			</br>
+		</div>
+					<?php
+}
+
+if ($showSuccessMessage and ! isset($showErrorMessage)) {
+    ?>
+					    <div style="color: green; text-align: center;">
+			Notas cadastradas com sucesso!</br>
+			</br>
+		</div>
+					<?php
+
+}
+
+?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
@@ -321,58 +355,63 @@ if (isset($_POST['cadastro_notas']) and isset($_POST['materia'])){
 			</ol>
 			<div class="container">
 				<div>
-					<div class="card-body" style="border-style: solid; border-width: 1px; border-color: #b3b8bd;">
+					<div class="card-body"
+						style="border-style: solid; border-width: 1px; border-color: #b3b8bd;">
 						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
 							<div class="form-group">
-								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-								<?php 
-								if (!empty($db_turma_fetch)){ 
-								    echo "<span style=\"font-weight: bold;\">Turma: </span>" . $db_turma_fetch[0]['NOME_TURMA'] . "<br>";
-								} else {
-								    echo "<span>Essa turma não possui alunos cadastrados!<br><br>";
-								}?>
-								<span style="font-weight: bold;">Assunto:</span> <?php echo $assunto;?><br>
-								<input type="hidden" name="turma" value="<?php echo $turma_id;?>" />
-								<input type="hidden" name="assunto" value="<?php echo $assunto;?>" />
-								<input type="hidden" name="cadastro_notas" id="cadastro_notas" value="false" />
-								<br>
-								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-									<label for="nota">Matéria:*</label> 
-									<select
-										class="form-control"
-										aria-describedby="nameHelp" id="materia" name="materia">
-									
-									<?php
-									foreach ($db_materia_professor_fetch as $single_row1) {
-                                                echo "<option value=\"" . $single_row1['ID_MATERIA'] . "\">" . $single_row1['NOME'] . "</option>";
-                                            } 
-                                        ?>
-										
-									</select>
-								</div>
-								<br>
-								<table cellpadding="3">									
-									<?php
-                                            foreach ($db_turma_fetch as $single_row1) {
-                                                echo "<tr>";
-                                                echo "<td>" . $single_row1['NOME'] . ' ' . $single_row1['SOBRENOME'] . "</td>";
-                                                echo "<td>" . "<input type=\"number\" min=\"0\" max=\"10\"  name=\"". $single_row1['ID'] . "\" id=\"". $single_row1['ID'] . "\" /> </td>";
-                                                echo "</tr>";
-                                            } 
-                                        ?>
+								<div class="col-md-6"
+									style="flex: none; max-width: 100%; padding: 0px;">
+								<?php
+        if (! empty($db_turma_fetch)) {
+            echo "<span style=\"font-weight: bold;\">Turma: </span>" . $db_turma_fetch[0]['NOME_TURMA'] . "<br>";
+            echo "<br>";
+            echo "<span style=\"font-weight: bold;\">Materia: </span>" . $db_materia_fetch[0]['NOME'] . "<br>";
+        } else {
+            echo "<span>Essa turma não possui alunos cadastrados!<br><br>";
+        }
+        ?>
+								<input type="hidden" name="cadastro_notas" id="cadastro_notas"
+										value="false" /> <br> <br>
+		<table cellpadding="3" border="1">
+								<?php
+        $alunoSetado = false;
+        foreach ($db_notas_materia_turma_fetch as $single_notas_materia_turma_fetch_single) {
+                if (!$alunoSetado){
+                    echo "<tr>";
+                    echo "<td>Aluno</td>";
+                    $alunoSetado = true;
+                }
+                echo "<td>" . $single_notas_materia_turma_fetch_single['INSTRUMENTO_AVALIACAO'] . "<br>" . $single_notas_materia_turma_fetch_single['DATA'] . "</td>";
+        }
+        echo "</tr>";
+        foreach ($db_turma_fetch as $single_row1) {
+            $print_nome_aluno = false;
+            echo "<tr>";
+            foreach ($db_notas_materia_turma_fetch as $single_notas_materia_turma_fetch_single) {            
+                if (! $print_nome_aluno) {
+                    echo "<td>" . $single_row1['NOME'] . ' ' . $single_row1['SOBRENOME'] . "</td>";
+                    $print_nome_aluno = true;
+                }
+
+                echo "<td>" . "<input type=\"number\" min=\"0\" max=\"10\"  name=\"" . $single_row1['ID'] . "\" id=\"" . $single_row1['ID'] . "\" /> </td>";
+            }
+            echo "</tr>";
+        }
+
+        ?>
 								</table>
-								<div id="cadastro_notasErro"
-											style="display: none; font-size: 10pt; color: red">Campo
-											obrigatório!</div>	
-						
+									<div id="cadastro_notasErro"
+										style="display: none; font-size: 10pt; color: red">Campo
+										obrigatório!</div>
+
 								</div>
 								<br>
 							</div>
 							<?php
-							if (!empty($db_turma_fetch)){
-               					echo "<a class=\"btn btn-primary btn-block\" onclick=\"validateAndSubmitForm()\">Cadastrar notas</a>";
-							}
-        					?>
+    if (! empty($db_turma_fetch)) {
+        echo "<a class=\"btn btn-primary btn-block\" onclick=\"validateAndSubmitForm()\">Cadastrar notas</a>";
+    }
+    ?>
 					</form>
 					</div>
 				</div>
@@ -435,6 +474,8 @@ if (isset($_POST['cadastro_notas']) and isset($_POST['materia'])){
 
 <?php 
 $db0->close();
-$db4->close();
+$db2->close();
 $db3->close();
+$db4->close();
+$db5->close();
 ?>

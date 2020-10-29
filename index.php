@@ -109,6 +109,7 @@
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
 						<li><a href="frequencia_cadastro.php">Cadastro</a></li>
+						<li><a href="aluno_frequencia.php">Alteração das frequências</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">

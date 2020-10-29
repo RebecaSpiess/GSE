@@ -1,64 +1,49 @@
 <?php
 require 'bo/Sessao.php';
-require 'bo/ControleAcesso.php';
+require  'bo/ControleAcesso.php';
 require 'database/db.php';
 
 use bo\Sessao;
 use bo\ControleAcesso;
 use model\Pessoa;
+
 Sessao::validar();
 
-$papeisPermitidos = array(
-    2,4,1,7
-);
+$papeisPermitidos = array(2,4,1,7);
 ControleAcesso::validar($papeisPermitidos);
 
 $pessoa = unserialize($_SESSION['loggedGSEUser']);
-
-$showErrorMessage = null;
 $showSuccessMessage = false;
 
 $db0 = new db();
-$db1 = new db();
-$db2 = new db();
-$db3 = new db();
 
-$turmaId = $_POST['turmaId'];
-$planoAulaId = $_POST['planoAulaId'];
-$sqlTurmas = "SELECT NOME_TURMA FROM TURMA WHERE ID = ?";
-$db_turma_fetch = $db0->query($sqlTurmas, $turmaId)->fetchAll();
-$sqlmateria = "select ma.NOME from PLANO_AULA pa
-JOIN MATERIA ma ON (pa.ID_MATERIA = ma.ID)
-WHERE pa.ID = ? ";
-$db_materia_fetch = $db3->query($sqlmateria, $planoAulaId)->fetchAll();
+$sqlTurmas = "";
+$tipoPessoaIdentificador = $pessoa->tipo_pessoa;
+if ($tipoPessoaIdentificador == 2 ){
+    $sqlTurmas = "SELECT distinct t.ID, t.NOME_TURMA FROM FREQUENCIA f
+                    JOIN TURMA t ON (t.ID = f.ID_TURMA)
+                    JOIN MATERIA m ON (f.ID_MATERIA = m.ID) ORDER BY NOME_TURMA";
+    
+} else {
+    $sqlTurmas = "SELECT distinct t.ID, t.NOME_TURMA FROM PESSOA p JOIN TURMA_MATERIA tm ON (tm.ID_PROFESSOR = p.ID)
+    JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and (tp.NOME = 'Professor(a)' OR tp.NOME = 'Diretor(a)'))
+    JOIN TURMA t ON (t.ID = tm.ID_TURMA) 
+    JOIN FREQUENCIA f ON (t.ID = f.ID_TURMA)";    
+    
+    $sqlTurmas .= " where p.ID = " . $pessoa->id;
+    $sqlTurmas .= " ORDER BY t.NOME_TURMA";
+}
+error_log($sqlTurmas);
 
+$db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
 
-
-if (isset($_POST['planoAula'])) {
-    $planoAula = $_POST['planoAula'];
-
-    if (! empty(trim($planoAula))) {
-        $planoAula = substr($planoAula, 0, 10000);
-        try {
-            $result = $db1->query("UPDATE PLANO_AULA SET DESCRICAO = ? WHERE ID=? AND ID_TURMA = ?", $planoAula, $planoAulaId, $turmaId)->query_count;
-            if ($result == 1) {
-                $_SESSION['planoAulaAtualizadaComSucesso'] = true;
-                header("Location: plano_aula_visualizar.php");
-            }
-        } catch (Exception $ex) {
-            $error_code = $ex->getMessage();
-            if ($error_code == 1062) {
-                $showErrorMessage = "Já existe um registro com ID informado!";
-            } else {
-                $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
-            }
-        }
-    }
+if (isset($_SESSION['mensagem_notas'])){
+    $showSuccessMessage = true;
+    $mensagem_sucesso = $_SESSION['mensagem_notas'];
+    unset($_SESSION['mensagem_notas']);
 }
 
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -69,7 +54,7 @@ if (isset($_POST['planoAula'])) {
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Cadastro de Plano de aula</title>
+<title>GSE - Frequência de aluno</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -80,9 +65,9 @@ if (isset($_POST['planoAula'])) {
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+<script src="vendor/jquery/jquery.min.js"></script>
 
-
- <style type="text/css">
+<style type="text/css">
 
 .btn-primary {
     color: black !important;
@@ -104,25 +89,64 @@ if (isset($_POST['planoAula'])) {
 
 </style>
 
-
-
 <script type="text/javascript">
+
+            $(document).ready(function(){
+                $('#turma').on('change', function(){
+                    var turmaId = $(this).val();
+                    if(turmaId){
+                        $.ajax({
+                            type:'POST',
+                            url:"carregarMateriaFrequencia.php",
+                            data:'turma_id='+turmaId,
+                            success: function(html) {
+                                $('#materia').html(html);
+                            }
+                        });
+                    }
+                });
+            });
+
+            function carregarMateriaFrequencia(){
+                var turmaId = $('#turma').val();
+                if(turmaId){
+                    $.ajax({
+                        type:'POST',
+                        url:"carregarMateriaFrequencia.php",
+                        data:'turma_id='+turmaId,
+                        success: function(html) {
+                            $('#materia').html(html);
+                        }
+                    });
+                }
+                
+            }    
+             
+
+</script>
+
+
+ <script type="text/javascript">
 	function submit() {
 		document.forms[0].submit();
 	}
   
 	function validateAndSubmitForm() {
+		var mensagem = document.getElementById("mensagemSucesso");
+		if (mensagem != null){
+			mensagem.style.display = 'none';
+		}	
+		
 		var turma = document.getElementById("turma");
-		var planoAula = document.getElementById("planoAula");
 		var camposPreenchidos = true;
 		 
-		if (!isNotBlank(planoAula.value)){
+		if (!isNotBlank(turma.value)){
 			camposPreenchidos = false;
-			document.getElementById("planoAulaErro").style.display = "block";
-		} else {	
-			document.getElementById("planoAulaErro").style.display = "none";
-		}
-
+			document.getElementById("turmaErro").style.display = "block";
+		} else {
+			document.getElementById("turmaErro").style.display = "none";
+		}	
+		
 		if (camposPreenchidos){
 			submit();
 		} 		
@@ -136,14 +160,11 @@ if (isset($_POST['planoAula'])) {
 	}	
 
   </script>
-<style type="text/css">
-textarea:focus {
-	outline: none;
-}
-</style>
+
+
 </head>
 
-<body class="fixed-nav sticky-footer bg-dark" id="page-top">
+<body class="fixed-nav sticky-footer bg-dark" id="page-top" onload="carregarMateriaFrequencia()">
 	<!-- Navigation-->
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"
 		id="mainNav">
@@ -267,8 +288,8 @@ textarea:focus {
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages7">
-						<li><a href="turma_cadastro.php">Cadastro</a></li>
-						<li><a href="turma_visualizar.php">Visualizar</a></li>
+						<li><a href="turma_cadastro.php">Alteração</a></li>
+						<li><a href="turma_visualizar.php">Frequência</a></li>
 					</ul></li>
 			</ul>
 			<ul class="navbar-nav sidenav-toggler">
@@ -284,137 +305,110 @@ textarea:focus {
 		</div>
 	</nav>
 	<div class="content-wrapper">
-	<?php
-if (isset($showErrorMessage)) {
-    ?>
-						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </br>
-			</br>
-		</div>
-					<?php
-}
-
-if ($showSuccessMessage and ! isset($showErrorMessage)) {
-    ?>
-					    <div style="color: green; text-align: center;">
-			Registro atualizado com sucesso!</br>
-			</br>
-		</div>
-					<?php
-
-}
-
-?>
+	<?php 
+					if ($showSuccessMessage){ ?>
+					    <div style="color:green;text-align: center;" id="mensagemSucesso"><?php echo $mensagem_sucesso;?></br></br></div>
+					<?php }
+					
+					?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
-				<li class="breadcrumb-item">Plano de aula</li>
-				<li class="breadcrumb-item active">Cadastro</li>
+				<li class="breadcrumb-item">Alunos</li>
+				<li class="breadcrumb-item active">Frequência</li>
 			</ol>
 			<div class="container">
 				<div>
 					<div class="card-body">
-						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
-							<input type="hidden" name="turmaId"
-								value="<?php echo $_POST['turmaId']; ?>" /> <input type="hidden"
-								name="planoAulaId" value="<?php echo $_POST['planoAulaId']; ?>" />
+						<form method="post" action="cadastro_frequencia_aluno.php">
 							<div class="form-group">
-								<div class="col-md-6"
-									style="flex: none; max-width: 100%; padding: 0px;">
-									<label for="turma">Turma</label> <input type="text"
-										class="form-control" aria-describedby="nameHelp"
-										disabled="disabled" placeholder="Turma" id="turma"
-										name="turma"
-										value="<?php echo $db_turma_fetch[0]['NOME_TURMA'];?>">
-
-								</div>
-								<br>
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-									<label for="turma">Materia*</label> 
-									<input type="text"
-										class="form-control" aria-describedby="nameHelp"
-										disabled="disabled" placeholder="Turma" id="materia"
-										name="materia"
-										value="<?php echo $db_materia_fetch[0]['NOME'];?>">
-									<div id="materiaErro"
+									<label for="turma">Turma*</label> 
+									<select
+										class="form-control"
+										aria-describedby="nameHelp" id="turma" name="turma">
+									
+									<?php
+                                            foreach ($db_turma_fetch as $single_row1) {
+                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME_TURMA'] . "</option>";
+                                            } 
+                                        ?>
+										
+									</select>
+									<div id="turmaErro"
 						style="display: none; font-size: 10pt; color: red">Campo
 						obrigatório!</div>
 								</div>
 								<br>
-								<div class="col-md-6"
-									style="flex: none; max-width: 100%; padding: 0px;">
-									<label for="planoAula">Plano de aula*</label>
-								<?php
-                                    $sqlplanoAula = "SELECT DESCRICAO FROM PLANO_AULA WHERE ID = ?";
-                                    $db_plano_aula_fetch = $db2->query($sqlplanoAula, $planoAulaId)->fetchAll();
-                                    error_log($planoAulaId);
-                                ?> 
-									<textarea rows="10" cols="30"
-										style="align: left; width: 100%; max-width: 100%; border: 1px solid #ced4da; padding: 0px !important; margin: 0px !important; text-align: left;"
-										maxlength="9000" id="planoAula" name="planoAula"><?php echo trim($db_plano_aula_fetch[0]['DESCRICAO']);?></textarea>
-									<div id="planoAulaErro"
-										style="display: none; font-size: 10pt; color: red">Campo
-										obrigatório!</div>
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+									<label for="turma">Materia*</label> 
+									<select
+										class="form-control"
+										aria-describedby="nameHelp" id="materia" name="materia">
+									</select>
+									<div id="turmaErro"
+						style="display: none; font-size: 10pt; color: red">Campo
+						obrigatório!</div>
 								</div>
+								<br>
 							</div>
-
-							<a class="btn btn-primary btn-block"
-								onclick="validateAndSubmitForm()">Atualizar</a>
+					
+        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Alterar</a>
+					</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /.container-fluid-->
+		<!-- /.content-wrapper-->
+		<footer class="sticky-footer">
+			<div class="container">
+				<div class="text-center">
+					<small>Copyright © GSE 2020</small>
+				</div>
+			</div>
+		</footer>
+		<!-- Scroll to Top Button-->
+		<a class="scroll-to-top rounded" href="#page-top"> <i
+			class="fa fa-angle-up"></i>
+		</a>
+		<!-- Logout Modal-->
+		<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+			aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLabel">Deseja mesmo sair?</h5>
+						<button class="close" type="button" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+					</div>
+					<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja
+						pronto para encerrar a seção atual.</div>
+					<div class="modal-footer">
+						<button class="btn btn-secondary" type="button"
+							data-dismiss="modal">Cancelar</button>
+						<form action="bo/Sessao.php" name="logout" method="POST">
+							<input type="hidden" value="GSElogout" name="logout"> <a
+								class="btn btn-primary" onclick="document.logout.submit()">Sair</a>
 						</form>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-	<!-- /.container-fluid-->
-	<!-- /.content-wrapper-->
-	<footer class="sticky-footer">
-		<div class="container">
-			<div class="text-center">
-				<small>Copyright © GSE 2020</small>
-			</div>
-		</div>
-	</footer>
-	<!-- Scroll to Top Button-->
-	<a class="scroll-to-top rounded" href="#page-top"> <i
-		class="fa fa-angle-up"></i>
-	</a>
-	<!-- Logout Modal-->
-	<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
-		aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Deseja mesmo sair?</h5>
-					<button class="close" type="button" data-dismiss="modal"
-						aria-label="Close">
-						<span aria-hidden="true">×</span>
-					</button>
-				</div>
-				<div class="modal-body">Seleciona "Sair" abaixo, caso você esteja
-					pronto para encerrar a seção atual.</div>
-				<div class="modal-footer">
-					<button class="btn btn-secondary" type="button"
-						data-dismiss="modal">Cancelar</button>
-					<form action="bo/Sessao.php" name="logout" method="POST">
-						<input type="hidden" value="GSElogout" name="logout"> <a
-							class="btn btn-primary" onclick="document.logout.submit()">Sair</a>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- Bootstrap core JavaScript-->
-	<script src="vendor/jquery/jquery.min.js"></script>
-	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-	<!-- Core plugin JavaScript-->
-	<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-	<!-- Page level plugin JavaScript-->
-	<script src="vendor/datatables/jquery.dataTables.js"></script>
-	<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
-	<!-- Custom scripts for all pages-->
-	<script src="js/sb-admin.min.js"></script>
-	<!-- Custom scripts for this page-->
-	<script src="js/sb-admin-datatables.min.js"></script>
+		<!-- Bootstrap core JavaScript-->
+		<script src="vendor/jquery/jquery.min.js"></script>
+		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+		<!-- Core plugin JavaScript-->
+		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+		<!-- Page level plugin JavaScript-->
+		<script src="vendor/datatables/jquery.dataTables.js"></script>
+		<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
+		<!-- Custom scripts for all pages-->
+		<script src="js/sb-admin.min.js"></script>
+		<!-- Custom scripts for this page-->
+		<script src="js/sb-admin-datatables.min.js"></script>
 	</div>
 </body>
 
@@ -422,7 +416,4 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
 
 <?php 
 $db0->close();
-$db1->close();
-$db2->close();
-$db3->close();
 ?>

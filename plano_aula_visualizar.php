@@ -24,22 +24,29 @@ $db1 = new db();
 $tipoPessoaId = $pessoa->tipo_pessoa;
 $sqlTurmas = "";
 if ($tipoPessoaId == 2) {
-    $sqlTurmas = "SELECT distinct pa.ID as 'PLANO_AULA_ID', t.ID, t.NOME_TURMA, CASE WHEN LENGTH(pa.DESCRICAO) >= 10 THEN CONCAT(SUBSTR(pa.DESCRICAO,1,10),'...') ELSE pa.DESCRICAO END as 'DESCRICAO', CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME) as 'AUTOR', pa.DATA_HORA_CADASTRO, mat.NOME FROM PESSOA p JOIN TURMA_MATERIA tm ON (tm.ID_PROFESSOR = p.ID)
+    $sqlTurmas = "SELECT pa.ID as 'PLANO_AULA_ID', t.ID, t.NOME_TURMA, CASE WHEN LENGTH(pa.DESCRICAO) >= 10 THEN CONCAT(SUBSTR(pa.DESCRICAO,1,10),'...') ELSE pa.DESCRICAO END as 'DESCRICAO', CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME) as 'AUTOR', pa.DATA_HORA_CADASTRO, mat.NOME 
+    FROM PESSOA p 
     JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and (tp.NOME = 'Professor(a)' OR tp.NOME = 'Diretor(a)'))
-    JOIN TURMA t ON (t.ID = tm.ID_TURMA)
-    JOIN PLANO_AULA pa ON (t.ID = pa.ID_TURMA)
-    JOIN MATERIA mat ON (tm.ID_MATERIA = mat.ID) ";
+    JOIN PLANO_AULA pa ON (pa.ID_AUTOR = p.ID)
+    JOIN TURMA t ON (t.ID = pa.ID_TURMA)
+    JOIN MATERIA mat ON (pa.ID_MATERIA = mat.ID)
+    group by pa.ID, t.ID, t.NOME_TURMA, pa.DESCRICAO, CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME), pa.DATA_HORA_CADASTRO, mat.NOME;  ";
 } else {
-    $sqlTurmas = "SELECT distinct pa.ID as 'PLANO_AULA_ID', t.ID, t.NOME_TURMA, CASE WHEN LENGTH(pa.DESCRICAO) >= 10 THEN CONCAT(SUBSTR(pa.DESCRICAO,1,10),'...') ELSE pa.DESCRICAO END as 'DESCRICAO', CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME) as 'AUTOR', pa.DATA_HORA_CADASTRO, mat.NOME FROM PESSOA p JOIN TURMA_MATERIA tm ON (tm.ID_PROFESSOR = p.ID)
+    $sqlTurmas = "SELECT pa.ID as 'PLANO_AULA_ID', t.ID, t.NOME_TURMA, CASE WHEN LENGTH(pa.DESCRICAO) >= 10 THEN CONCAT(SUBSTR(pa.DESCRICAO,1,10),'...') ELSE pa.DESCRICAO END as 'DESCRICAO', CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME) as 'AUTOR', pa.DATA_HORA_CADASTRO, mat.NOME 
+    FROM PESSOA p 
     JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and (tp.NOME = 'Professor(a)' OR tp.NOME = 'Diretor(a)'))
-    JOIN TURMA t ON (t.ID = tm.ID_TURMA)
-    JOIN PLANO_AULA pa ON (t.ID = pa.ID_TURMA)
-    JOIN MATERIA mat ON (tm.ID_MATERIA = mat.ID) ";
+    JOIN PLANO_AULA pa ON (pa.ID_AUTOR = p.ID)
+    JOIN TURMA t ON (t.ID = pa.ID_TURMA)
+    JOIN MATERIA mat ON (pa.ID_MATERIA = mat.ID)
+    group by pa.ID, t.ID, t.NOME_TURMA, pa.DESCRICAO, CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME), pa.DATA_HORA_CADASTRO, mat.NOME;  ";
     $sqlTurmas .= " where p.ID = " . $pessoa->id;
     $sqlTurmas .= " ORDER BY t.NOME_TURMA";
 }
 
 $db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
+
+$showSuccessMessage = isset($_SESSION['planoAulaAtualizadaComSucesso']);
+$_SESSION['planoAulaAtualizadaComSucesso'] = null;
 
 
 ?>
@@ -304,7 +311,7 @@ if (isset($showErrorMessage)) {
 if ($showSuccessMessage and ! isset($showErrorMessage)) {
     ?>
 					    <div style="color: green; text-align: center;">
-			Registro criado com sucesso!</br> </br>
+			Registro alterado com sucesso!</br> </br>
 		</div>
 					<?php
 }
