@@ -9,34 +9,73 @@ use model\Pessoa;
 
 Sessao::validar();
 
-$papeisPermitidos = array(2,4,1,7);
+$papeisPermitidos = array(2,4,1);
 ControleAcesso::validar($papeisPermitidos);
-
 $pessoa = unserialize($_SESSION['loggedGSEUser']);
+
+$turma_id = $_POST['turma'];
+$materia_id = $_POST['materia'];
+$IdPessoa = $pessoa->id;
+$tipoPessoaIdentificador = $pessoa->tipo_pessoa;
+
+$showErrorMessage = null;
 $showSuccessMessage = false;
 
 $db0 = new db();
+$db1 = new db();
+$db2 = new db();
+$db3 = new db();
+$db4 = new db();
+$db5 = new db();
 
-$sqlTurmas = "";
-$tipoPessoaIdentificador = $pessoa->tipo_pessoa;
 if ($tipoPessoaIdentificador == 2 ){
-    $sqlTurmas = "SELECT distinct tu.ID, tu.NOME_TURMA FROM TURMA tu JOIN NOTAS nota ON (nota.ID_TURMA = tu.ID) ORDER BY NOME_TURMA";
+    $db_materia_professor_fetch = $db4->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
+	JOIN MATERIA ma ON (ma.ID = tm.ID_MATERIA)
+    WHERE tm.ID_TURMA = ?", $turma_id)->fetchAll();
     
 } else {
-    $sqlTurmas = "SELECT distinct t.ID, t.NOME_TURMA FROM PESSOA p JOIN TURMA_MATERIA tm ON (tm.ID_PROFESSOR = p.ID)
-    JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and (tp.NOME = 'Professor(a)' OR tp.NOME = 'Diretor(a)'))
-    JOIN TURMA t ON (t.ID = tm.ID_TURMA) 
-    JOIN NOTAS nota ON (nota.ID_TURMA = t.ID)";    
-    
-    $sqlTurmas .= " where p.ID = " . $pessoa->id;
-    $sqlTurmas .= " ORDER BY t.NOME_TURMA";
+    $db_materia_professor_fetch = $db3->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
+	JOIN MATERIA ma ON (ma.ID = tm.ID_MATERIA)
+    WHERE tm.ID_TURMA = ? and tm.ID_PROFESSOR = ?", $turma_id, $IdPessoa)->fetchAll();
 }
-$db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
 
-$showSuccessMessage = isset($_SESSION['notaCadastradaSucesso']);
-$_SESSION['notaCadastradaSucesso']= null;	
+$db_turma_fetch = $db0->query("SELECT PE.ID, PE.NOME, PE.SOBRENOME, TU.NOME_TURMA FROM TURMA TU JOIN TURMA_PESSOA TU_PE ON (TU_PE.ID_TURMA = TU.ID) JOIN PESSOA PE ON (TU_PE.ID_PESSOA = PE.ID) 
+WHERE PE.TIPO_PESSOA = 3 AND TU.ID = ? ORDER BY PE.NOME, PE.SOBRENOME", $turma_id)->fetchAll();
+
+$sqlmateria = "select ma.NOME from MATERIA ma
+WHERE ma.ID = ? ";
+$db_materia_fetch = $db2->query($sqlmateria, $materia_id)->fetchAll();
+
+$db_pessoa_frequencia_fetch = $db5->query("SELECT DATE_FORMAT(f.DATA, '%Y-%m-%d') as DATA, p.NOME, p.SOBRENOME, f.PRESENCA FROM FREQUENCIA f JOIN PESSOA p on (p.ID = f.ID_PESSOA)
+WHERE f.ID_TURMA = ? AND f.ID_MATERIA = ? ORDER BY p.NOME, p.SOBRENOME", $turma_id, $materia_id)->fetchAll();
 
 
+if (isset($_POST['cadastro_frequencia']) and isset($_POST['materia'])){
+        $cadastro_frequencia = $_POST['cadastro_frequencia'];
+        $materia = $_POST['materia'];
+        $count = 0;
+        if (!empty(trim($cadastro_frequencia)) and $cadastro_frequencia == 'true'){
+            $db2->query("DELETE FROM FREQUENCIA WHERE ID_TURMA = ? AND DATA = ?", $turma_id, $data);
+            $db2->close();
+            foreach ($db_turma_fetch as $single_row0) {
+                $count++;
+                $presente = 0;
+                if (isset($_POST[$single_row0['ID']])){
+                    $presente = 1;
+                }
+                $db1->query("INSERT INTO FREQUENCIA (ID_PESSOA, DATA, PRESENCA, ID_TURMA, ID_MATERIA) VALUES (?,?,?,?,?) ",$single_row0['ID'],$data,$presente,$turma_id, $materia);
+                $db1->close();
+                $db1 = new db();
+            }
+            if ($count == 1){
+                $_SESSION['mensagem_frequencia'] = "Frequência cadastrada com sucesso!";
+            } else if ($count > 1){
+                $_SESSION['mensagem_frequencia'] = "Frequências cadastradas com sucesso!";
+            }
+        }
+        $db1->close();
+        header("Location: frequencia_cadastro.php");
+}
 ?>
 
 <!DOCTYPE html>
@@ -48,7 +87,7 @@ $_SESSION['notaCadastradaSucesso']= null;
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>GSE - Notas de aluno</title>
+<title>GSE - Frequência de aluno</title>
 <!-- Bootstrap core CSS-->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- Custom fonts for this template-->
@@ -59,7 +98,6 @@ $_SESSION['notaCadastradaSucesso']= null;
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
-<script src="vendor/jquery/jquery.min.js"></script>
 
 <style type="text/css">
 
@@ -83,42 +121,6 @@ $_SESSION['notaCadastradaSucesso']= null;
 
 </style>
 
-<script type="text/javascript">
-
-            $(document).ready(function(){
-                $('#turma').on('change', function(){
-                    var turmaId = $(this).val();
-                    if(turmaId){
-                        $.ajax({
-                            type:'POST',
-                            url:"carregarMateriaAvaliacao.php",
-                            data:'turma_id='+turmaId,
-                            success: function(html) {
-                                $('#materia').html(html);
-                            }
-                        });
-                    }
-                });
-            });
-
-            function carregarMateriaAvaliacao(){
-                var turmaId = $('#turma').val();
-                if(turmaId){
-                    $.ajax({
-                        type:'POST',
-                        url:"carregarMateriaAvaliacao.php",
-                        data:'turma_id='+turmaId,
-                        success: function(html) {
-                            $('#materia').html(html);
-                        }
-                    });
-                }
-                
-            }    
-             
-
-</script>
-
 
  <script type="text/javascript">
 	function submit() {
@@ -126,24 +128,28 @@ $_SESSION['notaCadastradaSucesso']= null;
 	}
   
 	function validateAndSubmitForm() {
-		var mensagem = document.getElementById("mensagemSucesso");
-		if (mensagem != null){
-			mensagem.style.display = 'none';
-		}	
-		
-		var turma = document.getElementById("turma");
 		var camposPreenchidos = true;
-		 
-		if (!isNotBlank(turma.value)){
-			camposPreenchidos = false;
-			document.getElementById("turmaErro").style.display = "block";
-		} else {
-			document.getElementById("turmaErro").style.display = "none";
-		}	
-		
-		if (camposPreenchidos){
+		var existeCampoPreenchido = false;
+		<?php
+        foreach ($db_turma_fetch as $single_row1) {
+            echo "var aluno_" .  $single_row1['ID'] . " = document.getElementById(\"" . $single_row1['ID'] . "\");\n";
+            
+            echo "if (isNotBlank(aluno_" .$single_row1['ID'] . ".value)){\n";
+            echo "    var value_aluno_" .$single_row1['ID'] . " =  aluno_" .$single_row1['ID'] . ".value;\n";
+            echo "    existeCampoPreenchido = true;\n";
+            echo "    if (value_aluno_" . $single_row1['ID'] . " < 0 || value_aluno_" . $single_row1['ID'] ."  > 10) {\n";
+            echo "         camposPreenchidos = false;\n";
+            echo "    }\n";
+            echo "}\n\n";
+        } 
+       ?>
+       	
+		if (!existeCampoPreenchido){
+			alert('Preencha ao menos um campo de nota!');
+		} else if (camposPreenchidos){
+			document.getElementById('cadastro_frequencia').value = 'true';
 			submit();
-		} 		
+		} 			
 	}
 
 	function isNotBlank(value){
@@ -151,14 +157,14 @@ $_SESSION['notaCadastradaSucesso']= null;
 			return false;
 		}
 		return value.trim().length !== 0;
-	}
+	}	
 
   </script>
 
 
 </head>
 
-<body class="fixed-nav sticky-footer bg-dark" id="page-top" onload="carregarMateriaAvaliacao()">
+<body class="fixed-nav sticky-footer bg-dark" id="page-top">
 	<!-- Navigation-->
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"
 		id="mainNav">
@@ -299,58 +305,83 @@ $_SESSION['notaCadastradaSucesso']= null;
 		</div>
 	</nav>
 	<div class="content-wrapper">
-	<?php 
-	               if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
-					    <div style="color:green;text-align: center;">Nota cadastrada com com sucesso!</br></br></div>
-					<?php }
-					
-					?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item">Alunos</li>
-				<li class="breadcrumb-item active">Notas</li>
+				<li class="breadcrumb-item active">Frequência</li>
 			</ol>
 			<div class="container">
 				<div>
-					<div class="card-body">
-						<form method="post" action="cadastro_notas_aluno.php">
+					<div class="card-body" style="border-style: solid; border-width: 1px; border-color: #b3b8bd;">
+						<form method="post" style="margin-left: 1.1rem;margin-right: 1rem;" action="<?=$_SERVER['PHP_SELF'];?>">
+						<input type="hidden" name="turma" value="<?php echo $turma_id; ?>" />
+							<input type="hidden" name="materia" value="<?php echo $materia_id; ?>" />
 							<div class="form-group">
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-									<label for="turma">Turma*</label> 
-									<select
-										class="form-control"
-										aria-describedby="nameHelp" id="turma" name="turma">
-									
-									<?php
-                                            foreach ($db_turma_fetch as $single_row1) {
-                                                echo "<option value=\"" . $single_row1['ID'] . "\">" . $single_row1['NOME_TURMA'] . "</option>";
-                                            } 
-                                        ?>
-										
-									</select>
-									<div id="turmaErro"
-						style="display: none; font-size: 10pt; color: red">Campo
-						obrigatório!</div>
-								</div>
+								
+								<?php
+        if (! empty($db_turma_fetch)) {
+            echo "<span style=\"font-weight: bold;\">Turma: </span>" . $db_turma_fetch[0]['NOME_TURMA'] . "<br>";
+            echo "<span style=\"font-weight: bold;\">Matéria: </span>" . $db_materia_fetch[0]['NOME'] . "<br>";
+        } else {
+            echo "<span>Essa turma não possui alunos cadastrados!<br><br>";
+        }
+        ?>
+								<input type="hidden" name="turma" value="<?php echo $turma_id;?>" />
+								<input type="hidden" name="cadastro_frequencia" id="cadastro_frequencia" value="false" />
 								<br>
-								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-									<label for="turma">Matéria*</label> 
-									<select
-										class="form-control"
-										aria-describedby="nameHelp" id="materia" name="materia">
-									</select>
-									<div id="turmaErro"
-						style="display: none; font-size: 10pt; color: red">Campo
-						obrigatório!</div>
+								<table cellpadding="3" border="1">	
+								<?php	
+								$dataSetado = false;			
+									foreach ($db_pessoa_frequencia_fetch as $single_frequencia_materia_turma_fetch_single) {
+									    if (!$dataSetado){
+                                            echo "<tr>";
+                                            echo "<td style=\"text-align:center\">Data</td>";
+                                            $dataSetado = true;
+                                    }
+                                    echo "<td style=\"text-align:center\">" . $single_frequencia_materia_turma_fetch_single['NOME'] . ' ' . $single_frequencia_materia_turma_fetch_single['SOBRENOME'] . "</td>";
+									}
+									echo "</tr>";
+									foreach ($db_pessoa_frequencia_fetch as $single_row1) {
+									    $print_nome_aluno = false;
+									    echo "<tr>";
+									    foreach ($db_pessoa_frequencia_fetch as $single_notas_materia_turma_fetch_single) {
+									        if (! $print_nome_aluno) {
+									            echo "<td style=\"text-align:center\">" . $single_row1['DATA'] . "</td>";
+									            $print_nome_aluno = true;
+									        }
+									        
+									        echo "<td style=\"text-align:center\"><input type=\"checkbox\" name=\"". $single_notas_materia_turma_fetch_single['DATA'] . "\" id=\"". $single_notas_materia_turma_fetch_single['DATA'] . "\" /> </td>";
+									    }
+									    echo "</tr>";
+									}
+									?>
+								</table>		
 								</div>
 								<br>
 							</div>
 					
-        					<a class="btn btn-primary btn-block" onclick="validateAndSubmitForm()">Cadastrar</a>
+        					<?php
+							if (!empty($db_turma_fetch)){
+							    echo "<a class=\"btn btn-primary btn-block\" onclick=\"validateAndSubmitForm()\"> Alterar frequência</a>";
+               					 
+							}
+        					?>
 					</form>
 					</div>
 				</div>
+				<?php 
+					if (isset($showErrorMessage)){ ?>
+						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </div>
+					<?php 
+					}
+					
+					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
+					    <div style="color:green;text-align: center;">Notas cadastradas com sucesso!</div>
+					<?php }
+					
+					?>
 			</div>
 		</div>
 		<!-- /.container-fluid-->
@@ -410,4 +441,7 @@ $_SESSION['notaCadastradaSucesso']= null;
 
 <?php 
 $db0->close();
+$db3->close();
+$db4->close();
+$db5->close();
 ?>

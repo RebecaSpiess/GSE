@@ -15,6 +15,8 @@ $pessoa = unserialize($_SESSION['loggedGSEUser']);
 
 $turma_id = $_POST['turma'];
 $data = $_POST['data'];
+$materia_id = $_POST['materia'];
+
 $IdPessoa = $pessoa->id;
 $tipoPessoaIdentificador = $pessoa->tipo_pessoa;
 
@@ -22,10 +24,48 @@ $showErrorMessage = null;
 $showSuccessMessage = false;
 
 $db0 = new db();
-$db1 = new db();
-$db2 = new db();
 $db3 = new db();
 $db4 = new db();
+$db10 = new db();
+$db11 = new db();
+
+$frequencia_id = null;
+
+if (isset($_POST['data'])){
+    $data = $_POST['data'];
+    $turmaId = $_POST['turma'];
+    $materia = $_POST['materia'];
+    
+    if (!empty(trim($data)) and
+        !empty(trim($turmaId))and
+        !empty(trim($materia))){
+            try {
+                $result = $db10->query("INSERT INTO FREQUENCIA (DATA, ID_TURMA, ID_MATERIA)
+                          VALUES (?,?,?) "
+                    , $data
+                    , $turmaId
+                    , $materia
+                    )->query_count;
+                    if ($result == 1){
+                        try {
+                          $frequencia_fetch = $db11->query("SELECT ID FROM FREQUENCIA WHERE DATA = ? AND ID_TURMA = ? AND ID_MATERIA = ? ORDER BY ID DESC", $data, $turmaId, $materia)->fetchAll();
+                          $frequencia_id = $frequencia_fetch[0]['ID'];
+                        } finally {
+                            $db11->close();
+                        }
+                    }
+            } catch (Exception $ex){
+                $error_code = $ex->getMessage();
+                if ($error_code == 1062){
+                    $showErrorMessage = "Já existe um registro com ID informado!";
+                } else {
+                    $showErrorMessage = "Ocorreu um erro interno! Contate o administrador do sistema!";
+                }
+            } finally {
+                $db10 -> close();
+            }
+    }
+}
 
 if ($tipoPessoaIdentificador == 2 ){
     $db_materia_professor_fetch = $db4->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
@@ -42,22 +82,21 @@ $db_turma_fetch = $db0->query("SELECT PE.ID, PE.NOME, PE.SOBRENOME, TU.NOME_TURM
 WHERE PE.TIPO_PESSOA = 3 AND TU.ID = ? ORDER BY PE.NOME, PE.SOBRENOME", $turma_id)->fetchAll();
 
 
-if (isset($_POST['cadastro_frequencia']) and isset($_POST['materia'])){
+if (isset($_POST['cadastro_frequencia'])){
         $cadastro_frequencia = $_POST['cadastro_frequencia'];
-        $materia = $_POST['materia'];
         $count = 0;
         if (!empty(trim($cadastro_frequencia)) and $cadastro_frequencia == 'true'){
-            $db2->query("DELETE FROM FREQUENCIA WHERE ID_TURMA = ? AND DATA = ?", $turma_id, $data);
-            $db2->close();
             foreach ($db_turma_fetch as $single_row0) {
                 $count++;
                 $presente = 0;
                 if (isset($_POST[$single_row0['ID']])){
                     $presente = 1;
                 }
-                $db1->query("INSERT INTO FREQUENCIA (ID_PESSOA, DATA, PRESENCA, ID_TURMA, ID_MATERIA) VALUES (?,?,?,?,?) ",$single_row0['ID'],$data,$presente,$turma_id, $materia);
-                $db1->close();
                 $db1 = new db();
+                $db1->query("INSERT INTO FREQUENCIA_PESSOA (ID_PESSOA, ID_FREQUENCIA, PRESENCA) VALUES (?,?,?) 
+                ON DUPLICATE KEY UPDATE ID_PESSOA=VALUES(ID_PESSOA), ID_FREQUENCIA=VALUES(ID_FREQUENCIA), PRESENCA=VALUES(PRESENCA)"
+                    ,$single_row0['ID'], $frequencia_id, $presente);
+                $db1->close();
             }
             if ($count == 1){
                 $_SESSION['mensagem_frequencia'] = "Frequência cadastrada com sucesso!";
@@ -141,9 +180,7 @@ if (isset($_POST['cadastro_frequencia']) and isset($_POST['materia'])){
 		} else if (camposPreenchidos){
 			document.getElementById('cadastro_frequencia').value = 'true';
 			submit();
-		} else {
-			alert('Preencha os campos cujo os valores deverão estar entre o seguinte intervalo: 0 e 10!');
-		}			
+		} 			
 	}
 
 	function isNotBlank(value){
@@ -309,6 +346,10 @@ if (isset($_POST['cadastro_frequencia']) and isset($_POST['materia'])){
 				<div>
 					<div class="card-body" style="border-style: solid; border-width: 1px; border-color: #b3b8bd;">
 						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
+						     <input type="hidden" name="turma" value="<?php echo $turma_id; ?>" />
+						     <input type="hidden" name="data" value="<?php echo $data; ?>" />
+						     <input type="hidden" name="materia" value="<?php echo $materia_id; ?>" />
+						     
 							<div class="form-group">
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
 								
@@ -322,21 +363,6 @@ if (isset($_POST['cadastro_frequencia']) and isset($_POST['materia'])){
 								<input type="hidden" name="turma" value="<?php echo $turma_id;?>" />
 								<input type="hidden" name="data" value="<?php echo $data;?>" />
 								<input type="hidden" name="cadastro_frequencia" id="cadastro_frequencia" value="false" />
-								<br>
-								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
-									<label for="turma">Matéria*</label> 
-									<select
-										class="form-control"
-										aria-describedby="nameHelp" id="materia" name="materia">
-									
-									<?php
-									foreach ($db_materia_professor_fetch as $single_row1) {
-                                                echo "<option value=\"" . $single_row1['ID_MATERIA'] . "\">" . $single_row1['NOME'] . "</option>";
-                                            } 
-                                        ?>
-										
-									</select>
-								</div>
 								<br>
 								<table cellpadding="3">									
 									<?php

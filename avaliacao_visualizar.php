@@ -49,11 +49,11 @@ if (isset($_POST['turma']) and
             !empty(trim($conteudoAvaliacao))){
                 try {
                     $result = $db1->query("INSERT INTO NOTAS (ID_TURMA, INSTRUMENTO_AVALIACAO, DATA, DESCRICAO)
-                          VALUES (?,?, ?, ?) "
-                        , $turma
-                        , $instrumentoAvaliacao
-                        , $dataAvaliacao
-                        , $conteudoAvaliacao
+                          VALUES (?, ?, ?, ?) "
+                        , trim($turma)
+                        , trim($instrumentoAvaliacao)
+                        , trim($dataAvaliacao)
+                        , trim($conteudoAvaliacao)
                         )->query_count;
                         if ($result == 1){
                             $showSuccessMessage = true;

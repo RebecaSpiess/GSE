@@ -17,6 +17,7 @@ $showSuccessMessage = false;
 $mensagem_sucesso = null;
 
 $db0 = new db();
+$db1 = new db();
 
 $sqlTurmas = "SELECT tu.NOME_TURMA, tu.ID FROM TURMA tu ";
 $tipoPessoaIdentificador = $pessoa->tipo_pessoa;
@@ -40,9 +41,7 @@ if (isset($_SESSION['mensagem_frequencia'])){
     $showSuccessMessage = true;
     $mensagem_sucesso = $_SESSION['mensagem_frequencia'];
     unset($_SESSION['mensagem_frequencia']);
-}
-
-
+} 
 
 ?>
 
@@ -66,6 +65,7 @@ if (isset($_SESSION['mensagem_frequencia'])){
 	rel="stylesheet">
 <!-- Custom styles for this template-->
 <link href="css/sb-admin.css" rel="stylesheet">
+<script src="vendor/jquery/jquery.min.js"></script>
 
 <style type="text/css">
 
@@ -89,7 +89,41 @@ if (isset($_SESSION['mensagem_frequencia'])){
 
 </style>
 
+<script type="text/javascript">
 
+            $(document).ready(function(){
+                $('#turma').on('change', function(){
+                    var turmaId = $(this).val();
+                    if(turmaId){
+                        $.ajax({
+                            type:'POST',
+                            url:"carregarMateria.php",
+                            data:'turma_id='+turmaId,
+                            success: function(html) {
+                                $('#materia').html(html);
+                            }
+                        });
+                    }
+                });
+            });
+
+            function carregaMateria(){
+                var turmaId = $('#turma').val();
+                if(turmaId){
+                    $.ajax({
+                        type:'POST',
+                        url:"carregarMateria.php",
+                        data:'turma_id='+turmaId,
+                        success: function(html) {
+                            $('#materia').html(html);
+                        }
+                    });
+                }
+                
+            }    
+             
+
+</script>
 
  <script type="text/javascript">
 	function submit() {
@@ -147,7 +181,7 @@ if (isset($_SESSION['mensagem_frequencia'])){
 
 </head>
 
-<body class="fixed-nav sticky-footer bg-dark" id="page-top">
+<body class="fixed-nav sticky-footer bg-dark" id="page-top" onload="carregaMateria()">
 	<!-- Navigation-->
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"
 		id="mainNav">
@@ -318,6 +352,17 @@ if (isset($_SESSION['mensagem_frequencia'])){
                                         ?>
 										
 									</select>
+								</div>
+								<br>
+								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
+									<label for="turma">Materia*</label> 
+									<select
+										class="form-control"
+										aria-describedby="nameHelp" id="materia" name="materia">
+									</select>
+									<div id="turmaErro"
+						style="display: none; font-size: 10pt; color: red">Campo
+						obrigatório!</div>
 								</div>
 								<br>
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">

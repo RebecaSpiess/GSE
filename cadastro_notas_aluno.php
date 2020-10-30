@@ -32,6 +32,7 @@ $db2 = new db();
 $db3 = new db();
 $db4 = new db();
 $db5 = new db();
+$db6 = new db();
 
 if ($tipoPessoaIdentificador == 2) {
     $db_materia_professor_fetch = $db4->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
@@ -53,28 +54,76 @@ $db_materia_fetch = $db2->query($sqlmateria, $materia_id)->fetchAll();
 $sql_turma_materia_sql = "select ID 'ID_NOTAS', INSTRUMENTO_AVALIACAO,  DATE_FORMAT(DATA, '%Y-%m-%d') as DATA  from NOTAS WHERE ID_TURMA = ? AND ID_MATERIA = ?";
 $db_notas_materia_turma_fetch = $db5->query($sql_turma_materia_sql, $turma_id, $materia_id)->fetchAll();
 
-if (isset($_POST['cadastro_notas']) and isset($_POST['materia'])) {
-    $cadastro_notas = $_POST['cadastro_notas'];
-    $materia = $_POST['materia'];
-    $count = 0;
-    if (! empty(trim($cadastro_notas))) {
-        foreach ($db_turma_fetch as $single_row0) {
-            if (isset($_POST[$single_row0['ID']])) {
-                $nota = $_POST[$single_row0['ID']];
+if ($_SERVER['REQUEST_METHOD'] == 'POST' and isset($_POST['dessa_pagina'])) {
+    foreach ($db_turma_fetch as $single_row1) {
+        foreach ($db_notas_materia_turma_fetch as $single_notas_materia_turma_fetch_single) {
+            $fieldName =  $single_row1['ID']  . "_" . $single_notas_materia_turma_fetch_single['ID_NOTAS'];
+            if (!empty($_POST[$fieldName])){
+                $nota = $_POST[$fieldName];
+                $alunoId = $single_row1['ID'];
+                $notaId = $single_notas_materia_turma_fetch_single['ID_NOTAS'];
                 $db1 = new db();
-                $db1->query("INSERT INTO NOTAS (ID_TURMA, ID_PESSOA, NOTA, DESCRICAO, ID_MATERIA) VALUES (?,?,?,?,?) ", $turma_id, $single_row0['ID'], $nota, $assunto, $materia);
-                $db1->close();
-                $count ++;
+                try {
+                    $result = $db1->query("INSERT INTO NOTA_PESSOA (ID_NOTA, ID_PESSOA, NOTA) VALUES (?,?,?) 
+                   ON DUPLICATE KEY UPDATE ID_NOTA=VALUES(ID_NOTA), ID_PESSOA=VALUES(ID_PESSOA), NOTA=VALUES(NOTA)"
+                        ,$notaId, $alunoId, $nota)->query_count;
+                        if ($result == 1){
+                            $_SESSION['notaCadastradaSucesso'] = true;
+                            header("Location: aluno_notas.php");
+                            $showSuccessMessage = true;
+                        }
+                } finally {
+                    $db1->close();
+                }
+            } else {
+                $nota = null;
+                $alunoId = $single_row1['ID'];
+                $notaId = $single_notas_materia_turma_fetch_single['ID_NOTAS'];
+                $db1 = new db();
+                try {
+                    $result = $db1->query("INSERT INTO NOTA_PESSOA (ID_NOTA, ID_PESSOA, NOTA) VALUES (?,?,?)
+                   ON DUPLICATE KEY UPDATE ID_NOTA=VALUES(ID_NOTA), ID_PESSOA=VALUES(ID_PESSOA), NOTA=VALUES(NOTA)"
+                        ,$notaId, $alunoId, $nota)->query_count;
+                        if ($result == 1){
+                            $_SESSION['notaCadastradaSucesso'] = true;
+                            header("Location: aluno_notas.php");
+                            $showSuccessMessage = true;
+                        }
+                } finally {
+                    $db1->close();
+                }
             }
         }
-        if ($count == 1) {
-            $_SESSION['mensagem_notas'] = "Nota cadastrada com sucesso!";
-        } else if ($count > 1) {
-            $_SESSION['mensagem_notas'] = "Notas cadastradas com sucesso!";
-        }
-        header("Location: aluno_notas.php");
     }
+    
 }
+
+
+
+$notas_map_sql = "select CONCAT(CONCAT(ID_NOTA, '_'), ID_PESSOA) 'KEY', NOTA 'VALUE'
+from NOTA_PESSOA np JOIN NOTAS nota ON (nota.ID = np.ID_NOTA)
+WHERE nota.ID_MATERIA = ? and nota.ID_TURMA = ?";
+
+
+$notas_map_fetch =  $db6->query($notas_map_sql, $materia_id, $turma_id)->fetchAll();
+
+$notasMap = array();
+
+foreach ($notas_map_fetch as $notas_map_fetch_single){
+    $key = $notas_map_fetch_single['KEY'];
+    $value = $notas_map_fetch_single['VALUE'];
+    $notasMap[$key] = $value;
+}
+
+function getNota($nota, $idAluno, $notasMap){
+    $key = $nota . "_" . $idAluno;
+    error_log($key);
+    if (array_key_exists($key, $notasMap)){
+        return $notasMap[$key];
+    }
+    return "";
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -124,38 +173,11 @@ if (isset($_POST['cadastro_notas']) and isset($_POST['materia'])) {
 	function submit() {
 		document.forms[0].submit();
 	}
-  
-	function validateAndSubmitForm() {
-		var camposPreenchidos = true;
-		var existeCampoPreenchido = null;
-		<?php
-foreach ($db_turma_fetch as $single_row1) {
-    echo "var aluno_" . $single_row1['ID'] . " = document.getElementById(\"" . $single_row1['ID'] . "\");\n";
 
-    echo "if (isNotBlank(aluno_" . $single_row1['ID'] . ".value)){\n";
-    echo "    var value_aluno_" . $single_row1['ID'] . " =  aluno_" . $single_row1['ID'] . ".value;\n";
-    echo "    if (existeCampoPreenchido == null){\n";
-    echo "        existeCampoPreenchido = true;\n";
-    echo "    }\n";
-    echo "    if (value_aluno_" . $single_row1['ID'] . " < 0 || value_aluno_" . $single_row1['ID'] . "  > 10) {\n";
-    echo "         camposPreenchidos = false;\n";
-    echo "    }\n";
-    echo "} else {\n";
-    echo "   existeCampoPreenchido = false;\n";
-    echo "}\n";
-}
-?>
-       	
-		if (!existeCampoPreenchido){
-			camposPreenchidos = false;
-			document.getElementById("cadastro_notasErro").style.display = "block";
-		} else if (camposPreenchidos){			
-			document.getElementById('cadastro_notas').value = 'true';
-			submit();
-		} else {
-			document.getElementById("cadastro_notasErro").innerHTML = "Preencha os campos cujo os valores deverão estar entre o seguinte intervalo: 0 e 10!";
-			document.getElementById("cadastro_notasErro").style.display = "block";
-		}			
+	
+
+	function validateAndSubmitForm() {
+		submit();
 	}
 
 	function isNotBlank(value){
@@ -163,7 +185,23 @@ foreach ($db_turma_fetch as $single_row1) {
 			return false;
 		}
 		return value.trim().length !== 0;
-	}	
+	}
+
+	function validateNotas(element){
+		var value = element.value;
+		if (value === "") {
+			element.value="";
+		} else {
+			var floatValue = parseFloat(value.replace(',','.'));
+			var stringValueLength = value.trim().length;
+			if (stringValueLength <= 3 && floatValue >= 0.0  && floatValue <= 10.0) {
+				element.value=floatValue;
+				element.oldValue=floatValue;
+			} else {
+				element.value=element.oldValue;
+			}
+		}		
+    } 	
 
   </script>
 
@@ -327,26 +365,6 @@ foreach ($db_turma_fetch as $single_row1) {
 		</div>
 	</nav>
 	<div class="content-wrapper">
-	<?php
-if (isset($showErrorMessage)) {
-    ?>
-						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </br>
-			</br>
-		</div>
-					<?php
-}
-
-if ($showSuccessMessage and ! isset($showErrorMessage)) {
-    ?>
-					    <div style="color: green; text-align: center;">
-			Notas cadastradas com sucesso!</br>
-			</br>
-		</div>
-					<?php
-
-}
-
-?>
 		<div class="container-fluid">
 			<!-- Breadcrumbs-->
 			<ol class="breadcrumb">
@@ -358,6 +376,9 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
 					<div class="card-body"
 						style="border-style: solid; border-width: 1px; border-color: #b3b8bd;">
 						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
+						    <input type="hidden" name="dessa_pagina" />
+							<input type="hidden" name="turma" value="<?php echo $turma_id; ?>" />
+							<input type="hidden" name="materia" value="<?php echo $materia_id; ?>" />
 							<div class="form-group">
 								<div class="col-md-6"
 									style="flex: none; max-width: 100%; padding: 0px;">
@@ -365,7 +386,7 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
         if (! empty($db_turma_fetch)) {
             echo "<span style=\"font-weight: bold;\">Turma: </span>" . $db_turma_fetch[0]['NOME_TURMA'] . "<br>";
             echo "<br>";
-            echo "<span style=\"font-weight: bold;\">Materia: </span>" . $db_materia_fetch[0]['NOME'] . "<br>";
+            echo "<span style=\"font-weight: bold;\">Matéria: </span>" . $db_materia_fetch[0]['NOME'] . "<br>";
         } else {
             echo "<span>Essa turma não possui alunos cadastrados!<br><br>";
         }
@@ -378,10 +399,10 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
         foreach ($db_notas_materia_turma_fetch as $single_notas_materia_turma_fetch_single) {
                 if (!$alunoSetado){
                     echo "<tr>";
-                    echo "<td>Aluno</td>";
+                    echo "<td style=\"text-align:center\">Aluno</td>";
                     $alunoSetado = true;
                 }
-                echo "<td>" . $single_notas_materia_turma_fetch_single['INSTRUMENTO_AVALIACAO'] . "<br>" . $single_notas_materia_turma_fetch_single['DATA'] . "</td>";
+                echo "<td style=\"text-align:center\">" . $single_notas_materia_turma_fetch_single['INSTRUMENTO_AVALIACAO'] . "<br>" . $single_notas_materia_turma_fetch_single['DATA'] . "</td>";
         }
         echo "</tr>";
         foreach ($db_turma_fetch as $single_row1) {
@@ -389,11 +410,12 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
             echo "<tr>";
             foreach ($db_notas_materia_turma_fetch as $single_notas_materia_turma_fetch_single) {            
                 if (! $print_nome_aluno) {
-                    echo "<td>" . $single_row1['NOME'] . ' ' . $single_row1['SOBRENOME'] . "</td>";
+                    echo "<td style=\"text-align:center\">" . $single_row1['NOME'] . ' ' . $single_row1['SOBRENOME'] . "</td>";
                     $print_nome_aluno = true;
                 }
 
-                echo "<td>" . "<input type=\"number\" min=\"0\" max=\"10\"  name=\"" . $single_row1['ID'] . "\" id=\"" . $single_row1['ID'] . "\" /> </td>";
+                echo "<td style=\"text-align:center\"><input type=\"number\" min=\"0\" max=\"10\" maxlength=\"3\" step=\"0.1\" onfocus=\"this.oldValue = this.value;\"  oninput=\"validateNotas(this);\"  name=\"" . $single_row1['ID'] . "_" . $single_notas_materia_turma_fetch_single['ID_NOTAS']  ."\" id=\"". $single_row1['ID']  . "_" . $single_notas_materia_turma_fetch_single['ID_NOTAS'] . "\" 
+               value=\"" . getNota($single_notas_materia_turma_fetch_single['ID_NOTAS'], $single_row1['ID'], $notasMap) ."\" /> </td>";
             }
             echo "</tr>";
         }

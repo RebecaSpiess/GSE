@@ -320,7 +320,7 @@ if (isset($_SESSION['mensagem_notas'])){
 			<div class="container">
 				<div>
 					<div class="card-body">
-						<form method="post" action="cadastro_frequencia_aluno.php">
+						<form method="post" action="alteracao_frequencia_aluno.php">
 							<div class="form-group">
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
 									<label for="turma">Turma*</label> 
