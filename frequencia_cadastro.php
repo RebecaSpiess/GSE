@@ -370,6 +370,7 @@ if (isset($_SESSION['mensagem_frequencia'])){
 								<label for="data">Data*</label> 
 								<input class="form-control" name="data" type="date" id="data" placeholder="Data de nascimento" required>
 								<div id="dataErro" style="display: none; font-size: 10pt; color: red">Campo obrigatório!</div>
+								<input type="hidden" name="frequencia_cadastro_origem" value="true" />
 								</div>
 							</div>
 					

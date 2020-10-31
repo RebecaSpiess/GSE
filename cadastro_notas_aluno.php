@@ -117,7 +117,6 @@ foreach ($notas_map_fetch as $notas_map_fetch_single){
 
 function getNota($nota, $idAluno, $notasMap){
     $key = $nota . "_" . $idAluno;
-    error_log($key);
     if (array_key_exists($key, $notasMap)){
         return $notasMap[$key];
     }

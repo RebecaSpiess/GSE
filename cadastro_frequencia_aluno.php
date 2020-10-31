@@ -30,8 +30,12 @@ $db10 = new db();
 $db11 = new db();
 
 $frequencia_id = null;
+if (isset($_POST['frequencia_id'])){
+    $frequencia_id = $_POST['frequencia_id'];
+}
 
-if (isset($_POST['data'])){
+
+if (isset($_POST['data']) and isset($_POST['frequencia_cadastro_origem'])){
     $data = $_POST['data'];
     $turmaId = $_POST['turma'];
     $materia = $_POST['materia'];
@@ -349,7 +353,7 @@ if (isset($_POST['cadastro_frequencia'])){
 						     <input type="hidden" name="turma" value="<?php echo $turma_id; ?>" />
 						     <input type="hidden" name="data" value="<?php echo $data; ?>" />
 						     <input type="hidden" name="materia" value="<?php echo $materia_id; ?>" />
-						     
+						     <input type="hidden" name="frequencia_id" value="<?php echo $frequencia_id; ?>">
 							<div class="form-group">
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
 								

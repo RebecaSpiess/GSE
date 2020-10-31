@@ -11,12 +11,9 @@ Sessao::validar();
 
 $papeisPermitidos = array(2,4,1);
 ControleAcesso::validar($papeisPermitidos);
-$pessoa = unserialize($_SESSION['loggedGSEUser']);
 
 $turma_id = $_POST['turma'];
 $materia_id = $_POST['materia'];
-$IdPessoa = $pessoa->id;
-$tipoPessoaIdentificador = $pessoa->tipo_pessoa;
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
@@ -28,17 +25,6 @@ $db3 = new db();
 $db4 = new db();
 $db5 = new db();
 
-if ($tipoPessoaIdentificador == 2 ){
-    $db_materia_professor_fetch = $db4->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
-	JOIN MATERIA ma ON (ma.ID = tm.ID_MATERIA)
-    WHERE tm.ID_TURMA = ?", $turma_id)->fetchAll();
-    
-} else {
-    $db_materia_professor_fetch = $db3->query("SELECT tm.ID_MATERIA, tm.ID_TURMA, ma.NOME FROM TURMA_MATERIA tm
-	JOIN MATERIA ma ON (ma.ID = tm.ID_MATERIA)
-    WHERE tm.ID_TURMA = ? and tm.ID_PROFESSOR = ?", $turma_id, $IdPessoa)->fetchAll();
-}
-
 $db_turma_fetch = $db0->query("SELECT PE.ID, PE.NOME, PE.SOBRENOME, TU.NOME_TURMA FROM TURMA TU JOIN TURMA_PESSOA TU_PE ON (TU_PE.ID_TURMA = TU.ID) JOIN PESSOA PE ON (TU_PE.ID_PESSOA = PE.ID) 
 WHERE PE.TIPO_PESSOA = 3 AND TU.ID = ? ORDER BY PE.NOME, PE.SOBRENOME", $turma_id)->fetchAll();
 
@@ -46,35 +32,55 @@ $sqlmateria = "select ma.NOME from MATERIA ma
 WHERE ma.ID = ? ";
 $db_materia_fetch = $db2->query($sqlmateria, $materia_id)->fetchAll();
 
-$db_pessoa_frequencia_fetch = $db5->query("SELECT DATE_FORMAT(f.DATA, '%Y-%m-%d') as DATA, p.NOME, p.SOBRENOME, f.PRESENCA FROM FREQUENCIA f JOIN PESSOA p on (p.ID = f.ID_PESSOA)
+$db_pessoa_frequencia_fetch = $db5->query("SELECT distinct p.ID, p.NOME, p.SOBRENOME
+FROM FREQUENCIA f 
+JOIN FREQUENCIA_PESSOA fp ON (fp.ID_FREQUENCIA = f.ID)
+JOIN PESSOA p on (p.ID = fp.ID_PESSOA)
 WHERE f.ID_TURMA = ? AND f.ID_MATERIA = ? ORDER BY p.NOME, p.SOBRENOME", $turma_id, $materia_id)->fetchAll();
 
 
-if (isset($_POST['cadastro_frequencia']) and isset($_POST['materia'])){
-        $cadastro_frequencia = $_POST['cadastro_frequencia'];
-        $materia = $_POST['materia'];
-        $count = 0;
-        if (!empty(trim($cadastro_frequencia)) and $cadastro_frequencia == 'true'){
-            $db2->query("DELETE FROM FREQUENCIA WHERE ID_TURMA = ? AND DATA = ?", $turma_id, $data);
-            $db2->close();
-            foreach ($db_turma_fetch as $single_row0) {
-                $count++;
-                $presente = 0;
-                if (isset($_POST[$single_row0['ID']])){
-                    $presente = 1;
-                }
-                $db1->query("INSERT INTO FREQUENCIA (ID_PESSOA, DATA, PRESENCA, ID_TURMA, ID_MATERIA) VALUES (?,?,?,?,?) ",$single_row0['ID'],$data,$presente,$turma_id, $materia);
-                $db1->close();
-                $db1 = new db();
+$db_frequencia_fetch = $db3->query("SELECT f.ID, DATE_FORMAT(f.DATA,'%d-%m-%Y') 'DATA' FROM FREQUENCIA f WHERE f.ID_TURMA = ? AND f.ID_MATERIA = ? ORDER BY f.DATA", $turma_id, $materia_id)->fetchAll();
+
+$db_frequencia_mapa = $db4->query("select CONCAT(CONCAT(FP.ID_FREQUENCIA,'_'), FP.ID_PESSOA) 'KEY', PRESENCA 'VALUE' from FREQUENCIA_PESSOA FP JOIN FREQUENCIA F ON (F.ID = FP.ID_FREQUENCIA) WHERE F.ID_MATERIA = ? AND F.ID_TURMA = ?",
+$materia_id, $turma_id)->fetchAll();
+
+$mapaFrequencias = array();
+
+foreach ($db_frequencia_mapa as $db_frequencia_mapa_single){
+    $mapaFrequencias[$db_frequencia_mapa_single['KEY']]  = $db_frequencia_mapa_single['VALUE'];
+}
+
+function checkCheckbox($id_frequencia, $id_aluno, $mapaFrequencias){
+    $key = $id_frequencia . "_" . $id_aluno;
+    if (array_key_exists($key, $mapaFrequencias)){
+        return $mapaFrequencias[$key] == 1 ? " checked " : "";
+    }
+    return "";
+}
+
+
+if (isset($_POST['cadastro_frequencia'])){
+    $count = 0;
+    foreach ($db_frequencia_fetch as $single_row1) {
+        foreach ($db_pessoa_frequencia_fetch as $single_aluno) {
+            $presente = 0;
+            $key = $single_row1['ID'] . "_" . $single_aluno['ID'];
+            if (isset($_POST[$key])){
+                $presente = 1;
             }
-            if ($count == 1){
-                $_SESSION['mensagem_frequencia'] = "Frequência cadastrada com sucesso!";
-            } else if ($count > 1){
-                $_SESSION['mensagem_frequencia'] = "Frequências cadastradas com sucesso!";
-            }
+            $db16 = new db();
+            $count += $db16->query("INSERT INTO FREQUENCIA_PESSOA (ID_PESSOA, ID_FREQUENCIA, PRESENCA) VALUES (?,?,?)
+            ON DUPLICATE KEY UPDATE ID_PESSOA=VALUES(ID_PESSOA), ID_FREQUENCIA=VALUES(ID_FREQUENCIA), PRESENCA=VALUES(PRESENCA)"
+                ,$single_aluno['ID'], $single_row1['ID'], $presente)->query_count;
+                $db16->close();
+            
         }
-        $db1->close();
-        header("Location: frequencia_cadastro.php");
+    }
+    
+    if ($count >= 1){
+        $_SESSION['mensagem_frequencia_alteracao'] = "Frequência(s) cadastrada(s) com sucesso!";
+        header("Location: aluno_frequencia.php");
+    }
 }
 ?>
 
@@ -128,36 +134,9 @@ if (isset($_POST['cadastro_frequencia']) and isset($_POST['materia'])){
 	}
   
 	function validateAndSubmitForm() {
-		var camposPreenchidos = true;
-		var existeCampoPreenchido = false;
-		<?php
-        foreach ($db_turma_fetch as $single_row1) {
-            echo "var aluno_" .  $single_row1['ID'] . " = document.getElementById(\"" . $single_row1['ID'] . "\");\n";
-            
-            echo "if (isNotBlank(aluno_" .$single_row1['ID'] . ".value)){\n";
-            echo "    var value_aluno_" .$single_row1['ID'] . " =  aluno_" .$single_row1['ID'] . ".value;\n";
-            echo "    existeCampoPreenchido = true;\n";
-            echo "    if (value_aluno_" . $single_row1['ID'] . " < 0 || value_aluno_" . $single_row1['ID'] ."  > 10) {\n";
-            echo "         camposPreenchidos = false;\n";
-            echo "    }\n";
-            echo "}\n\n";
-        } 
-       ?>
-       	
-		if (!existeCampoPreenchido){
-			alert('Preencha ao menos um campo de nota!');
-		} else if (camposPreenchidos){
-			document.getElementById('cadastro_frequencia').value = 'true';
-			submit();
-		} 			
+		submit();
 	}
 
-	function isNotBlank(value){
-		if (value == null){
-			return false;
-		}
-		return value.trim().length !== 0;
-	}	
 
   </script>
 
@@ -331,33 +310,36 @@ if (isset($_POST['cadastro_frequencia']) and isset($_POST['materia'])){
 								<input type="hidden" name="turma" value="<?php echo $turma_id;?>" />
 								<input type="hidden" name="cadastro_frequencia" id="cadastro_frequencia" value="false" />
 								<br>
+								<div style="overflow-x: auto"> 
 								<table cellpadding="3" border="1">	
 								<?php	
 								$dataSetado = false;			
-									foreach ($db_pessoa_frequencia_fetch as $single_frequencia_materia_turma_fetch_single) {
+									foreach ($db_pessoa_frequencia_fetch as $single_aluno) {
 									    if (!$dataSetado){
                                             echo "<tr>";
-                                            echo "<td style=\"text-align:center\">Data</td>";
+                                            echo "<td style=\"text-align:center; width:110px;\">Data</td>";
                                             $dataSetado = true;
-                                    }
-                                    echo "<td style=\"text-align:center\">" . $single_frequencia_materia_turma_fetch_single['NOME'] . ' ' . $single_frequencia_materia_turma_fetch_single['SOBRENOME'] . "</td>";
+                                        }
+                                        echo "<td style=\"text-align:center\">" . $single_aluno['NOME'] . ' ' . $single_aluno['SOBRENOME'] . "</td>";
 									}
 									echo "</tr>";
-									foreach ($db_pessoa_frequencia_fetch as $single_row1) {
-									    $print_nome_aluno = false;
+									
+									foreach ($db_frequencia_fetch as $single_row1) {
+									    $print_data = false;
 									    echo "<tr>";
-									    foreach ($db_pessoa_frequencia_fetch as $single_notas_materia_turma_fetch_single) {
-									        if (! $print_nome_aluno) {
+									    foreach ($db_pessoa_frequencia_fetch as $single_aluno) {
+									        if (! $print_data) {
 									            echo "<td style=\"text-align:center\">" . $single_row1['DATA'] . "</td>";
-									            $print_nome_aluno = true;
+									            $print_data = true;
 									        }
 									        
-									        echo "<td style=\"text-align:center\"><input type=\"checkbox\" name=\"". $single_notas_materia_turma_fetch_single['DATA'] . "\" id=\"". $single_notas_materia_turma_fetch_single['DATA'] . "\" /> </td>";
+									        echo "<td style=\"text-align:center\"><input type=\"checkbox\" " . checkCheckbox($single_row1['ID'], $single_aluno['ID'], $mapaFrequencias) . " name=\"" . $single_row1['ID'] . "_" . $single_aluno['ID'] . "\"/> </td>";
 									    }
 									    echo "</tr>";
 									}
 									?>
-								</table>		
+								</table>	
+								</div>	
 								</div>
 								<br>
 							</div>

@@ -9,6 +9,7 @@ if(!empty($_POST['turma_id'])){
         $sql = "SELECT distinct m.ID, m.NOME FROM FREQUENCIA f
                     JOIN TURMA t ON (t.ID = f.ID_TURMA)
                     JOIN MATERIA m ON (f.ID_MATERIA = m.ID) 
+                    where f.ID_TURMA = ?
                     order by m.NOME";
         $materiaFetch = $db0->query($sql, $turma_id)->fetchAll();
         $result = "";
