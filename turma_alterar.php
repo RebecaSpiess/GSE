@@ -355,8 +355,16 @@ function listar_professores($id, $arrayProfessores){
 										<?php
 											$professor_db_fetch = $professor_db->fetchAll();
 											 foreach ($professor_db_fetch as $single_row0) {
-											     echo "<option value=\"" . $single_row0['ID'] . "\"\>" . $single_row0['NOME'] . " " . $single_row0['SOBRENOME']
-											     . " (" . $single_row0['EMAIL'] . ")" . "</option>";
+											     
+											     if ($single_row0['ID'] == $db_pessoa_fetch[0]['ID_PESSOA_PROFESSOR_REGENTE']){
+											         echo "<option value=\"" . $single_row0['ID'] . "\" selected \>" . $single_row0['NOME'] . " " . $single_row0['SOBRENOME']
+											         . " (" . $single_row0['EMAIL'] . ")" . "</option>";
+											         
+											     } else {
+    											     echo "<option value=\"" . $single_row0['ID'] . "\"\>" . $single_row0['NOME'] . " " . $single_row0['SOBRENOME']
+	   										     . " (" . $single_row0['EMAIL'] . ")" . "</option>";
+											         
+											     }
 											 }
                                             ?>
 										</select>
