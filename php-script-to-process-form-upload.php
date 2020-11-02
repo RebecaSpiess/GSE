@@ -56,7 +56,7 @@ if (!$registroExistente){
         if ($rawCSV) {
             while (($buffer = fgetcsv($rawCSV, 4096,";")) !== false) {
                 $valorPrimeiraColuna = $buffer[0];
-                if (strtoupper(trim($valorPrimeiraColuna)) != "ALUNO"){
+                if (strtoupper(trim($valorPrimeiraColuna)) != "ID do Aluno"){
                     array_push($alunosCadastroExcel,$valorPrimeiraColuna);
                 }
             }

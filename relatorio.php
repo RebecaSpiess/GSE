@@ -15,6 +15,7 @@ Sessao::validar();
 $papeisPermitidos = array(2,4,1,7);
 ControleAcesso::validar($papeisPermitidos);
 
+$pessoa = unserialize($_SESSION['loggedGSEUser']);
 
 $showErrorMessage = null;
 $showSuccessMessage = false;
@@ -23,7 +24,7 @@ if (isset($_POST['tipo'])){
     $tipo = $_POST['tipo'];
     if (!empty(trim($tipo))){
         if ($tipo == 'alunos') {
-            $relatorio = new relatorio_alunos();
+            $relatorio = new relatorio_alunos($pessoa->id, $pessoa->tipo_pessoa);
             $relatorio->gerarRelatorio();
         } else if ($tipo ==  'turmas') {
             $relatorio = new relatorio_turma();
