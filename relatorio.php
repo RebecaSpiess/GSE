@@ -1,5 +1,4 @@
 <?php
-
 require 'bo/Sessao.php';
 require 'bo/ControleAcesso.php';
 require 'database/db.php';
@@ -12,7 +11,12 @@ use model\Pessoa;
 
 Sessao::validar();
 
-$papeisPermitidos = array(2,4,1,7);
+$papeisPermitidos = array(
+    2,
+    4,
+    1,
+    7
+);
 ControleAcesso::validar($papeisPermitidos);
 
 $pessoa = unserialize($_SESSION['loggedGSEUser']);
@@ -20,17 +24,17 @@ $pessoa = unserialize($_SESSION['loggedGSEUser']);
 $showErrorMessage = null;
 $showSuccessMessage = false;
 
-if (isset($_POST['tipo'])){
+if (isset($_POST['tipo']) or (isset($_POST['tipo']) and isset($_POST['turma']))) {
     $tipo = $_POST['tipo'];
-    if (!empty(trim($tipo))){
+    if (! empty(trim($tipo))) {
         if ($tipo == 'alunos') {
-            $relatorio = new relatorio_alunos($pessoa->id, $pessoa->tipo_pessoa);
+            $relatorio = new relatorio_alunos($pessoa->id, $pessoa->tipo_pessoa, null);
             $relatorio->gerarRelatorio();
-        } else if ($tipo ==  'turmas') {
-            $relatorio = new relatorio_turma();
+        } else if ($tipo == 'turmas') {
+            $turma_id = $_POST['turma'];
+            $relatorio = new relatorio_alunos($pessoa->id, $pessoa->tipo_pessoa, $turma_id);
             $relatorio->gerarRelatorio();
         }
-        
     }
 }
 
@@ -58,25 +62,24 @@ if (isset($_POST['tipo'])){
 <link href="css/sb-admin.css" rel="stylesheet">
 
 <style type="text/css">
-
 .btn-primary {
-    color: black !important;
-    background-color: #e9ecef !important;
-    border-color: black !important;
+	color: black !important;
+	background-color: #e9ecef !important;
+	border-color: black !important;
 }
 
 ::-webkit-scrollbar-track {
-    background-color: #F4F4F4;
+	background-color: #F4F4F4;
 }
+
 ::-webkit-scrollbar {
-    width: 6px;
-    background: #F4F4F4;
+	width: 6px;
+	background: #F4F4F4;
 }
+
 ::-webkit-scrollbar-thumb {
-    background: #dad7d7;
+	background: #dad7d7;
 }
-
-
 </style>
 
 <script type="text/javascript">
@@ -85,20 +88,22 @@ function submit() {
 	document.forms[0].submit();
 }
 
-function validateAndSubmitForm() {
-	var tipo = document.getElementById("tipo");
-	var camposPreenchidos = true; 
-	if (!isNotBlank(tipo.value)){
-		camposPreenchidos = false;
-		document.getElementById("tipoValidacao").style.display = "block";
-	} else {
-		camposPreenchidos = true;
-		document.getElementById("tipoValidacao").style.display = "none";
-	}	
 
-	if (camposPreenchidos){
-		submit();
+function mostrarTurmas(){
+	var tipo = document.getElementById("tipo");
+	var turmasCadastradasDiv = document.getElementById("turmasCadastradas");
+	if (tipo != null && turmasCadastradasDiv != null) {
+		var valorSelecionado = tipo.value;
+		if (valorSelecionado == "turmas"){
+			turmasCadastradasDiv.style.display="block";
+		} else {
+			turmasCadastradasDiv.style.display="none";
+		}	
 	}		
+}
+
+function validateAndSubmitForm() {
+	submit();
 }
 
 function isNotBlank(value){
@@ -109,10 +114,10 @@ function isNotBlank(value){
 }
 
 </script>
-  
+
 </head>
 
-<body class="fixed-nav sticky-footer bg-dark" id="page-top">
+<body class="fixed-nav sticky-footer bg-dark" id="page-top" onload="mostrarTurmas()">
 	<!-- Navigation-->
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"
 		id="mainNav">
@@ -125,19 +130,22 @@ function isNotBlank(value){
 			<span class="navbar-toggler-icon"></span>
 		</button>
 		<div class="collapse navbar-collapse" id="navbarResponsive">
-			<ul class="navbar-nav navbar-sidenav" id="exampleAccordion" style="overflow-y:auto" >
+			<ul class="navbar-nav navbar-sidenav" id="exampleAccordion"
+				style="overflow-y: auto">
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages" data-parent="#exampleAccordion"> <i
-						class="fa fa-fw fa-file"></i> <span class="nav-link-text">Alunos</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Alunos</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse" id="collapseExamplePages">
-						
-							<li><a href="aluno_cadastro.php">Cadastro</a></li>
-							<li><a href="aluno_visualizar.php">Visualizar</a></li>
-					</ul></li>
+
+						<li><a href="aluno_cadastro.php">Cadastro</a></li>
+						<li><a href="aluno_visualizar.php">Visualizar</a></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Charts">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
@@ -148,56 +156,64 @@ function isNotBlank(value){
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages1" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Disciplinas</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages1"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Disciplinas</span>
 				</a><?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages1">
 						<li><a href="disciplina_cadastro.php">Cadastro</a></li>
 						<li><a href="disciplina_visualizar.php">Visualizar</a></li>
-					</ul></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages2" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages2"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Frequência</span>
 				</a><?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
 						<li><a href="frequencia_cadastro.php">Cadastro</a></li>
-					</ul></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages3" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages3"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Notas</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
 						<li><a href="aluno_notas.php">Cadastro</a></li>
-					</ul></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages4" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Plano
-							de aula</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages4"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Plano de aula</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages4">
 						<li><a href="plano_aula_cadastro.php">Cadastro</a></li>
 						<li><a href="plano_aula_visualizar.php">Visualizar</a></li>
-					</ul></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7,6))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages5" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Ocorrências</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages5"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Ocorrências</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages5">
@@ -207,7 +223,8 @@ function isNotBlank(value){
 						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,7,6))) { ?>
 						<li><a href="ocorrencias_visualizar.php">Visualizar</a></li>
 						<?php } ?>
-					</ul></li>
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Charts">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
@@ -218,27 +235,31 @@ function isNotBlank(value){
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages6" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Servidores</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages6"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Servidores</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages6">
 						<li><a href="servidores_cadastro.php">Cadastro</a></li>
 						<li><a href="servidores_visualizar.php">Visualizar</a></li>
-					</ul></li>	
+					</ul>
+				</li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
 					<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
-					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
-					href="#collapseExamplePages7" data-parent="#exampleAccordion">
-						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Turmas</span>
+					<a class="nav-link nav-link-collapse collapsed"
+					data-toggle="collapse" href="#collapseExamplePages7"
+					data-parent="#exampleAccordion"> <i class="fa fa-fw fa-file"></i> <span
+						class="nav-link-text">Turmas</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages7">
 						<li><a href="turma_cadastro.php">Cadastro</a></li>
 						<li><a href="turma_visualizar.php">Visualizar</a></li>
-					</ul></li>
+					</ul>
+				</li>
 			</ul>
 			<ul class="navbar-nav sidenav-toggler">
 				<li class="nav-item"><a class="nav-link text-center"
@@ -264,30 +285,65 @@ function isNotBlank(value){
 						<form method="post" action="<?=$_SERVER['PHP_SELF'];?>">
 							<div class="form-group">
 								<div class="form-row">
-									<div class="col-md-6" style="width: 100%; max-width: 100%; -webkit-box-flex: none; flex: none; ms-flex:none;">
-										<label for="exampleInputName">Tipo*</label> 
-										<select class="form-control" style="width: 100%; box-sizing:border-box;" id="tipo" aria-describedby="nameHelp" name="tipo" required> 
-											<option value="alunos" >Aluno</option>
- 											<option value="turmas">Turma</option>
+									<div class="col-md-6"
+										style="width: 100%; max-width: 100%; -webkit-box-flex: none; flex: none; ms-flex: none;">
+										<label for="exampleInputName">Tipo*</label> <select
+											class="form-control"
+											style="width: 100%; box-sizing: border-box;" id="tipo"
+											aria-describedby="nameHelp" name="tipo"
+											onchange="mostrarTurmas()" required>
+											<option value="alunos">Aluno</option>
+											<option value="turmas">Turma</option>
+										</select> <br>
+										<div id="turmasCadastradas" style="display: none">
+											<label for="exampleInputName">Turma*</label> 
+											<select
+												class="form-control"
+												style="width: 100%; box-sizing: border-box;" id="turma"
+												aria-describedby="nameHelp" name="turma"> 
+											<?php
+        $db0 = new db();
+        try {
+            $sql = "SELECT DISTINCT T.ID, T.NOME_TURMA FROM TURMA T JOIN TURMA_PESSOA TP ON (TP.ID_TURMA = T.ID) JOIN TURMA_MATERIA TM ON (TM.ID_TURMA = T.ID)";
+            if ($pessoa->tipo_pessoa == 1) {
+                " WHERE TM.ID_PROFESSOR = " . $pessoa->id;
+            }
+            $turmas_fetch = $db0->query($sql)->fetchAll();
+            foreach($turmas_fetch as $turmas_fetch_single){
+                echo "<option value=\"" . $turmas_fetch_single['ID'] . "\">" . $turmas_fetch_single['NOME_TURMA'] . "</option>";
+            }
+        } finally {
+            $db0->close();
+        }
+
+        ?>
 										</select>
-										<div id="tipoValidacao" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
+										</div>
+										<div id="tipoValidacao"
+											style="display: none; font-size: 10pt; color: red">Campo
+											obrigatório!</div>
 									</div>
 								</div>
 							</div>
-							<a class="btn btn-primary btn-block" onclick="submit()">Gerar relatório</a>
+							<a class="btn btn-primary btn-block"
+								onclick="validateAndSubmitForm()">Gerar relatório</a>
 						</form>
 					</div>
-					<?php 
-					if (isset($showErrorMessage)){ ?>
-						<div style="color:red;text-align: center;"><?php echo $showErrorMessage ?> </div>
-					<?php 
-					}
-					
-					if ($showSuccessMessage and !isset($showErrorMessage)){ ?>
-					    <div style="color:green;text-align: center;">Registro criado com sucesso!</div>
-					<?php }
-					
-					?>
+					<?php
+    if (isset($showErrorMessage)) {
+        ?>
+						<div style="color: red; text-align: center;"><?php echo $showErrorMessage ?> </div>
+					<?php
+    }
+
+    if ($showSuccessMessage and ! isset($showErrorMessage)) {
+        ?>
+					    <div style="color: green; text-align: center;">Registro criado
+						com sucesso!</div>
+					<?php
+    }
+
+    ?>
 				</div>
 			</div>
 		</div>
@@ -329,18 +385,18 @@ function isNotBlank(value){
 				</div>
 			</div>
 		</div>
-			<!-- Bootstrap core JavaScript-->
-	<script src="vendor/jquery/jquery.min.js"></script>
-	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-	<!-- Core plugin JavaScript-->
-	<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-	<!-- Page level plugin JavaScript-->
-	<script src="vendor/datatables/jquery.dataTables.js"></script>
-	<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
-	<!-- Custom scripts for all pages-->
-	<script src="js/sb-admin.min.js"></script>
-	<!-- Custom scripts for this page-->
-	<script src="js/sb-admin-datatables.min.js"></script>
+		<!-- Bootstrap core JavaScript-->
+		<script src="vendor/jquery/jquery.min.js"></script>
+		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+		<!-- Core plugin JavaScript-->
+		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+		<!-- Page level plugin JavaScript-->
+		<script src="vendor/datatables/jquery.dataTables.js"></script>
+		<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
+		<!-- Custom scripts for all pages-->
+		<script src="js/sb-admin.min.js"></script>
+		<!-- Custom scripts for this page-->
+		<script src="js/sb-admin-datatables.min.js"></script>
 	</div>
 </body>
 

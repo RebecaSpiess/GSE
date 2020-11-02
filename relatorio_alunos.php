@@ -12,11 +12,14 @@ class relatorio_alunos
     private $id_pessoa;
 
     private $tipo_pessoa;
+    
+    private $id_turma;
 
-    function __construct($id_pessoa, $tipo_pessoa)
+    function __construct($id_pessoa, $tipo_pessoa, $id_turma)
     {
         $this->id_pessoa = $id_pessoa;
         $this->tipo_pessoa = $tipo_pessoa;
+        $this->id_turma = $id_turma;
     }
 
     function gerarRelatorio()
@@ -26,11 +29,20 @@ class relatorio_alunos
             function () {
 
                 $db = new db();
-                $sqlAlunos = 'SELECT p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO FROM TURMA_PESSOA tp JOIN PESSOA p ON (p.ID = tp.ID_PESSOA) JOIN TURMA_MATERIA tm on (tm.ID_TURMA = tp.ID_TURMA) WHERE p.TIPO_PESSOA = 3 GROUP BY p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO ORDER BY p.NOME, p.SOBRENOME';
-                if ($this->tipo_pessoa == 1) {
-                    $sqlAlunos = 'SELECT p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO FROM TURMA_PESSOA tp JOIN PESSOA p ON (p.ID = tp.ID_PESSOA) JOIN TURMA_MATERIA tm on (tm.ID_TURMA = tp.ID_TURMA) WHERE p.TIPO_PESSOA = 3 and tm.ID_PROFESSOR = ' . $this->id_pessoa . ' GROUP BY p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO ORDER BY p.NOME, p.SOBRENOME';
+                if (isset($this->id_turma)){
+                    $sqlAlunos = 'SELECT p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO FROM TURMA_PESSOA tp JOIN PESSOA p ON (p.ID = tp.ID_PESSOA) JOIN TURMA_MATERIA tm on (tm.ID_TURMA = tp.ID_TURMA) WHERE p.TIPO_PESSOA = 3  AND tp.ID_TURMA = ' . $this->id_turma . ' GROUP BY p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO ORDER BY p.NOME, p.SOBRENOME';
+                    if ($this->tipo_pessoa == 1) {
+                        $sqlAlunos = 'SELECT p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO FROM TURMA_PESSOA tp JOIN PESSOA p ON (p.ID = tp.ID_PESSOA) JOIN TURMA_MATERIA tm on (tm.ID_TURMA = tp.ID_TURMA) WHERE p.TIPO_PESSOA = 3 and tm.ID_PROFESSOR = ' . $this->id_pessoa . ' AND tp.ID_TURMA = ' . $this->id_turma . ' GROUP BY p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO ORDER BY p.NOME, p.SOBRENOME';
+                    }
+                    $alunos = $db->query($sqlAlunos);
+                } else {
+                    $sqlAlunos = 'SELECT p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO FROM TURMA_PESSOA tp JOIN PESSOA p ON (p.ID = tp.ID_PESSOA) JOIN TURMA_MATERIA tm on (tm.ID_TURMA = tp.ID_TURMA) WHERE p.TIPO_PESSOA = 3 GROUP BY p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO ORDER BY p.NOME, p.SOBRENOME';
+                    if ($this->tipo_pessoa == 1) {
+                        $sqlAlunos = 'SELECT p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO FROM TURMA_PESSOA tp JOIN PESSOA p ON (p.ID = tp.ID_PESSOA) JOIN TURMA_MATERIA tm on (tm.ID_TURMA = tp.ID_TURMA) WHERE p.TIPO_PESSOA = 3 and tm.ID_PROFESSOR = ' . $this->id_pessoa . ' GROUP BY p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO ORDER BY p.NOME, p.SOBRENOME';
+                    }
+                    $alunos = $db->query($sqlAlunos);
                 }
-                $alunos = $db->query($sqlAlunos);
+                
                 $alunosResult = $alunos->fetchAll();
 
                 $spreadsheet = new Spreadsheet();
@@ -110,7 +122,9 @@ class relatorio_alunos
                     try {
                         $materia_aluno_fetch = $db00->query("SELECT distinct m.NOME, m.ID MATERIA_ID, t.ID TURMA_ID  FROM TURMA_PESSOA tp JOIN TURMA t on (t.ID = tp.ID_TURMA) JOIN TURMA_MATERIA tm on (tm.ID_TURMA = t.ID) JOIN MATERIA m on (m.ID = tm.ID_MATERIA) WHERE ID_PESSOA = ? ORDER BY m.NOME", $alunoId)
                             ->fetchAll();
+                        error_log("CHEGOU ATÉ AQUI A!");
                         foreach ($materia_aluno_fetch as $materia_aluno_fetch_single) {
+                            error_log("CHEGOU ATÉ AQUI B!");
                             $colunaId = 1;
                             $id_linha_titulo_materia = $idLinha;
 
@@ -129,11 +143,15 @@ class relatorio_alunos
                             $idLinha ++;
                             $db01 = new db();
                             try {
+                                error_log("CHEGOU ATÉ AQUI C!");
                                 $materia_aluno_turma_nota = $db01->query("select DATE_FORMAT(n.DATA,'%d-%m-%Y') DATA, n.INSTRUMENTO_AVALIACAO, np.NOTA from NOTA_PESSOA np join NOTAS n ON (n.ID = np.ID_NOTA) where n.ID_TURMA = ? and n.ID_MATERIA = ? and np.ID_PESSOA = ? order by n.DATA", $materia_aluno_fetch_single['TURMA_ID'], $materia_aluno_fetch_single['MATERIA_ID'], $alunoId)
                                     ->fetchAll();
                                 $primeira_nota = null;
                                 $ultima_nota = null;
+                                $alunoPossuiNotas = false;
                                 foreach ($materia_aluno_turma_nota as $materia_aluno_turma_nota_single) {
+                                    error_log("CHEGOU ATÉ AQUI D!");
+                                    
                                     $idLinha_turma_materia = $idLinha;
                                     $sheet_novo->setCellValueByColumnAndRow($colunaId, $idLinha_turma_materia ++, $materia_aluno_turma_nota_single['DATA']);
                                     $sheet_novo->setCellValueByColumnAndRow($colunaId, $idLinha_turma_materia ++, $materia_aluno_turma_nota_single['INSTRUMENTO_AVALIACAO']);
@@ -149,17 +167,22 @@ class relatorio_alunos
 
                                     $colunaId ++;
                                     $idLinha_turma_materia ++;
+                                    $alunoPossuiNotas = true;
                                 }
                                 $idLinha_turma_materia = $idLinha;
                                 $idLinha_turma_materia ++;
-                                $sheet_novo->setCellValueByColumnAndRow($colunaId, $idLinha_turma_materia, 'Média');
-                                $spreadsheet->getActiveSheet()
+                                
+                                if ($alunoPossuiNotas){
+                                    $sheet_novo->setCellValueByColumnAndRow($colunaId, $idLinha_turma_materia, 'Média');
+                                    $spreadsheet->getActiveSheet()
                                     ->getStyleByColumnAndRow($colunaId, $idLinha_turma_materia ++)
                                     ->getFont()
                                     ->setBold(true);
-                                $formula = '=AVERAGE(' . $primeira_nota . ':' . $ultima_nota . ')';
+                                    $formula = '=AVERAGE(' . $primeira_nota . ':' . $ultima_nota . ')';
+                                    $sheet_novo->setCellValueByColumnAndRow($colunaId, $idLinha_turma_materia, $formula);
+                                } 
+                              
 
-                                $sheet_novo->setCellValueByColumnAndRow($colunaId, $idLinha_turma_materia, $formula);
 
                                 $coluna_convertida = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colunaId);
                                 $termino_bordas = $coluna_convertida . $idLinha_turma_materia;
