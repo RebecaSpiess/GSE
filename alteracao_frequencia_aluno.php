@@ -9,7 +9,7 @@ use model\Pessoa;
 
 Sessao::validar();
 
-$papeisPermitidos = array(2,4,1);
+$papeisPermitidos = array(1,2,4,7);
 ControleAcesso::validar($papeisPermitidos);
 
 $turma_id = $_POST['turma'];
@@ -190,7 +190,7 @@ if (isset($_POST['cadastro_frequencia'])){
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
-					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
+					<?php if (ControleAcesso::validarPapelFuncao(array(1,2,4,7))) { ?>
 					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
 					href="#collapseExamplePages2" data-parent="#exampleAccordion">
 						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Frequência</span>
@@ -198,17 +198,20 @@ if (isset($_POST['cadastro_frequencia'])){
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages2">
 						<li><a href="frequencia_cadastro.php">Cadastro</a></li>
+						<li><a href="aluno_frequencia.php">Alteração das frequências</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
-					<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
+					<?php if (ControleAcesso::validarPapelFuncao(array(1,2,4,7))) { ?>
 					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse"
 					href="#collapseExamplePages3" data-parent="#exampleAccordion">
 						<i class="fa fa-fw fa-file"></i> <span class="nav-link-text">Notas</span>
 				</a> <?php } ?>
 					<ul class="sidenav-second-level collapse"
 						id="collapseExamplePages3">
-						<li><a href="aluno_notas.php">Cadastro</a></li>
+						<li><a href="avaliacao.php">Avaliação</a></li>
+						<li><a href="avaliacao_visualizar.php">Avaliação visualizar</a></li>
+						<li><a href="aluno_notas.php">Cadastro de notas</a></li>
 					</ul></li>
 				<li class="nav-item" data-toggle="tooltip" data-placement="right"
 					title="Example Pages">
@@ -235,7 +238,7 @@ if (isset($_POST['cadastro_frequencia'])){
 						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,1,7))) { ?>
 						<li><a href="ocorrencias_cadastro_busca.php">Cadastro</a></li>
 						<?php } ?>
-						<?php if (ControleAcesso::validarPapelFuncao(array(2,4,7,6))) { ?>
+						<?php if (ControleAcesso::validarPapelFuncao(array(1,2,4,6,7))) { ?>
 						<li><a href="ocorrencias_visualizar.php">Visualizar</a></li>
 						<?php } ?>
 					</ul></li>
