@@ -94,6 +94,11 @@ th, td {
     background: #dad7d7;
 }
 
+.btn-primary {
+    color: black !important;
+    background-color: #e9ecef !important;
+    border-color: black !important;
+}
 
 </style>
 

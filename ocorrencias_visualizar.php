@@ -148,11 +148,16 @@ textarea:focus {
     width: 6px;
     background: #F4F4F4;
 }
+
 ::-webkit-scrollbar-thumb {
     background: #dad7d7;
 }
 
-
+.btn-primary {
+    color: black !important;
+    background-color: #e9ecef !important;
+    border-color: black !important;
+}
 
 </style>
 
