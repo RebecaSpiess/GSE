@@ -37,10 +37,11 @@ if ($tipoPessoaId == 2) {
     JOIN TIPO_PESSOA tp ON (tp.ID = p.TIPO_PESSOA and (tp.NOME = 'Professor(a)' OR tp.NOME = 'Diretor(a)'))
     JOIN PLANO_AULA pa ON (pa.ID_AUTOR = p.ID)
     JOIN TURMA t ON (t.ID = pa.ID_TURMA)
-    JOIN MATERIA mat ON (pa.ID_MATERIA = mat.ID)
-    group by pa.ID, t.ID, t.NOME_TURMA, pa.DESCRICAO, CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME), pa.DATA_HORA_CADASTRO, mat.NOME;  ";
+    JOIN MATERIA mat ON (pa.ID_MATERIA = mat.ID)";
     $sqlTurmas .= " where p.ID = " . $pessoa->id;
+    $sqlTurmas .= " group by pa.ID, t.ID, t.NOME_TURMA, pa.DESCRICAO, CONCAT(CONCAT(p.NOME, ' '),  p.SOBRENOME), pa.DATA_HORA_CADASTRO, mat.NOME  ";
     $sqlTurmas .= " ORDER BY t.NOME_TURMA";
+    error_log($sqlTurmas);
 }
 
 $db_turma_fetch = $db0->query($sqlTurmas)->fetchAll();
@@ -375,6 +376,7 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
                     columns: {
                         formTurma: 'Turma',
                         descricacao: 'Descrição',
+                        materia: 'Matéria',
                     },
                 },
             },

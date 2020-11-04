@@ -360,8 +360,9 @@ textarea:focus {
             responsive: {
                 1100: {
                     columns: {
-                        formTurma: 'Turma',
+                        aluno: 'Aluno',
                         descricacao: 'Descrição',
+                        autor: 'Autor',
                     },
                 },
             },

@@ -360,7 +360,7 @@ textarea:focus {
                 1100: {
                     columns: {
                         formTurma: 'Turma',
-                        descricacao: 'Descrição',
+                        professor: 'Professor regente',
                     },
                 },
             },

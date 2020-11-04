@@ -87,7 +87,7 @@ if (isset($_POST['servidor']) and
                                     $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
                                     
                                     $mail->Username   = 'comunicados@gestaosocioeducacional.com.br'; // SMTP username
-                                    $mail->Password   = 'Comunicados#20201';                               // SMTP password
+                                    $mail->Password   = 'Comunicados#20202';                               // SMTP password
                                     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` also accepted
                                     $mail->Port       = 587;
                                     

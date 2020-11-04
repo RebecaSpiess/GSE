@@ -21,7 +21,7 @@ $showSuccessMessage = false;
 
 $db0 = new db();
 
-$db_materia_professor_fetch = $db0->query("SELECT ID, NOME, PROPOSTA_CURRICULAR FROM MATERIA")->fetchAll();
+$db_materia_professor_fetch = $db0->query("SELECT ID, NOME, CASE WHEN LENGTH(PROPOSTA_CURRICULAR) >= 20 THEN CONCAT(SUBSTR(PROPOSTA_CURRICULAR,1,20),'...') ELSE PROPOSTA_CURRICULAR END as PROPOSTA_CURRICULAR FROM MATERIA")->fetchAll();
 
 $showSuccessMessage = (isset($_SESSION['disciplinaAtualizadoComSucesso']) and $_SESSION['disciplinaAtualizadoComSucesso']);
 $_SESSION['disciplinaAtualizadoComSucesso']= null;
@@ -357,8 +357,8 @@ var columns = {
             responsive: {
                 1100: {
                     columns: {
-                        formTurma: 'Turma',
-                        descricacao: 'Descrição',
+                        nome: 'Nome',
+                        proposta: 'Proposta',
                     },
                 },
             },

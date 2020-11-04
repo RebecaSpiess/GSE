@@ -418,7 +418,7 @@ var columns = {
 											</div>
 										</div>
 									</div>
-									<div id="root"></div>
+									<div id="root" style="overflow-x: auto;"></div>
 								</div>
 							</div>							
 							<script src="./table-sortable.js"></script>
@@ -432,6 +432,9 @@ var columns = {
                     columns: {
                         formTurma: 'Turma',
                         descricacao: 'Descrição',
+                        materia: 'Matéria',
+                        instrumentoAvaliacao: 'Descrição',
+                        data: 'Data de inserção',
                     },
                 },
             },

@@ -73,7 +73,6 @@ var data = [
         $data .= "\t\tdataNascimento: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['DATA_NASCIMENTO'] . "</a></center>',\n";
         $data .= "\t\tsexo: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['SEXO'] . "</a></center>',\n";
         $data .= "\t\ttelefone: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TELEFONE'] . "</a></center>',\n";
-        $data .= "\t\tcpf: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['CPF'] . "</a></center>',\n";
         $data .= "\t\ttipoPessoa: '<center><a onclick=\"abrirDetalhe(" . $single_row1['ID'] . ")\">" . $single_row1['TIPO_PESSOA'] . "</a></center>',\n";
         $data .= "\t},\n";
         echo $data;
@@ -90,7 +89,6 @@ var columns = {
     dataNascimento: 'Data de nascimento',
     sexo: 'Sexo',
     telefone: 'Telefone',
-    cpf: 'CPF',
     tipoPessoa: 'Cargo'
 }
 
@@ -338,7 +336,7 @@ textarea:focus {
 											</div>
 										</div>
 									</div>
-									<div id="root" style="overflow-x: auto; "></div>
+									<div id="root"></div>
 								</div>
 							</div>	
 							
@@ -351,8 +349,8 @@ textarea:focus {
             responsive: {
                 1100: {
                     columns: {
-                        formTurma: 'Turma',
-                        descricacao: 'Descrição',
+                        nome: 'Nome',
+                        dataNascimento: 'Data de nascimento',
                     },
                 },
             },

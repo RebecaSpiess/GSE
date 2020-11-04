@@ -30,15 +30,15 @@ class relatorio_alunos
 
                 $db = new db();
                 if (isset($this->id_turma)){
-                    $sqlAlunos = 'SELECT p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO FROM TURMA_PESSOA tp JOIN PESSOA p ON (p.ID = tp.ID_PESSOA) JOIN TURMA_MATERIA tm on (tm.ID_TURMA = tp.ID_TURMA) WHERE p.TIPO_PESSOA = 3  AND tp.ID_TURMA = ' . $this->id_turma . ' GROUP BY p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO ORDER BY p.NOME, p.SOBRENOME';
+                    $sqlAlunos = 'SELECT p.ID, p.NOME, p.SOBRENOME, sex.SEXO, p.DATA_NASCIMENTO FROM TURMA_PESSOA tp JOIN PESSOA p ON (p.ID = tp.ID_PESSOA) join SEXO sex ON (sex.ID = p.TIPO_SEXO) JOIN TURMA_MATERIA tm on (tm.ID_TURMA = tp.ID_TURMA) WHERE p.TIPO_PESSOA = 3  AND tp.ID_TURMA = ' . $this->id_turma . ' GROUP BY p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO ORDER BY p.NOME, p.SOBRENOME';
                     if ($this->tipo_pessoa == 1) {
-                        $sqlAlunos = 'SELECT p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO FROM TURMA_PESSOA tp JOIN PESSOA p ON (p.ID = tp.ID_PESSOA) JOIN TURMA_MATERIA tm on (tm.ID_TURMA = tp.ID_TURMA) WHERE p.TIPO_PESSOA = 3 and tm.ID_PROFESSOR = ' . $this->id_pessoa . ' AND tp.ID_TURMA = ' . $this->id_turma . ' GROUP BY p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO ORDER BY p.NOME, p.SOBRENOME';
+                        $sqlAlunos = 'SELECT p.ID, p.NOME, p.SOBRENOME, sex.SEXO, p.DATA_NASCIMENTO FROM TURMA_PESSOA tp JOIN PESSOA p ON (p.ID = tp.ID_PESSOA) join SEXO sex ON (sex.ID = p.TIPO_SEXO)  JOIN TURMA_MATERIA tm on (tm.ID_TURMA = tp.ID_TURMA) WHERE p.TIPO_PESSOA = 3 and tm.ID_PROFESSOR = ' . $this->id_pessoa . ' AND tp.ID_TURMA = ' . $this->id_turma . ' GROUP BY p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO ORDER BY p.NOME, p.SOBRENOME';
                     }
                     $alunos = $db->query($sqlAlunos);
                 } else {
-                    $sqlAlunos = 'SELECT p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO FROM TURMA_PESSOA tp JOIN PESSOA p ON (p.ID = tp.ID_PESSOA) JOIN TURMA_MATERIA tm on (tm.ID_TURMA = tp.ID_TURMA) WHERE p.TIPO_PESSOA = 3 GROUP BY p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO ORDER BY p.NOME, p.SOBRENOME';
+                    $sqlAlunos = 'SELECT p.ID, p.NOME, p.SOBRENOME, sex.SEXO, p.DATA_NASCIMENTO FROM TURMA_PESSOA tp JOIN PESSOA p ON (p.ID = tp.ID_PESSOA) join SEXO sex ON (sex.ID = p.TIPO_SEXO)  JOIN TURMA_MATERIA tm on (tm.ID_TURMA = tp.ID_TURMA) WHERE p.TIPO_PESSOA = 3 GROUP BY p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO ORDER BY p.NOME, p.SOBRENOME';
                     if ($this->tipo_pessoa == 1) {
-                        $sqlAlunos = 'SELECT p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO FROM TURMA_PESSOA tp JOIN PESSOA p ON (p.ID = tp.ID_PESSOA) JOIN TURMA_MATERIA tm on (tm.ID_TURMA = tp.ID_TURMA) WHERE p.TIPO_PESSOA = 3 and tm.ID_PROFESSOR = ' . $this->id_pessoa . ' GROUP BY p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO ORDER BY p.NOME, p.SOBRENOME';
+                        $sqlAlunos = 'SELECT p.ID, p.NOME, p.SOBRENOME, sex.SEXO, p.DATA_NASCIMENTO FROM TURMA_PESSOA tp JOIN PESSOA p ON (p.ID = tp.ID_PESSOA) join SEXO sex ON (sex.ID = p.TIPO_SEXO) JOIN TURMA_MATERIA tm on (tm.ID_TURMA = tp.ID_TURMA) WHERE p.TIPO_PESSOA = 3 and tm.ID_PROFESSOR = ' . $this->id_pessoa . ' GROUP BY p.ID, p.NOME, p.SOBRENOME, p.TIPO_SEXO, p.DATA_NASCIMENTO ORDER BY p.NOME, p.SOBRENOME';
                     }
                     $alunos = $db->query($sqlAlunos);
                 }
@@ -74,12 +74,8 @@ class relatorio_alunos
                     $date = date_create($alunosResult[$i]["DATA_NASCIMENTO"]);
                     $sheet->setCellValue('D' . ($i + 2), date_format($date, 'd/m/Y'));
 
-                    $sexo_db = $alunosResult[$i]["TIPO_SEXO"];
-                    if ($sexo_db == 0) {
-                        $sheet->setCellValue('E' . ($i + 2), 'Feminino');
-                    } else {
-                        $sheet->setCellValue('E' . ($i + 2), 'Masculino');
-                    }
+                    $sheet->setCellValue('E' . ($i + 2), $alunosResult[$i]["SEXO"]);
+                    
                     $aluno_id_count ++;
                 }
                 foreach (range('A', $sheet->getHighestColumn()) as $column) {

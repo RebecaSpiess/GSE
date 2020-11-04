@@ -4,6 +4,7 @@ require 'bo/ControleAcesso.php';
 require 'database/db.php';
 require 'relatorio_alunos.php';
 require 'relatorio_turma.php';
+require 'relatorio_alunos_cadastro_turmas.php';
 
 use bo\Sessao;
 use bo\ControleAcesso;
@@ -24,6 +25,13 @@ $pessoa = unserialize($_SESSION['loggedGSEUser']);
 $showErrorMessage = null;
 $showSuccessMessage = false;
 
+$db0 = new db();
+$sql = "SELECT DISTINCT T.ID, T.NOME_TURMA FROM TURMA T JOIN TURMA_PESSOA TP ON (TP.ID_TURMA = T.ID) JOIN TURMA_MATERIA TM ON (TM.ID_TURMA = T.ID)";
+if ($pessoa->tipo_pessoa == 1) {
+    " WHERE TM.ID_PROFESSOR = " . $pessoa->id;
+}
+$turmas_fetch = $db0->query($sql)->fetchAll();
+
 if (isset($_POST['tipo']) or (isset($_POST['tipo']) and isset($_POST['turma']))) {
     $tipo = $_POST['tipo'];
     if (! empty(trim($tipo))) {
@@ -33,6 +41,9 @@ if (isset($_POST['tipo']) or (isset($_POST['tipo']) and isset($_POST['turma'])))
         } else if ($tipo == 'turmas') {
             $turma_id = $_POST['turma'];
             $relatorio = new relatorio_alunos($pessoa->id, $pessoa->tipo_pessoa, $turma_id);
+            $relatorio->gerarRelatorio();
+        } else if ($tipo == 'todos_alunos') {
+            $relatorio = new relatorio_alunos_cadastro_turmas($pessoa->id, $pessoa->tipo_pessoa);
             $relatorio->gerarRelatorio();
         }
     }
@@ -280,7 +291,11 @@ function isNotBlank(value){
 											aria-describedby="nameHelp" name="tipo"
 											onchange="mostrarTurmas()" required>
 											<option value="alunos">Aluno</option>
+											<?php if (sizeof($turmas_fetch)) {?>
 											<option value="turmas">Turma</option>
+											<?php }?>
+											<?php if (ControleAcesso::validarPapelFuncao(array(2,4))) { ?>
+											<option value="todos_alunos">Todos os alunos</option> <?php } ?>
 										</select> <br>
 										<div id="turmasCadastradas" style="display: none">
 											<label for="exampleInputName">Turma*</label> 
@@ -289,20 +304,10 @@ function isNotBlank(value){
 												style="width: 100%; box-sizing: border-box;" id="turma"
 												aria-describedby="nameHelp" name="turma"> 
 											<?php
-        $db0 = new db();
-        try {
-            $sql = "SELECT DISTINCT T.ID, T.NOME_TURMA FROM TURMA T JOIN TURMA_PESSOA TP ON (TP.ID_TURMA = T.ID) JOIN TURMA_MATERIA TM ON (TM.ID_TURMA = T.ID)";
-            if ($pessoa->tipo_pessoa == 1) {
-                " WHERE TM.ID_PROFESSOR = " . $pessoa->id;
-            }
-            $turmas_fetch = $db0->query($sql)->fetchAll();
+
             foreach($turmas_fetch as $turmas_fetch_single){
                 echo "<option value=\"" . $turmas_fetch_single['ID'] . "\">" . $turmas_fetch_single['NOME_TURMA'] . "</option>";
             }
-        } finally {
-            $db0->close();
-        }
-
         ?>
 										</select>
 										</div>
@@ -386,5 +391,7 @@ function isNotBlank(value){
 		<script src="js/sb-admin-datatables.min.js"></script>
 	</div>
 </body>
-
+<?php 
+$db0->close();
+?>
 </html>

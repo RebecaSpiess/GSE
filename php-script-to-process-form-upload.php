@@ -45,6 +45,16 @@ if (!$registroExistente){
     $csv_mimetypes = array('text/csv', 'text/plain', 'application/csv', 'text/comma-separated-values', 'application/excel', 'application/vnd.ms-excel', 'application/vnd.msexcel', 'text/anytext', 'application/octet-stream', 'application/txt');
     if (in_array($_FILES['csvfile']['type'], $csv_mimetypes)) {
         $filePath = "C:\Users\spies\Documents\arquivos_CSV";
+        
+        $inipath = php_ini_loaded_file();
+        $app_properties = parse_ini_file($inipath, false);
+        
+        $caminho_property = $app_properties['file.path.upload.alunos'];
+        if (isset($caminho_property) and !empty(trim($caminho_property))){
+            $filePath = $caminho_property;
+        }
+        error_log("FP:" . $filePath);
+        
         $token = date("YmdHis");
         $rawCSV = file_get_contents($_FILES['csvfile']['tmp_name']);
         $fileCSV = fopen($filePath . "/" . $token . ".csv", "w");
@@ -56,7 +66,7 @@ if (!$registroExistente){
         if ($rawCSV) {
             while (($buffer = fgetcsv($rawCSV, 4096,";")) !== false) {
                 $valorPrimeiraColuna = $buffer[0];
-                if (strtoupper(trim($valorPrimeiraColuna)) != "ID do Aluno"){
+                if (strtoupper(trim($valorPrimeiraColuna)) != "ID DO ALUNO"){
                     array_push($alunosCadastroExcel,$valorPrimeiraColuna);
                 }
             }
