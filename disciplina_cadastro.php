@@ -307,7 +307,7 @@ if (isset($_POST['disciplina']) and isset($_POST['propostaCurricular'])){
 							style="display: none; font-size: 10pt; color: red">Campo
 							obrigatório!</div>
 									<label for="exampleInputName">Proposta curricular*</label> 
-									<textarea rows="10" cols="30" style="width: 100%; max-width:100% " maxlength="250" id="propostaCurricular" name="propostaCurricular"></textarea>
+									<textarea rows="10" cols="30" style="width: 100%; max-width:100% " maxlength="10000" id="propostaCurricular" name="propostaCurricular"></textarea>
 									<div id="propostaCurricularErro"
 							style="display: none; font-size: 10pt; color: red">Campo
 							obrigatório!</div>

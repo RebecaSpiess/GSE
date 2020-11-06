@@ -415,7 +415,7 @@ if (isset($_POST['aluno']) and isset($_POST['ocorrencia']) and isset($_POST['tip
 									style="flex: none; max-width: 100%; padding: 0px;">
 									<label for="planoAula">Ocorrência*</label>
 									<textarea rows="10" cols="30"
-										style="width: 100%; max-width: 100%" maxlength="250"
+										style="width: 100%; max-width: 100%" maxlength="10000"
 										id="ocorrencia" name="ocorrencia"></textarea>
 									<div id="ocorrenciaErro"
 										style="display: none; font-size: 10pt; color: red">Campo

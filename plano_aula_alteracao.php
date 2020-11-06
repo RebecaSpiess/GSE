@@ -353,7 +353,7 @@ if ($showSuccessMessage and ! isset($showErrorMessage)) {
                                 ?> 
 									<textarea rows="10" cols="30"
 										style="align: left; width: 100%; max-width: 100%; border: 1px solid #ced4da; padding: 0px !important; margin: 0px !important; text-align: left;"
-										maxlength="9000" id="planoAula" name="planoAula"><?php echo trim($db_plano_aula_fetch[0]['DESCRICAO']);?></textarea>
+										maxlength="10000" id="planoAula" name="planoAula"><?php echo trim($db_plano_aula_fetch[0]['DESCRICAO']);?></textarea>
 									<div id="planoAulaErro"
 										style="display: none; font-size: 10pt; color: red">Campo
 										obrigatório!</div>

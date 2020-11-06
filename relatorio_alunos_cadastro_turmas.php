@@ -51,9 +51,7 @@ class relatorio_alunos_cadastro_turmas
                 $aluno_id_count = 1;
                 for ($i = 0; $i < sizeof($alunosResult); $i ++) {
                     $sheet->setCellValue('A' . ($i + 2), $alunosResult[$i]["ID"]);
-                    
-                    $spreadsheet->getActiveSheet()->getCellByColumnAndRow(1, ($i + 2))->getHyperlink()->setUrl("#'Aluno " . $alunosResult[$i]["ID"] . "'!A1");
-                    
+                                                     
                     
                     $sheet->setCellValue('B' . ($i + 2), $alunosResult[$i]["NOME"]);
                     $sheet->setCellValue('C' . ($i + 2), $alunosResult[$i]["SOBRENOME"]);

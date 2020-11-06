@@ -443,7 +443,7 @@ if (isset($_SESSION['mensagem_notas'])){
 								<br>
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
 								<label for="conteudoAvaliacao">Conteúdo*</label> 
-									<textarea rows="10" cols="30" style="width: 100%; max-width:100%;border: 1px solid #ced4da" maxlength="250" id="conteudoAvaliacao" name="conteudoAvaliacao" placeholder="Conteudo cobrado na avaliação"></textarea>
+									<textarea rows="10" cols="30" style="width: 100%; max-width:100%;border: 1px solid #ced4da" maxlength="5000" id="conteudoAvaliacao" name="conteudoAvaliacao" placeholder="Conteudo cobrado na avaliação"></textarea>
 									<div id="assuntoErro"
 						style="display: none; font-size: 10pt; color: red">Campo
 						obrigatório!</div>

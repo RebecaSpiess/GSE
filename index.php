@@ -51,6 +51,10 @@
     background: #dad7d7;
 }
 
+img {
+    height: auto;
+    width: calc(100% - 0.5px);
+}
 </style>
 
 </head>

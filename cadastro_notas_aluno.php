@@ -377,6 +377,7 @@ function getNota($nota, $idAluno, $notasMap){
         ?>
 								<input type="hidden" name="cadastro_notas" id="cadastro_notas"
 										value="false" /> <br> <br>
+		<div style="overflow-x: auto"> 
 		<table cellpadding="3" border="1">
 								<?php
         $alunoSetado = false;
@@ -406,6 +407,7 @@ function getNota($nota, $idAluno, $notasMap){
 
         ?>
 								</table>
+								</div>
 									<div id="cadastro_notasErro"
 										style="display: none; font-size: 10pt; color: red">Campo
 										obrigatório!</div>

@@ -356,7 +356,7 @@ try {
 									Necessita de atendimento educacional especializado
 								</div>	
 								<div class="card-body" style="padding-top: 0px;padding-bottom: 1.25rem;" >
-								<textarea class="form-control" id="ocorrencia" name="ocorrencia" rows="10" style="text-align: left;"></textarea>
+								<textarea class="form-control" id="ocorrencia" name="ocorrencia" rows="10" style="text-align: left;" maxlength="10000"></textarea>
 								<div id="ocorrenciaErro" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div>
 								</div>
 							</div>

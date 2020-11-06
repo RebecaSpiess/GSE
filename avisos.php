@@ -414,7 +414,7 @@ try {
 				<div class="card-body" style="margin-left: -5px; width: 100%">
 					<label for="exampleInputName" style="margin-left: 16px;">Mensagem*</label>
 					<textarea class="form-control" id="aviso" rows="3"
-						name="aviso" placeholder="descreva o aviso" maxlength="250"> </textarea>
+						name="aviso" placeholder="descreva o aviso" maxlength="10000"> </textarea>
 					<div id="avisoErro" style="display: none;font-size: 10pt; color:red">Campo obrigatório!</div><br>
 				</div>
 				</div>

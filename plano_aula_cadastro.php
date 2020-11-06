@@ -406,7 +406,7 @@ if (isset($_POST['turma']) and
 								<br>
 								<div class="col-md-6" style="flex: none;max-width: 100%; padding: 0px;">
 								<label for="planoAula">Plano de aula*</label> 
-									<textarea rows="10" cols="30" style="width: 100%; max-width:100%;border: 1px solid #ced4da" maxlength="250" id="planoAula" name="planoAula"></textarea>
+									<textarea rows="10" cols="30" style="width: 100%; max-width:100%;border: 1px solid #ced4da" maxlength="100000" id="planoAula" name="planoAula"></textarea>
 									<div id="planoAulaErro"
 											style="display: none; font-size: 10pt; color: red">Campo
 											obrigatório!</div>

@@ -64,17 +64,20 @@ class relatorio_alunos
                 $aluno_id_count = 1;
                 for ($i = 0; $i < sizeof($alunosResult); $i ++) {
                     $sheet->setCellValue('A' . ($i + 2), $alunosResult[$i]["ID"]);
-                    
-                    $spreadsheet->getActiveSheet()->getCellByColumnAndRow(1, ($i + 2))->getHyperlink()->setUrl("#'Aluno " . $alunosResult[$i]["ID"] . "'!A1");
-                    
+                    $spreadsheet->getActiveSheet()->getCellByColumnAndRow(1, ($i + 2))->getHyperlink()->setUrl("#'Aluno " . $alunosResult[$i]["ID"] . "'!A1")->setTooltip('Clique aqui para ver mais detalhes');
                     
                     $sheet->setCellValue('B' . ($i + 2), $alunosResult[$i]["NOME"]);
+                    $spreadsheet->getActiveSheet()->getCellByColumnAndRow(2, ($i + 2))->getHyperlink()->setUrl("#'Aluno " . $alunosResult[$i]["ID"] . "'!A1")->setTooltip('Clique aqui para ver mais detalhes');
+                    
                     $sheet->setCellValue('C' . ($i + 2), $alunosResult[$i]["SOBRENOME"]);
-
+                    $spreadsheet->getActiveSheet()->getCellByColumnAndRow(3, ($i + 2))->getHyperlink()->setUrl("#'Aluno " . $alunosResult[$i]["ID"] . "'!A1")->setTooltip('Clique aqui para ver mais detalhes');
+                    
                     $date = date_create($alunosResult[$i]["DATA_NASCIMENTO"]);
                     $sheet->setCellValue('D' . ($i + 2), date_format($date, 'd/m/Y'));
-
+                    $spreadsheet->getActiveSheet()->getCellByColumnAndRow(4, ($i + 2))->getHyperlink()->setUrl("#'Aluno " . $alunosResult[$i]["ID"] . "'!A1")->setTooltip('Clique aqui para ver mais detalhes');
+                    
                     $sheet->setCellValue('E' . ($i + 2), $alunosResult[$i]["SEXO"]);
+                    $spreadsheet->getActiveSheet()->getCellByColumnAndRow(5, ($i + 2))->getHyperlink()->setUrl("#'Aluno " . $alunosResult[$i]["ID"] . "'!A1")->setTooltip('Clique aqui para ver mais detalhes');
                     
                     $aluno_id_count ++;
                 }
